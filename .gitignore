@@ -220,3 +220,26 @@ Templete_UI/
 
 # KL-9.4: raw media staging, canonical copies live in Docs/img
 Media/
+
+# KL-9.7 public-surface cleanup (user-directed 2026-10-30): process/internal
+# material stays LOCAL, never re-published. Product + evidence remain.
+TASKS.md
+WHITEBOARD.md
+PLAN.md
+AGENTS.md
+CLAUDE.md
+OG_AUDIT_*.md
+Docs/OG_Audit_*.md
+Docs/Review_Log.md
+Docs/Claims_Register.md
+Docs/Decision_Log.md
+Docs/KineticSim*.md
+Docs/Locked_APP.md
+Docs/LOCKED2.pdf
+Docs/looooooooooc.md
+Docs/KineticLab_*.md
+Docs/Smoke_Test_Asset_Generation_Plan.md
+Docs/meta_ai_developer_hackathon_details.md
+Docs/Meta_Tooling_Evidence.md
+Docs/kineticlab_audit_metrology_workbench.html
+Docs/preview.webp

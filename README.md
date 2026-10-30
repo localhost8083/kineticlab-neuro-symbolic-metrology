@@ -60,6 +60,11 @@ Meta AI does the seeing and the explaining. The **measurement itself stays deter
 
 ## Quickstart
 
+```powershell
+git clone https://github.com/localhost8083/kineticlab-neuro-symbolic-metrology.git
+cd kineticlab-neuro-symbolic-metrology
+```
+
 No install. Python 3.11+:
 
 ```powershell
@@ -83,13 +88,13 @@ Live capture needs `MODEL_API_KEY` in the environment — sent only as an `Autho
 
 ## Audit trail
 
-Built in the open with a two-agent workflow (builder + independent verifier) and two external audits. The second audit's findings were verified against code and artifacts, triaged, and repaired — including executing the page's JavaScript in tests so runtime crashes of that class can't ship silently again. Full history: [`Docs/Claims_Register.md`](Docs/Claims_Register.md) (frozen claims), [`Docs/Review_Log.md`](Docs/Review_Log.md) (gate decisions), [`Docs/OG_Audit_2026-10-30.md`](Docs/OG_Audit_2026-10-30.md) (audit + repairs).
+Built in the open with a two-agent workflow (builder + independent verifier) and two external audits. The audit's findings were verified against code and artifacts, triaged, and repaired — including executing the page's JavaScript in tests so runtime crashes of that class can't ship silently again. The internal process ledgers are kept out of the public repo by design; what's here is the product and its evidence.
 
 ## Docs
 
 - [Demo runbook](Docs/Demo_Runbook.md) — reproduce every demo
 - [Reproduce the pipeline](Docs/REPRODUCE.md)
-- [Overview](Docs/OVERVIEW.md) · [Decision log](Docs/Decision_Log.md) · [Plan](PLAN.md)
+- [Overview](Docs/OVERVIEW.md)
 
 ## License
 
