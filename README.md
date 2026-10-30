@@ -49,7 +49,7 @@ Every AI demo can show a number. KineticLab is built so it **can't fake one**:
 | **Meta SAM 3.1** | Perception core: text-prompted bob/card masks per frame | Masks stored verbatim, hash-pinned, decoded by a canonical codec |
 | **Spark (advisory layer)** | Offline-cached setup-review + narrative advisories | Number-echo audit: any narrative number not exactly justified by the JSON is discarded |
 
-Meta AI does the seeing and the explaining. The **measurement itself stays deterministic** — that's the design.
+Meta AI does the seeing and the explaining. The **measurement itself stays deterministic** — that's the design. Full inventory with labeled live-run evidence: [`Docs/META_USAGE.md`](Docs/META_USAGE.md).
 
 ## Fields this touches
 
