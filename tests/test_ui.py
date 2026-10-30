@@ -314,7 +314,7 @@ class PageTests(unittest.TestCase):
     def test_tabs_keyboard_wiring(self):
         self.assertIn('role="tablist"', self.page)
         # Result tabs (Trajectory/Evidence/Provenance) plus chart
-        # tabs (Trajectory/Residuals/Motion trail/Replay), all with
+        # tabs (Trajectory/Residuals/Motion Trail/Replay), all with
         # roving arrow-key navigation.
         self.assertGreaterEqual(
             len(re.findall(r'<button[^>]*role="tab"[ >]', self.page)), 3)
@@ -429,7 +429,13 @@ class PageTests(unittest.TestCase):
                       "length was provided", self.page)
 
     def test_replay_animation_label(self):
-        self.assertIn("Replay animation", self.page)
+        # KL-10.5: the momentary "Replay animation" button became a
+        # Play/Pause toggle with a 1x tag and frame counter.
+        self.assertIn('id="replayBtn"', self.page)
+        self.assertIn(">Play<", self.page)
+        self.assertIn("1×", self.page)
+        self.assertIn('id="frameCounter"', self.page)
+        self.assertNotIn("Replay animation", self.page)
         self.assertNotIn("Replay reveal", self.page)
 
 
@@ -763,7 +769,7 @@ class WorkstationRegionTests(unittest.TestCase):
             "gravity caveat must remain visible near the cards")
 
     def test_chart_tabs(self):
-        for tab in ("Trajectory", "Residuals", "Motion trail", "Replay"):
+        for tab in ("Trajectory", "Residuals", "Motion Trail", "Replay"):
             with self.subTest(tab=tab):
                 self.assertIn(tab, self.page)
         # Tabs must be wired via data-tab or role=tab.
@@ -937,6 +943,9 @@ class FunctionalIdPreservationTests(unittest.TestCase):
         "rmsChip",
         "chartSvg", "chartMeta", "trailSvg", "trailMeta", "stripSvg",
         "scrub", "playheadReadout", "replayBtn", "chartNote", "overlayImg",
+        # Scientific Analysis card (KL-10.5)
+        "sciCard", "sciState", "periodChip", "trailWindow",
+        "frameCounter", "replayCaption", "sciDiagWrap", "sciDiagRows",
         "fitLegend",
         "warnList", "assumeList", "reasonList", "advisoryBox",
         "provRows", "artifactRows", "exportLinks", "summaryPre",
@@ -2121,6 +2130,433 @@ class NodeExecutionTests(unittest.TestCase):
                    if "Outcome" in step]
         self.assertEqual(len(outcome), 1)
         self.assertIn("incomplete", outcome[0])
+
+
+@unittest.skipUnless(shutil.which("node"),
+                     "node is required for page-execution proofs")
+class ScientificAnalysisTests(unittest.TestCase):
+    """KL-10.5: the Scientific Analysis card proven by EXECUTING the
+    shipped page script under node — real fixture payloads, DOM stub,
+    rAF stub; every number asserted comes from the payload."""
+
+    @classmethod
+    def setUpClass(cls):
+        page = (UI_DIR / "index.html").read_text(encoding="utf-8")
+        script = page.split("<script>", 1)[1].split("</script>", 1)[0]
+        assert "__KL_LIVE_AVAILABLE__" in script
+        cls.script = script.replace("__KL_LIVE_AVAILABLE__", "true")
+        asm = REPO_ROOT / "fixtures" / "assembly"
+        cls.result = json.loads(
+            (asm / "result.json").read_text(encoding="utf-8"))
+        cls.diagnostics_text = (
+            asm / "diagnostics.json").read_text(encoding="utf-8")
+        cls.angles_text = (
+            asm / "angles.csv").read_text(encoding="utf-8")
+
+    def paint_check(self, result_json, diag_text, files_extra="",
+                    preamble="", post=""):
+        return (
+            "(async () => {\n" + preamble +
+            "  const doc = await paintChart({ \"angles.csv\": \"u_csv\",\n"
+            "    \"diagnostics.json\": \"u_diag\"" + files_extra +
+            " }, " + result_json + ", null, \"demo success\");\n" +
+            post +
+            "})().catch((e) => {\n"
+            "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
+            "  process.exit(1);\n"
+            "});\n")
+
+    def fetch_map(self, diag_text=None):
+        return {"u_csv": self.angles_text,
+                "u_diag": diag_text or self.diagnostics_text}
+
+    def test_sci_idle_state_honest(self):
+        check = (
+            "(async () => {\n"
+            "  const doc = await paintChart({}, null, null,\n"
+            "    \"demo success\");\n"
+            "  const rows = document.getElementById(\"sciDiagRows\")\n"
+            "    .children.map((tr) => tr.textContent);\n"
+            "  __emit({ docNull: doc === null,\n"
+            "    chip: document.getElementById(\"sciState\").textContent,\n"
+            "    live: document.getElementById(\"sciState\").classList\n"
+            "      .contains(\"live\"),\n"
+            "    rms: document.getElementById(\"rmsChip\").textContent,\n"
+            "    period: document.getElementById(\"periodChip\")\n"
+            "      .textContent,\n"
+            "    disabled: document.getElementById(\"replayBtn\")\n"
+            "      .disabled,\n"
+            "    counter: document.getElementById(\"frameCounter\")\n"
+            "      .textContent,\n"
+            "    rows });\n"
+            "})().catch((e) => {\n"
+            "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
+            "  process.exit(1);\n"
+            "});\n")
+        out = run_page_driver(self.script, check, {})
+        self.assertTrue(out["docNull"])
+        self.assertEqual(out["chip"], "No measurement loaded")
+        self.assertFalse(out["live"])
+        self.assertEqual(out["rms"], "Not computed")
+        self.assertEqual(out["period"], "")
+        self.assertTrue(out["disabled"])
+        self.assertEqual(out["counter"], "")
+        self.assertEqual(out["rows"], ["DiagnosticsNo measurement loaded."])
+
+    def test_trajectory_tab_renders_real_series(self):
+        post = (
+            "  const kids =\n"
+            "    document.getElementById(\"chartSvg\").children;\n"
+            "  const dots = kids.filter((k) => k.tag === \"circle\").length;\n"
+            "  let fittedD = \"\";\n"
+            "  for (const k of kids)\n"
+            "    if (k.tag === \"path\") fittedD = k.attrs.d || \"\";\n"
+            "  const trailKids =\n"
+            "    document.getElementById(\"trailSvg\").children;\n"
+            "  const trailDots = trailKids.filter((k) => k.tag === \"circle\"\n"
+            "    && k.attrs.r === \"1.6\").length;\n"
+            "  let trailD = \"\";\n"
+            "  for (const k of trailKids)\n"
+            "    if (k.tag === \"path\") trailD = k.attrs.d || \"\";\n"
+            "  __emit({ dots, fittedLen: fittedD.length,\n"
+            "    fittedNaN: fittedD.includes(\"NaN\"),\n"
+            "    chip: document.getElementById(\"sciState\").textContent,\n"
+            "    live: document.getElementById(\"sciState\").classList\n"
+            "      .contains(\"live\"),\n"
+            "    period: document.getElementById(\"periodChip\").textContent,\n"
+            "    trailMeta: document.getElementById(\"trailMeta\")\n"
+            "      .textContent,\n"
+            "    trailDots, trailLen: trailD.length,\n"
+            "    trailNaN: trailD.includes(\"NaN\"),\n"
+            "    docNull: doc === null });\n")
+        out = run_page_driver(
+            self.script,
+            self.paint_check(json.dumps(self.result),
+                             self.diagnostics_text, post=post),
+            self.fetch_map())
+        # 234 measured points + finite fitted curve from the same
+        # data path as before; header chip names mode + n.
+        self.assertEqual(out["dots"], 234)
+        self.assertGreater(out["fittedLen"], 0)
+        self.assertFalse(out["fittedNaN"])
+        self.assertEqual(out["chip"], "demo success · n=234")
+        self.assertTrue(out["live"])
+        self.assertEqual(out["period"], "T = 1.147 s")
+        # Trail defaults to the 15 most recent centroids.
+        self.assertEqual(out["trailDots"], 15)
+        self.assertGreater(out["trailLen"], 0)
+        self.assertFalse(out["trailNaN"])
+        self.assertIn("showing 15 of 234", out["trailMeta"])
+        self.assertFalse(out["docNull"])
+
+    def test_residual_badge_degrees(self):
+        post = (
+            "  const chip = document.getElementById(\"rmsChip\");\n"
+            "  __emit({ text: chip.textContent, title: chip.getAttribute(\n"
+            "      \"title\"), good: chip.classList.contains(\"good\"),\n"
+            "    na: chip.classList.contains(\"na\") });\n")
+        out = run_page_driver(
+            self.script,
+            self.paint_check(json.dumps(self.result),
+                             self.diagnostics_text, post=post),
+            self.fetch_map())
+        # 0.02275752015969389 rad × 57.29577951308232 = 1.3039…°.
+        self.assertEqual(out["text"], "RMS 1.30° (pipeline)")
+        self.assertEqual(out["title"], "0.02275752015969389 rad")
+        self.assertFalse(out["good"])
+        self.assertFalse(out["na"])
+
+    def test_residual_badge_not_computed(self):
+        result = dict(self.result)
+        result["fit"] = dict(result["fit"])
+        del result["fit"]["residual_summary"]
+        post = (
+            "  const chip = document.getElementById(\"rmsChip\");\n"
+            "  __emit({ text: chip.textContent,\n"
+            "    na: chip.classList.contains(\"na\") });\n")
+        out = run_page_driver(
+            self.script,
+            self.paint_check(json.dumps(result),
+                             self.diagnostics_text, post=post),
+            self.fetch_map())
+        self.assertEqual(out["text"], "Not computed")
+        self.assertTrue(out["na"])
+
+    def test_trail_window_all_and_flags(self):
+        diag = json.loads(self.diagnostics_text)
+        diag["excluded_frames"] = [0, 5, 233]
+        post = (
+            "  const countDots = () => {\n"
+            "    const kids = document.getElementById(\"trailSvg\")\n"
+            "      .children;\n"
+            "    let dots = 0, flagged = 0, d = \"\";\n"
+            "    for (const k of kids) {\n"
+            "      if (k.tag === \"circle\" && k.attrs.r === \"1.6\") {\n"
+            "        dots++;\n"
+            "        if (k.children.length) flagged++;\n"
+            "      }\n"
+            "      if (k.tag === \"path\") d = k.attrs.d || \"\";\n"
+            "    }\n"
+            "    return { dots, flagged, len: d.length,\n"
+            "      nan: d.includes(\"NaN\") };\n"
+            "  };\n"
+            "  const win15 = countDots();\n"
+            "  document.getElementById(\"trailWindow\").value = \"all\";\n"
+            "  renderTrailWindow();\n"
+            "  const winAll = countDots();\n"
+            "  __emit({ win15, winAll,\n"
+            "    meta: document.getElementById(\"trailMeta\")\n"
+            "      .textContent });\n")
+        out = run_page_driver(
+            self.script,
+            self.paint_check(json.dumps(self.result),
+                             json.dumps(diag), post=post),
+            self.fetch_map(json.dumps(diag)))
+        # Default window: last 15 rows (219..233) — only frame 233
+        # of the excluded set falls inside and draws flagged.
+        self.assertEqual(out["win15"]["dots"], 15)
+        self.assertEqual(out["win15"]["flagged"], 1)
+        self.assertGreater(out["win15"]["len"], 0)
+        self.assertFalse(out["win15"]["nan"])
+        # Full history one click away: all 234 dots, 3 flagged.
+        self.assertEqual(out["winAll"]["dots"], 234)
+        self.assertEqual(out["winAll"]["flagged"], 3)
+        self.assertGreater(out["winAll"]["len"], 0)
+        self.assertFalse(out["winAll"]["nan"])
+        self.assertIn("showing 234 of 234", out["meta"])
+
+    def test_replay_advances_and_pauses(self):
+        preamble = (
+            "  window.matchMedia = () => ({ matches: false });\n"
+            "  let rafCb = null;\n"
+            "  globalThis.requestAnimationFrame = (cb) => {\n"
+            "    rafCb = cb; return 1;\n"
+            "  };\n")
+        post = (
+            "  const btn = () =>\n"
+            "    document.getElementById(\"replayBtn\").textContent;\n"
+            "  const scrub = () =>\n"
+            "    document.getElementById(\"scrub\").value;\n"
+            "  const counter = () =>\n"
+            "    document.getElementById(\"frameCounter\").textContent;\n"
+            "  const thetaX = () =>\n"
+            "    document.getElementById(\"thetaView\")\n"
+            "      .getAttribute(\"x1\");\n"
+            "  const trailVis = () =>\n"
+            "    document.getElementById(\"trailView\")\n"
+            "      .getAttribute(\"visibility\");\n"
+            "  const atStart = { btn: btn(), scrub: scrub(),\n"
+            "    counter: counter(), x: thetaX(), vis: trailVis() };\n"
+            "  rafCb(1000); rafCb(2000);\n"
+            "  const mid = { btn: btn(), scrub: scrub(),\n"
+            "    counter: counter(), x: thetaX(), vis: trailVis() };\n"
+            "  toggleReplay();\n"
+            "  const pausedCaption = document.getElementById(\n"
+            "    \"replayCaption\").textContent;\n"
+            "  rafCb(9000);\n"
+            "  const frozen = scrub();\n"
+            "  toggleReplay();\n"
+            "  rafCb(9500); rafCb(20000);\n"
+            "  const end = { btn: btn(), scrub: scrub(),\n"
+            "    counter: counter(),\n"
+            "    caption: document.getElementById(\"replayCaption\")\n"
+            "      .textContent,\n"
+            "    vis: trailVis(),\n"
+            "    cx: document.getElementById(\"trailView\")\n"
+            "      .getAttribute(\"cx\") };\n"
+            "  __emit({ atStart, mid, pausedCaption, frozen, end });\n")
+        out = run_page_driver(
+            self.script,
+            self.paint_check(json.dumps(self.result),
+                             self.diagnostics_text,
+                             preamble=preamble, post=post),
+            self.fetch_map())
+        # Auto-reveal starts playing from frame 0.
+        self.assertEqual(out["atStart"]["btn"], "Pause")
+        self.assertEqual(out["atStart"]["scrub"], "0")
+        self.assertEqual(out["atStart"]["counter"], "1 / 234")
+        # One synthetic second advances cursor (pts 0.0 -> 1.0 =
+        # row 27 on this VFR clip), scrub, counter, and the
+        # trajectory cursor; the trail marker hides (idx 27 sits
+        # outside the 15-frame window ending at 233).
+        self.assertEqual(out["mid"]["scrub"], "27")
+        self.assertEqual(out["mid"]["counter"], "28 / 234")
+        self.assertNotEqual(out["mid"]["x"], out["atStart"]["x"])
+        self.assertEqual(out["mid"]["vis"], "hidden")
+        # Pause freezes the cursor: a later tick changes nothing.
+        self.assertIn("Paused", out["pausedCaption"])
+        self.assertEqual(out["frozen"], "27")
+        # Resume runs to the end: last frame, visible finite trail
+        # marker, honest end caption, button back to Play.
+        self.assertEqual(out["end"]["btn"], "Play")
+        self.assertEqual(out["end"]["scrub"], "233")
+        self.assertEqual(out["end"]["counter"], "234 / 234")
+        self.assertEqual(out["end"]["caption"], "End of recording.")
+        self.assertEqual(out["end"]["vis"], "visible")
+        self.assertTrue(float(out["end"]["cx"]) ==
+                        float(out["end"]["cx"]))
+
+    def test_replay_reduced_motion_static(self):
+        post = (
+            "  const btn = document.getElementById(\"replayBtn\");\n"
+            "  toggleReplay();\n"
+            "  __emit({ scrub: document.getElementById(\"scrub\").value,\n"
+            "    counter: document.getElementById(\"frameCounter\")\n"
+            "      .textContent,\n"
+            "    disabled: btn.disabled, btn: btn.textContent,\n"
+            "    caption: document.getElementById(\"replayCaption\")\n"
+            "      .textContent });\n")
+        out = run_page_driver(
+            self.script,
+            self.paint_check(json.dumps(self.result),
+                             self.diagnostics_text, post=post),
+            self.fetch_map())
+        # The DOM stub reports reduced motion: static mid-frame
+        # (index 116 of 234), parked Play, explanatory caption;
+        # the toggle call is a no-op.
+        self.assertEqual(out["scrub"], "116")
+        self.assertEqual(out["counter"], "117 / 234")
+        self.assertTrue(out["disabled"])
+        self.assertEqual(out["btn"], "Play")
+        self.assertIn("reduced-motion", out["caption"])
+
+    def diag_rows_check(self, result_json, diag_text, files_extra="",
+                       fetch_extra=None):
+        post = (
+            "  const rows = document.getElementById(\"sciDiagRows\")\n"
+            "    .children.map((tr) => tr.textContent);\n"
+            "  __emit({ rows });\n")
+        fetch = self.fetch_map(diag_text)
+        fetch.update(fetch_extra or {})
+        return run_page_driver(
+            self.script,
+            self.paint_check(result_json, diag_text,
+                             files_extra=files_extra, post=post),
+            fetch)
+
+    def test_diagnostics_rows_demo(self):
+        out = self.diag_rows_check(json.dumps(self.result),
+                                   self.diagnostics_text)
+        text = "\n".join(out["rows"])
+        self.assertIn("included — included: converged", text)
+        self.assertIn("diagnostic only, M1 stays reported", text)
+        self.assertIn(
+            "gamma_per_s = 0.029794544246787853", text)
+        self.assertIn(
+            "M1 30.00563573707589 · M2 30.019007396425668", text)
+        self.assertIn(
+            "117/234 calibrated, 468/468 observations valid", text)
+        self.assertIn("Fit convergedyes", text)
+        self.assertIn("Terminationrefine_tolerance_met", text)
+        self.assertIn("Bound hits0", text)
+        self.assertIn("Rejected count0", text)
+        self.assertIn("Excluded frames0", text)
+        self.assertIn("85.6 × 53.98 mm (human-typed reference)", text)
+        self.assertIn("0.3286332854169991 mm/px", text)
+        self.assertIn(
+            "258.7318351096624 × 165.36871084913219 px", text)
+        self.assertIn("Model limitationnot recorded", text)
+        self.assertIn("Fit uncertainty methodnone", text)
+        self.assertIn("Optimizerseparable_omega_grid_linear_lsq_golden_refine_v1",
+                      text)
+        self.assertIn("Solverclosed_form_small_angle", text)
+        self.assertIn(
+            "Parameter g_over_l30.00563573707589 1/s^2", text)
+        self.assertIn(
+            "theta0 = 0.2050088765289343 rad · "
+            "omega0 = -1.1474172412079513 rad/s", text)
+
+    def test_diagnostics_missing_keys(self):
+        result = json.loads(json.dumps(self.result))
+        del result["quality_metrics"]
+        for key in ("rejected_count", "fit_uncertainty_method",
+                    "optimizer", "solver", "parameter_names",
+                    "initial_conditions", "g_over_l_per_s2"):
+            del result["fit"][key]
+        del result["calibration"]["reference_dimensions_mm"]
+        del result["calibration"]["scale_mm_per_px"]
+        del result["calibration"]["observed_oriented_dimensions_px"]
+        diag = json.loads(self.diagnostics_text)
+        del diag["m2"]
+        del diag["m1"]["termination_reason"]
+        del diag["m1"]["bound_hits"]
+        del diag["excluded_frames"]
+        out = self.diag_rows_check(json.dumps(result),
+                                   json.dumps(diag))
+        for label in ("M2 cross-check", "M2 fitted",
+                      "Frame quality", "Termination", "Bound hits",
+                      "Rejected count", "Excluded frames",
+                      "Fit uncertainty method", "Optimizer",
+                      "Solver", "Parameters", "Initial conditions",
+                      "Model limitation"):
+            with self.subTest(label=label):
+                found = [line for line in out["rows"]
+                         if line.startswith(label)]
+                self.assertEqual(len(found), 1, out["rows"])
+                self.assertIn("not recorded", found[0])
+        scale = [line for line in out["rows"]
+                 if line.startswith("Scale chain")][0]
+        self.assertIn("reference not supplied", scale)
+        self.assertIn("not recorded", scale)
+        cross = [line for line in out["rows"]
+                 if line.startswith("g/L cross-check")][0]
+        self.assertIn("M1 not recorded · M2 not recorded", cross)
+
+    def test_diagnostics_sidecars(self):
+        geo_list = {"model_limitations":
+                    ["M-3e hollow-ball note", "Arc-fit radius note"]}
+        geo_str = {"model_limitations": "M-3e single-string note"}
+        calib = {"reference_dimensions_mm":
+                 {"width_mm": 85.0, "height_mm": 55.0},
+                 "scale_mm_per_px": 0.5,
+                 "observed_oriented_dimensions_px":
+                 {"long_side_px": 100.0, "short_side_px": 200.0}}
+        check = (
+            "(async () => {\n"
+            "  paintSciDiagnostics({ result: "
+            + json.dumps(self.result) + ",\n"
+            "    report: null,\n"
+            "    diagnosticsDoc: JSON.parse("
+            + json.dumps(self.diagnostics_text) + "),\n"
+            "    geoDoc: " + json.dumps(geo_list) + ",\n"
+            "    calibDoc: " + json.dumps(calib) + " });\n"
+            "  const listed = document.getElementById(\"sciDiagRows\")\n"
+            "    .children.map((tr) => tr.textContent);\n"
+            "  paintSciDiagnostics({ result: "
+            + json.dumps(self.result) + ",\n"
+            "    report: null,\n"
+            "    diagnosticsDoc: JSON.parse("
+            + json.dumps(self.diagnostics_text) + "),\n"
+            "    geoDoc: " + json.dumps(geo_str) + ",\n"
+            "    calibDoc: null });\n"
+            "  const single = document.getElementById(\"sciDiagRows\")\n"
+            "    .children.map((tr) => tr.textContent);\n"
+            "  __emit({ listed, single });\n"
+            "})().catch((e) => {\n"
+            "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
+            "  process.exit(1);\n"
+            "});\n")
+        out = run_page_driver(self.script, check, {})
+        listed = "\n".join(out["listed"])
+        # List form: one verbatim row per entry.
+        self.assertIn("Model limitation 1M-3e hollow-ball note",
+                      listed)
+        self.assertIn("Model limitation 2Arc-fit radius note",
+                      listed)
+        # The linked calibration sidecar wins over the embedded one.
+        # (JS String(85.0) renders "85" — the page shows payload
+        # values verbatim.)
+        self.assertIn("85 × 55 mm (human-typed reference)",
+                      listed)
+        self.assertIn("0.5 mm/px", listed)
+        self.assertIn("100 × 200 px", listed)
+        single = "\n".join(out["single"])
+        # String form: one verbatim row.
+        self.assertIn("Model limitationM-3e single-string note",
+                      single)
+        # Without a sidecar the embedded calibration applies.
+        self.assertIn("85.6 × 53.98 mm (human-typed reference)",
+                      single)
 
 
 if __name__ == "__main__":
