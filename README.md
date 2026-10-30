@@ -63,11 +63,7 @@ Meta AI does the seeing and the explaining. The **measurement itself stays deter
 ```powershell
 git clone https://github.com/localhost8083/kineticlab-neuro-symbolic-metrology.git
 cd kineticlab-neuro-symbolic-metrology
-```
 
-No install. Python 3.11+:
-
-```powershell
 python --version
 python -m kineticlab --help
 python scripts/media_check.py
