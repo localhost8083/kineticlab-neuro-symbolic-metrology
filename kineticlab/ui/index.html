@@ -1,0 +1,3262 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KineticLab — Pendulum Analysis</title>
+<style>
+/* KL-8.8 workstation theme. Dark is the default (:root); light swaps
+   the same tokens. Every surface, border, chart grid, and state
+   derives from these custom properties — no hardcoded theme colors. */
+:root{
+  color-scheme:dark;
+  --bg:#0B1120;--surface:#111C2E;--surface-2:#17243A;--surface-3:#1d2c44;
+  --text:#F1F5F9;--muted:#94A3B8;--border:#26354B;
+  --blue:#4F7DFF;--blue-2:#7294ff;--violet:#8B6BFF;
+  --green:#34D399;--amber:#FBBF24;--red:#FB7185;
+  --shadow:0 10px 30px rgba(0,0,0,.18);--grid:#26354B;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+html[data-theme="light"]{
+  color-scheme:light;
+  --bg:#F6F8FC;--surface:#FFFFFF;--surface-2:#f1f5fb;--surface-3:#eaf0fa;
+  --text:#17243A;--muted:#64748B;--border:#E2E8F0;
+  --blue:#3468F5;--blue-2:#2454dc;--violet:#7957F5;
+  --green:#10B981;--amber:#F59E0B;--red:#EF4444;
+  --shadow:0 8px 28px rgba(26,47,84,.055);--grid:#e7edf6;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 var(--sans);transition:background .22s,color .22s}
+button,input{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,a:focus-visible,[role="tab"]:focus-visible,[role="button"]:focus-visible,summary:focus-visible{outline:3px solid var(--blue-2);outline-offset:2px;border-radius:6px}
+button:disabled{opacity:.48;cursor:not-allowed}
+.app{min-height:100vh;display:grid;grid-template-rows:66px minmax(0,1fr) 34px}
+/* ---- header ---- */
+.topbar{height:66px;display:flex;align-items:center;gap:12px;padding:0 24px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:10;transition:background .22s,border-color .22s}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.brand-mark{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--blue),var(--violet));display:grid;place-items:center;color:#fff;flex:none}
+.brand-mark svg{width:23px}
+.brand-name{font-weight:780;font-size:20px;letter-spacing:-.55px;white-space:nowrap}
+.brand-sub{font-size:12px;color:var(--muted);margin-left:5px;white-space:nowrap}
+.top-spacer{flex:1}
+.pill{display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border:1px solid var(--border);border-radius:999px;color:var(--muted);font-size:11px;white-space:nowrap}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px color-mix(in srgb,var(--green) 12%,transparent)}
+.dot.off{background:var(--red);box-shadow:0 0 0 3px color-mix(in srgb,var(--red) 12%,transparent)}
+.icon-btn{min-width:40px;height:40px;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:11px;display:inline-grid;place-items:center;transition:background .18s;font-size:12px;font-weight:700;padding:0 12px}
+.icon-btn:hover{background:var(--surface-2)}
+/* ---- shell + sidebar ---- */
+.shell{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:0}
+.sidebar{border-right:1px solid var(--border);background:var(--surface);padding:18px 13px;display:flex;flex-direction:column;gap:5px;transition:background .22s;max-height:calc(100vh - 100px);overflow-y:auto;position:sticky;top:66px}
+.nav-btn{display:flex;align-items:center;gap:12px;width:100%;border:0;background:transparent;color:var(--muted);padding:11px 13px;border-radius:11px;text-align:left;font-weight:600;transition:background .18s,color .18s}
+.nav-btn:hover{background:var(--surface-2);color:var(--text)}
+.nav-btn.active{background:linear-gradient(110deg,var(--blue),var(--blue-2));color:#fff}
+.nav-icon{width:19px;text-align:center;font-size:17px;flex:none}
+.trust-card{margin-top:auto;border:1px solid var(--border);background:linear-gradient(145deg,var(--surface),var(--surface-2));border-radius:14px;padding:14px}
+.trust-card strong{display:block;font-size:12px;margin:0 0 7px}
+.trust-card p{font-size:11px;color:var(--muted);margin:0}
+.demo-card{border:1px solid var(--border);border-radius:14px;padding:11px 13px;margin-top:9px}
+.demo-card h2{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:0 0 8px}
+.chainpanel{padding:8px 0;border-top:1px solid var(--border)}
+.chainpanel:first-of-type{border-top:0}
+.chainpanel h3{font-size:12px;margin:0 0 2px}
+.chainpanel p{font-size:12px;color:var(--muted);margin:0 0 8px}
+details.demo-card summary{cursor:pointer;font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:750;list-style-position:inside;padding:2px 0}
+details.demo-card summary::-webkit-details-marker{color:var(--muted)}
+/* ---- main + stepper ---- */
+.main{padding:20px 28px 24px;min-width:0;max-width:1920px;width:100%;margin:0 auto}
+.stepper{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));column-gap:16px;background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:15px;padding:15px 18px;margin-bottom:18px}
+.step{position:relative;display:grid;grid-template-columns:30px minmax(0,1fr);gap:9px;align-items:start;min-width:0}
+.step:not(:last-child):after{content:"";position:absolute;top:14px;left:calc(100% + 3px);right:-13px;height:2px;background:var(--border)}
+.step.done:not(:last-child):after{background:var(--blue)}
+.step.failed:not(:last-child):after{background:var(--red)}
+.step-number{position:relative;z-index:1;width:29px;height:29px;border-radius:50%;display:grid;place-items:center;background:var(--surface-3);color:var(--muted);font-weight:700;font-size:12px;border:1px solid var(--border);transition:background .22s,border-color .22s,color .22s,box-shadow .22s}
+.step.processing .step-number{background:var(--blue);color:#fff;border-color:var(--blue);animation:pulse-ring 1.4s ease-in-out infinite}
+@keyframes pulse-ring{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--blue) 45%,transparent)}50%{box-shadow:0 0 0 7px transparent}}
+.step.failed .step-title{color:var(--red)}
+.step.active .step-number{background:var(--blue);color:#fff;border-color:var(--blue)}
+.step.done .step-number{background:var(--blue);color:#fff;border-color:var(--blue)}
+.step.failed .step-number{background:var(--red);color:#fff;border-color:var(--red)}
+.step-title{font-size:13px;font-weight:750;margin:2px 0 3px}
+.step-desc{font-size:12px;color:var(--muted)}
+.pipeline-strip{background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:15px;padding:11px 16px;margin-bottom:18px}
+.pipeline-strip .explainer{font-size:13px;font-weight:600;margin:0 0 6px}
+.pipeline{display:flex;flex-wrap:wrap;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.pstage{flex:1 1 0;min-width:200px;padding:8px 14px;font-size:12px;font-weight:600}
+.pstage + .pstage{border-left:1px solid var(--border)}
+.pstage .tag{display:block;font-family:var(--mono);font-size:11px;font-weight:400;color:var(--muted);margin-top:2px}
+/* ---- workspace grid + panels ---- */
+.workspace{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr) minmax(300px,1fr);gap:16px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);min-width:0;overflow:hidden;transition:background .22s,border-color .22s,box-shadow .22s}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.panel-title{font-weight:750;font-size:13px;letter-spacing:-.15px}
+.subtle{color:var(--muted);font-size:12px}
+.sub{color:var(--muted);font-size:12px;line-height:1.55}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border-radius:8px;background:var(--surface-2);color:var(--muted);font-size:11px;font-weight:650;white-space:nowrap}
+.tag.blue{color:var(--blue);background:color-mix(in srgb,var(--blue) 10%,var(--surface))}
+.tag.green{color:var(--green);background:color-mix(in srgb,var(--green) 11%,var(--surface))}
+.tag.violet{color:var(--violet);background:color-mix(in srgb,var(--violet) 11%,var(--surface))}
+.tag.red{color:var(--red);background:color-mix(in srgb,var(--red) 11%,var(--surface))}
+code.tag{font-family:var(--mono);font-size:11px;background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:0 5px}
+code.tag.muted{color:var(--muted)}
+.mono{font-family:var(--mono);overflow-wrap:anywhere}
+.hidden{display:none!important}
+/* ---- buttons ---- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);padding:9px 14px;border-radius:9px;font-size:12px;font-weight:700;min-height:40px;transition:transform .16s,background .16s,border-color .16s,box-shadow .16s;white-space:nowrap}
+.btn:hover:not(:disabled){transform:translateY(-1px);background:var(--surface-2)}
+.btn:active:not(:disabled){transform:translateY(0) scale(.985)}
+.btn.primary{background:linear-gradient(105deg,var(--blue),var(--blue-2));border-color:transparent;color:#fff}
+.btn.danger-ghost{color:var(--red)}
+.btn.full{width:100%;margin-top:9px}
+.btn.small{padding:6px 11px;font-size:12px;min-height:36px}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+button.copybtn{font-size:12px;font-weight:600;padding:2px 9px;margin-left:8px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text)}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 700ms linear infinite;vertical-align:-3px}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* ---- viewer ---- */
+.viewer-wrap{padding:12px}
+.video-stage{position:relative;aspect-ratio:16/9;min-height:240px;background:#05080e;border-radius:10px;overflow:hidden;display:grid;place-items:center;color:#fff;border:1px dashed transparent}
+/* KL-8.11 G8 feedback: the viewer column stretches to the row height instead of leaving dead space under shorter columns; the video stage absorbs it. */
+.workspace>.panel:first-child{align-self:stretch;display:flex;flex-direction:column}
+.workspace>.panel:first-child .viewer-wrap{flex:1;display:flex;flex-direction:column;min-height:0}
+.workspace>.panel:first-child .video-stage{flex:1}
+.video-stage.dragover{border-color:var(--blue);background:color-mix(in srgb,var(--blue) 8%,#05080e)}
+.video-stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
+.video-stage svg.stage-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.stage-empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:#c8d4e4;font-size:13px;padding:20px}
+.stage-empty strong{display:block;color:#fff;font-size:14px;margin-bottom:4px}
+.frame-chip{position:absolute;right:12px;top:12px;background:#0b1220d9;color:#fff;padding:7px 9px;border-radius:8px;font-size:12px;line-height:1.5;text-align:right}
+.video-controls{position:absolute;bottom:0;left:0;right:0;padding:12px;display:flex;align-items:center;gap:11px;background:linear-gradient(transparent,#08101def);color:#fff}
+.play-btn{border:0;border-radius:50%;width:42px;height:42px;background:#ffffff25;color:#fff;font-size:15px;flex:none}
+.time{font-size:12px;white-space:nowrap;font-family:var(--mono)}
+.seek{flex:1;accent-color:#6b8cff;min-width:35px}
+.speed-btn{border:1px solid #ffffff32;background:#ffffff12;color:#fff;border-radius:8px;padding:7px 10px;font-size:12px;white-space:nowrap;min-height:36px}
+.view-toggle{display:flex;gap:4px}
+.view-toggle .speed-btn[aria-pressed="true"]{background:#ffffff30;border-color:#ffffff60}
+.filmstrip{display:flex;gap:5px;align-items:stretch;margin-top:10px;overflow-x:auto;padding-bottom:2px}
+.thumb{flex:1 0 auto;min-width:64px;min-height:40px;border:1px solid var(--border);border-radius:5px;background:var(--surface-2);color:var(--muted);font-family:var(--mono);font-size:12px;padding:8px 4px;text-align:center}
+.thumb.active{outline:2px solid var(--blue);outline-offset:-2px;color:var(--text)}
+.thumb:disabled{opacity:.5;cursor:default}
+.filechip{display:inline-block;font-family:var(--mono);font-size:12px;color:var(--text);background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;margin-top:8px;overflow-wrap:anywhere}
+details.acc{border:1px solid var(--border);border-radius:10px;margin:8px 0;background:var(--surface)}
+details.acc summary{cursor:pointer;padding:9px 14px;font-size:12px;font-weight:650;list-style-position:inside}
+details.acc .accbody{padding:0 14px 12px}
+details.uploadwrap{border:0;margin:10px 0 0;background:transparent}
+details.uploadwrap summary{font-size:12px;font-weight:700;cursor:pointer}
+/* ---- live flow blocks ---- */
+.liveblock{padding:12px 15px;border-top:1px solid var(--border)}
+.liveblock:first-child{border-top:0}
+.liveblock h3{font-size:12px;margin:0 0 8px;font-weight:750}
+.moderow{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}
+.moderow label{display:flex;gap:8px;align-items:center;cursor:pointer;border:1px solid var(--border);border-radius:9px;padding:8px 10px;font-size:12px;font-weight:700;flex:1;justify-content:center}
+.moderow input[type="radio"]{accent-color:var(--blue)}
+.moderow label:has(input:checked){background:var(--blue);border-color:var(--blue);color:#fff}
+.fieldgrid{display:grid;gap:10px;margin:0 0 10px}
+.fieldgrid label{display:grid;gap:6px;font-size:12px;color:var(--muted)}
+.fieldgrid input[type="text"]{font-size:13px;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:9px 12px;width:100%}
+.object-row{display:flex;align-items:center;gap:9px;padding:10px 0;border-bottom:1px solid var(--border);font-size:12px}
+.object-row:last-of-type{border-bottom:0}
+.object-dot{width:10px;height:10px;border-radius:50%;flex:none}
+.object-name{font-weight:700;font-size:12px}
+.object-detail{font-size:12px;color:var(--muted);margin-top:2px}
+.row-spacer{flex:1}
+.check{color:var(--green);font-size:16px}
+.section-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:750;margin:12px 0 6px}
+.source-row{display:flex;align-items:center;gap:10px}
+.source-icon{width:31px;height:31px;border-radius:9px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--blue),var(--violet));font-size:14px;font-weight:800;flex:none}
+.source-name{font-size:12px;font-weight:750}
+.confirm-status{display:flex;align-items:center;gap:8px;font-weight:700;font-size:12px;margin:9px 0 4px}
+.confirm-status.ok{color:var(--green)}
+.confirm-status.idle{color:var(--muted)}
+.notice{border:1px solid color-mix(in srgb,var(--amber) 40%,var(--border));border-radius:10px;background:color-mix(in srgb,var(--amber) 8%,var(--surface));padding:10px 12px;font-size:12px;margin:10px 0}
+.notice strong{color:var(--amber)}
+.errorbox{border:1px solid color-mix(in srgb,var(--red) 45%,var(--border));border-radius:10px;background:color-mix(in srgb,var(--red) 8%,var(--surface));padding:10px 12px;font-size:12px;margin:10px 0}
+.errorbox strong{display:block;margin-bottom:4px}
+.errorbox details{margin-top:8px}
+.errorbox summary{cursor:pointer;font-size:11px;color:var(--muted)}
+.errorbox .rawDetail{font-family:var(--mono);font-size:11px;white-space:pre-wrap;word-break:break-word;margin-top:6px}
+.stateline{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:8px;overflow-wrap:anywhere}
+/* ---- right column: status, metrics, provenance ---- */
+.right-column{display:flex;flex-direction:column;gap:16px;min-width:0}
+.status-ring{display:flex;align-items:center;gap:12px;padding:4px 15px 10px}
+.status-ring svg{flex:none}
+.status-title{font-weight:750;font-size:13px}
+.fact-list{padding:0 15px 12px}
+.fact-row{display:flex;align-items:center;gap:8px;padding:7px 0;font-size:12px;border-bottom:1px solid var(--border)}
+.fact-row:last-child{border-bottom:0}
+.fact-row .k{color:var(--muted)}
+.fact-row .v{margin-left:auto;font-family:var(--mono);font-size:12px;text-align:right;overflow-wrap:anywhere}
+.result-list{padding:4px 15px 10px}
+.metric{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 8px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--border)}
+.metric:last-child{border-bottom:0}
+.metric-name{font-size:12px;font-weight:600}
+.metric-value{font-family:var(--mono);font-weight:750;font-size:13px;text-align:right;white-space:nowrap}
+.metric-value small{font-size:11px;color:var(--muted);font-weight:500}
+.metric-value.na{color:var(--muted);font-weight:500}
+.metric-why{grid-column:1/-1;font-size:12px;color:var(--muted);line-height:1.55}
+.info-box{margin:0 13px 13px;padding:11px;border:1px solid color-mix(in srgb,var(--blue) 22%,var(--border));background:color-mix(in srgb,var(--blue) 5%,var(--surface));border-radius:10px;display:flex;gap:9px}
+.info-symbol{color:var(--blue);font-size:15px;font-weight:800}
+.info-box strong{font-size:11px}
+.info-box p{font-size:10px;color:var(--muted);margin:3px 0 0}
+.prov-list{padding:4px 15px 12px}
+.prov-row{display:flex;align-items:center;gap:8px;padding:7px 0;font-size:12px;color:var(--muted);border-bottom:1px solid var(--border)}
+.prov-row:last-child{border-bottom:0}
+.prov-row .hash{margin-left:auto;color:var(--text);font-family:var(--mono);font-size:11px;text-align:right}
+.prov-row .st{flex:none}
+/* ---- verdict + results ---- */
+.verdict{border-radius:10px;padding:12px 18px;font-weight:650;font-size:17px;margin:12px 15px;border:1px solid var(--border)}
+.verdict small{display:block;font-weight:400;font-size:13px;margin-top:2px;opacity:.9}
+.verdict.ok{background:color-mix(in srgb,var(--green) 10%,var(--surface));border-color:color-mix(in srgb,var(--green) 45%,var(--border));color:var(--green)}
+.verdict.bad{background:color-mix(in srgb,var(--red) 10%,var(--surface));border-color:color-mix(in srgb,var(--red) 45%,var(--border));color:var(--red)}
+.verdict.warn{background:color-mix(in srgb,var(--amber) 10%,var(--surface));border-color:color-mix(in srgb,var(--amber) 55%,var(--border));color:var(--amber)}
+.verdict .countbadge{display:inline-block;font-size:12px;font-weight:600;font-family:var(--mono);border:1px solid currentColor;border-radius:999px;padding:0 9px;margin-left:10px;vertical-align:2px}
+.stepper-list{list-style:none;margin:0 15px 4px;padding:0;display:flex;flex-wrap:wrap}
+.stepper-list li{flex:1 1 0;min-width:150px;font-size:12px;color:var(--muted);padding:8px 10px 8px 30px;position:relative;border-top:2px solid var(--border)}
+.stepper-list li::before{content:"";position:absolute;left:8px;top:6px;width:12px;height:12px;border-radius:50%;border:2px solid var(--border);background:var(--surface)}
+.stepper-list li .t{font-weight:650;color:var(--text);display:block}
+.stepper-list li.complete{border-top-color:var(--green)}
+.stepper-list li.complete::before{border-color:var(--green);background:var(--green)}
+.stepper-list li.failed{border-top-color:var(--red)}
+.stepper-list li.failed::before{border-color:var(--red);background:var(--red)}
+.tabs{display:flex;gap:5px;padding:10px 15px 8px;overflow:auto;border-bottom:1px solid var(--border)}
+.tab{border:0;background:transparent;color:var(--muted);font-size:12px;font-weight:700;padding:7px 12px;border-radius:8px;white-space:nowrap}
+.tab:hover{background:var(--surface-2);color:var(--text)}
+.tab[aria-selected="true"]{background:color-mix(in srgb,var(--blue) 10%,var(--surface));color:var(--blue);box-shadow:inset 0 -2px var(--blue)}
+[role="tabpanel"]{animation:fadein 180ms ease}
+@keyframes fadein{from{opacity:.25}to{opacity:1}}
+.chart-tabs{display:flex;gap:5px;padding:11px 0 9px;overflow:auto}
+.chart-wrap{background:var(--surface-2);border:1px solid var(--border);border-radius:11px;padding:12px;min-width:0}
+.chart-wrap svg.plot{width:100%;height:auto;display:block}
+/* Bounded visualization heights: the SVGs keep their aspect ratio
+   (meet-fit letterboxes) but never stretch the page on wide screens. */
+#chartSvg.plot{max-height:600px;max-width:1150px;margin:0 auto}
+#stripSvg.plot{max-height:600px;max-width:1150px;margin:0 auto}
+#trailSvg.plot{max-height:600px;max-width:1150px;margin:0 auto}
+#advDiag img.overlay{max-height:320px;object-fit:contain}
+.chart-meta{display:flex;gap:18px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted);padding:8px 6px 4px}
+.chart-meta .mono{color:var(--text)}
+.legend{display:inline-flex;align-items:center;gap:6px}
+.legend .swatch{width:22px;height:0;border-top:2px solid var(--blue)}
+.legend .swatch.fit{border-top:2px dashed var(--violet)}
+.rms-chip{font-family:var(--mono);font-size:11px;color:var(--green);border:1px solid color-mix(in srgb,var(--green) 45%,var(--border));border-radius:999px;padding:2px 10px}
+input[type="range"].scrub{width:100%;accent-color:var(--blue);margin:6px 0 2px}
+.scrubrow{display:flex;gap:12px;align-items:center;font-size:12px;color:var(--muted);padding:8px 6px 2px;flex-wrap:wrap}
+.tabpanel-pad{padding:4px 15px 12px}
+table.kv{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
+table.kv th,table.kv td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+table.kv th{width:190px;color:var(--muted);font-weight:600}
+table.kv td.mono{font-family:var(--mono);font-size:12px}
+ul.tight{margin:6px 0;padding-left:20px;font-size:13px}
+ul.tight li{margin-bottom:5px}
+pre.summary{background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-size:12px;line-height:1.6;overflow:auto;max-height:440px;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
+.exports{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;padding:4px 0}
+/* Surfaced Reports block: the same export links as the accordion,
+   highlighted at the top of the results. Elevated surface + bold
+   heading carry the emphasis; no accent border needed. */
+.reports-card{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:0 15px 12px}
+.reports-head{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}
+.reports-head strong{font-size:13px}
+.reports-row{display:inline-flex;align-items:center;gap:2px}
+.exports a{color:var(--blue)}
+img.overlay{width:100%;height:auto;border:1px solid var(--border);border-radius:10px;background:#fff}
+h3.sub{font-size:12px;margin:16px 0 6px;color:var(--muted);font-weight:650;letter-spacing:.05em;text-transform:uppercase}
+h3.sub:first-child{margin-top:0}
+.empty{text-align:center;padding:28px 20px;color:var(--muted)}
+.empty strong{display:block;color:var(--text);font-size:16px;margin-bottom:6px}
+/* ---- footer / toast / modal / skeleton ---- */
+.footer{display:flex;align-items:center;justify-content:space-between;padding:0 22px;border-top:1px solid var(--border);background:var(--surface);font-size:12px;color:var(--muted)}
+.footer strong{color:var(--text)}
+.toast-wrap{position:fixed;right:22px;bottom:50px;z-index:50;display:flex;flex-direction:column;gap:8px;max-width:340px}
+.toast{padding:12px 15px;border:1px solid var(--border);border-radius:12px;background:var(--surface);box-shadow:var(--shadow);opacity:0;transform:translateY(10px);transition:opacity .22s,transform .22s}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast strong{display:block;margin-bottom:2px;font-size:12px}
+.toast span{font-size:12px;color:var(--muted)}
+.toast.ok{border-color:color-mix(in srgb,var(--green) 45%,var(--border))}
+.toast.warn{border-color:color-mix(in srgb,var(--amber) 45%,var(--border))}
+.toast.bad{border-color:color-mix(in srgb,var(--red) 45%,var(--border))}
+.toast .toast-x{float:right;border:0;background:transparent;color:var(--muted);font-size:14px;padding:0 0 4px 8px}
+.opsbar{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:13px;padding:11px 18px;margin-bottom:18px;flex-wrap:wrap}
+.ops-state{display:inline-flex;align-items:center;gap:8px;font-weight:750;font-size:13px;white-space:nowrap}
+.ops-dot{width:10px;height:10px;border-radius:50%;background:var(--muted);flex:none}
+.ops-state[data-state="Detecting"] .ops-dot,.ops-state[data-state="Measuring"] .ops-dot{background:var(--blue);animation:pulse-ring 1.4s ease-in-out infinite}
+.ops-state[data-state="Awaiting confirmation"] .ops-dot{background:var(--amber)}
+.ops-state[data-state="Complete"] .ops-dot{background:var(--green)}
+.ops-state[data-state="Failed"] .ops-dot{background:var(--red)}
+/* Bar-level state treatment, keyed on the same data-state the chip
+   carries (mirrored onto #opsBar by setAppStatus): a 3px leading
+   border + subtle tint from the same theme tokens, so both themes
+   read correctly. Never color-only — the text chip names the state. */
+.opsbar{border-left:3px solid var(--border);transition:background-color .2s,border-color .2s}
+#opsBar[data-state="Detecting"],#opsBar[data-state="Measuring"]{border-left-color:var(--blue);background:color-mix(in srgb,var(--blue) 7%,var(--surface))}
+#opsBar[data-state="Awaiting confirmation"]{border-left-color:var(--amber);background:color-mix(in srgb,var(--amber) 8%,var(--surface))}
+#opsBar[data-state="Complete"]{border-left-color:var(--green);background:color-mix(in srgb,var(--green) 7%,var(--surface))}
+#opsBar[data-state="Failed"]{border-left-color:var(--red);background:color-mix(in srgb,var(--red) 8%,var(--surface))}
+.ops-activity{font-size:12px;color:var(--muted);min-width:0;flex:1 1 220px}
+.ops-activity strong{display:block;color:var(--text);font-size:12px;font-weight:650}
+.ops-elapsed{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap}
+.opsbar .progress-track{flex:1 1 160px;margin:0;min-width:120px}
+.ops-last{flex-basis:100%;font-size:12px;color:var(--muted);font-family:var(--mono);overflow-wrap:anywhere}
+.progress-track{height:8px;border-radius:99px;background:var(--surface-3);overflow:hidden;margin:14px 0 7px;position:relative}
+.progress-track::after{content:"";position:absolute;top:0;bottom:0;left:0;width:28%;border-radius:inherit;background:linear-gradient(90deg,var(--blue),var(--violet));animation:indeterminate 1.2s linear infinite}
+@keyframes indeterminate{from{transform:translateX(-120%)}to{transform:translateX(420%)}}
+.progress-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);font-family:var(--mono)}
+.skeleton{position:relative;overflow:hidden;background:var(--surface-2);border-radius:8px;min-height:18px}
+.skeleton::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 20%,color-mix(in srgb,var(--blue) 12%,transparent) 50%,transparent 80%);animation:shimmer 1.4s linear infinite}
+@keyframes shimmer{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+/* Deliberate upload state: the viewer is a drop panel until a clip stages. */
+#playerWrap{position:absolute;inset:0}
+.upload-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:24px;color:#c8d4e4}
+.upload-empty .drop-icon{width:52px;height:52px;border-radius:16px;border:2px dashed #4d5f7c;display:grid;place-items:center;font-size:24px;color:#8fa2c0}
+.video-stage.dragover .drop-icon{border-color:var(--blue);color:#fff}
+.upload-empty strong{color:#fff;font-size:15px}
+.upload-empty .format-list{list-style:none;margin:2px 0 0;padding:0;font-size:12px;color:#8fa2c0;line-height:1.7}
+.upload-empty .btnrow{justify-content:center}
+.upload-empty .empty-error{color:#fda4b5;font-size:12px;max-width:44ch}
+/* Polished chart/result empty states: words only, never sample data. */
+.chart-empty{border:1px dashed var(--border);border-radius:10px;padding:22px 18px;text-align:center;color:var(--muted)}
+.chart-empty .empty-icon{font-size:22px;display:block;margin-bottom:6px;color:var(--muted)}
+.chart-empty strong{display:block;color:var(--text);font-size:14px;margin-bottom:4px}
+.chart-empty p{font-size:12px;margin:0 auto;max-width:52ch}
+.idle-compact{display:flex;align-items:center;gap:12px;padding:14px 18px;color:var(--muted);font-size:13px}
+#chartsPanel{margin-top:18px}
+.idle-compact .idle-dot{width:10px;height:10px;border-radius:50%;background:var(--muted);flex:none}
+.idle-compact strong{color:var(--text);font-weight:650}
+.idle-compact .btn{margin-left:auto;flex:none}
+#statusArc{transition:stroke .22s,stroke-dashoffset .3s}
+/* ---- responsive ---- */
+@media(min-width:1500px){.main{padding:22px 30px}.workspace{grid-template-columns:minmax(0,1.55fr) minmax(300px,1fr) minmax(320px,1fr);gap:16px}}
+@media(max-width:1180px){.shell{grid-template-columns:75px minmax(0,1fr)}.sidebar{padding:14px 9px}.sidebar .nav-label,.sidebar .trust-card,.sidebar .demo-card{display:none}.nav-btn{justify-content:center;padding:12px 5px}.brand-sub{display:none}.workspace{grid-template-columns:minmax(0,1.4fr) minmax(260px,1fr)}.right-column{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:12px}}
+@media(max-width:760px){.app{grid-template-rows:60px minmax(0,1fr) 34px}.topbar{height:60px;padding:0 12px;gap:10px}.brand-name{font-size:17px}.topbar .pill{display:none}.shell{grid-template-columns:1fr}.sidebar{display:flex;flex-direction:row;border-right:0;border-bottom:1px solid var(--border);padding:7px;overflow:auto;max-height:none;position:static;align-items:center}.nav-btn{min-width:44px;width:auto;padding:9px 12px;flex:none}.nav-btn .nav-label{display:inline;font-size:12px}.sidebar .demo-card{display:block;margin-top:0;flex:none}.sidebar .demo-card .chainpanel p{display:none}.main{padding:12px}.stepper{padding:12px 9px;overflow:auto;grid-template-columns:repeat(5,minmax(104px,1fr))}.step-desc{display:none}.workspace{grid-template-columns:1fr}.right-column{grid-column:auto;display:flex;flex-direction:column}.footer{padding:0 12px}.footer .footer-host{display:none}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}.spinner{animation:none;border-top-color:var(--border)}[role="tabpanel"]{animation:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M2 13h4l3-8 5 14 3-8h5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="brand-name">KineticLab</div>
+    <span class="brand-sub">Auditable pendulum physics from a phone video</span>
+  </div>
+  <div class="top-spacer"></div>
+  <span class="pill" id="serverPill"><span class="dot" id="serverDot"></span><span id="serverPillText">Local server</span></span>
+  <span class="pill">Offline Build</span>
+  <span class="pill" id="versionChip">v__KL_VERSION__</span>
+  <button class="icon-btn" id="themeToggle" type="button" aria-label="Toggle theme">Light mode</button>
+</header>
+<div class="shell">
+  <aside class="sidebar" aria-label="Primary navigation">
+    <button class="nav-btn active" type="button" data-nav="analysis" id="navAnalysis" title="New Analysis"><span class="nav-icon" aria-hidden="true">◈</span><span class="nav-label">New Analysis</span></button>
+    <button class="nav-btn" type="button" data-nav="charts" id="navCharts" title="Charts"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-label">Charts</span></button>
+    <button class="nav-btn" type="button" data-nav="evidence" id="navEvidence" title="Evidence"><span class="nav-icon" aria-hidden="true">▤</span><span class="nav-label">Evidence</span></button>
+    <details class="demo-card" open aria-label="Demo scenarios">
+      <summary>Demo scenarios</summary>
+      <div class="chainpanel" id="panelSuccess">
+        <h3>Success chain</h3>
+        <p>Pinned masks → fit. Reports g/L.</p>
+        <button id="demoSuccessBtn" class="btn primary full" type="button">Run success chain</button>
+      </div>
+      <div class="chainpanel" id="panelReject">
+        <h3>Rejection chain</h3>
+        <p>Corrupt geometry. Fails honestly.</p>
+        <button id="demoRejectBtn" class="btn danger-ghost full" type="button">Run rejection chain</button>
+      </div>
+      <div class="btnrow" style="margin-top:10px">
+        <span id="demoSpin" class="spinner hidden" role="status" aria-label="assembling"></span>
+      </div>
+    </details>
+    <div class="trust-card"><strong>Trust by design</strong><p>Every number is traceable. No guessing. No hidden steps.</p></div>
+  </aside>
+  <main class="main" id="main">
+    <section class="stepper" aria-label="Analysis workflow" title="Stages reflect the most recent run - a demo run genuinely completes every stage offline.">
+      <div class="step" id="stepUpload" data-stage="upload"><div class="step-number">1</div><div><div class="step-title">Upload</div><div class="step-desc">Load your video</div></div></div>
+      <div class="step" id="stepDetect" data-stage="detect"><div class="step-number">2</div><div><div class="step-title">Detect</div><div class="step-desc">AI finds objects (SAM 3.1)</div></div></div>
+      <div class="step" id="stepConfirm" data-stage="confirm"><div class="step-number">3</div><div><div class="step-title">Confirm</div><div class="step-desc">Review and approve</div></div></div>
+      <div class="step" id="stepMeasure" data-stage="measure"><div class="step-number">4</div><div><div class="step-title">Measure</div><div class="step-desc">Compute physics</div></div></div>
+      <div class="step" id="stepResults" data-stage="results"><div class="step-number">5</div><div><div class="step-title">Results</div><div class="step-desc">View &amp; export</div></div></div>
+    </section>
+    <section class="pipeline-strip" aria-label="Pipeline stages">
+      <p class="explainer">Phone video in, auditable physics out. SAM 3.1 sees, deterministic math computes.</p>
+      <div class="pipeline">
+        <div class="pstage">SAM 3.1 masks<span class="tag">live capture, offline replay</span></div>
+        <div class="pstage">Deterministic calibration + fit<span class="tag">live capture, offline replay</span></div>
+        <div class="pstage">Muse Spark advisory<span class="tag">live capture, offline replay</span></div>
+      </div>
+    </section>
+    <section class="opsbar" id="opsBar" aria-label="Operations" data-state="Ready for analysis">
+      <span class="ops-state" id="opState" data-state="Ready for analysis"><span class="ops-dot" aria-hidden="true"></span><span id="opStateText">Ready for analysis</span></span>
+      <div class="ops-activity"><strong id="opActivity">Idle — no operation running.</strong><span id="opDetail">Indeterminate progress: the backend reports completion, never percentages.</span></div>
+      <div class="progress-track hidden" id="opTrack" role="status" aria-label="Operation in progress"></div>
+      <span class="ops-elapsed" id="opElapsed"></span>
+      <div class="ops-last hidden" id="opLast"></div>
+    </section>
+    <section class="workspace" aria-label="Analysis workspace">
+      <div class="panel">
+        <div class="panel-head"><div><div class="panel-title">Video analysis</div><div class="subtle" id="fileMeta">No clip loaded — use the upload panel below.</div></div><div class="btnrow"><button class="btn small hidden" id="browseBtn" type="button">Choose MP4</button><button class="btn small hidden" id="liveRecordBtn" type="button">Record</button></div></div>
+        <div class="viewer-wrap">
+          <div class="video-stage dropzone" id="dropZone" role="button" tabindex="0" aria-label="Video viewer — drop an MP4 file here or activate to browse">
+            <div id="playerWrap" class="hidden">
+              <video id="livePreview" muted playsinline preload="auto"></video>
+              <svg id="liveOverlay" class="stage-overlay" aria-hidden="true"></svg>
+              <div class="frame-chip" id="frameChip">No detection yet</div>
+              <div class="video-controls">
+                <button class="play-btn" id="playBtn" type="button" aria-label="Play or pause preview">▶</button>
+                <span class="time" id="timeLabel">--:-- / --:--</span>
+                <input class="seek" id="seek" type="range" min="0" max="0" step="0.01" value="0" aria-label="Video position">
+                <button class="speed-btn" id="speedBtn" type="button" aria-label="Cycle playback speed">1×</button>
+                <span class="view-toggle" role="group" aria-label="Overlay view">
+                  <button class="speed-btn" id="overlayBtn" type="button" aria-pressed="true">Overlay</button>
+                  <button class="speed-btn" id="rawViewBtn" type="button" aria-pressed="false">Raw</button>
+                </span>
+                <button class="speed-btn" id="fsBtn" type="button" aria-label="Fullscreen viewer">⛶</button>
+              </div>
+            </div>
+            <div class="upload-empty" id="stageEmptyMedia">
+              <div class="drop-icon" aria-hidden="true">↑</div>
+              <div><strong>Drop a side-view MP4 here</strong></div>
+              <ul class="format-list">
+                <li>MP4 file · up to 64 MB</li>
+                <li>Best: side-view pendulum, fixed camera</li>
+              </ul>
+              <div class="btnrow">
+                <button class="btn primary" id="browseEmptyBtn" type="button">Browse MP4</button>
+                <button class="btn" id="recordEmptyBtn" type="button">Record</button>
+              </div>
+              <div class="empty-error hidden" id="emptyError"></div>
+            </div>
+            <input type="file" id="clipFile" accept="video/mp4,.mp4" tabindex="-1" hidden>
+          </div>
+          <div><span class="filechip hidden" id="fileChip"></span></div>
+          <div class="filmstrip" id="filmstrip" aria-label="Clip segments"><span class="subtle">Load a clip to enable the filmstrip.</span></div>
+          <div class="subtle" id="liveRecordNote" style="margin-top:8px">Or record in-browser (MP4 requested); the recording waits here until you press Detect.</div>
+          <details class="uploadwrap" id="uploadDetails">
+            <summary>Structure validation (offline check)</summary>
+            <div class="btnrow" style="margin:8px 0">
+              <button id="uploadBtn" class="btn small" type="button">Validate clip</button>
+              <span id="uploadSpin" class="spinner hidden" role="status" aria-label="validating"></span>
+            </div>
+            <div id="uploadErr" class="errorbox hidden"></div>
+            <div id="uploadOut" class="hidden">
+              <h3 class="sub">Media structure (measured)</h3>
+              <table class="kv"><tbody id="mediaRows"></tbody></table>
+              <h3 class="sub">Timing health</h3>
+              <table class="kv"><tbody id="ptsRows"></tbody></table>
+              <div class="notice" id="measureNote"></div>
+              <h3 class="sub">Stored upload</h3>
+              <table class="kv"><tbody id="uploadRows"></tbody></table>
+            </div>
+          </details>
+        </div>
+      </div>
+      <div>
+        <section class="panel hidden" id="livePanel" aria-label="Live capture and measure">
+          <div class="liveblock" aria-label="Detection setup">
+            <h3>Setup &amp; Detect</h3>
+            <div class="btnrow" style="margin-bottom:10px">
+              <span class="subtle">Source clip (staged in the viewer):</span>
+              <span class="filechip hidden" id="liveFileChip"></span>
+            </div>
+            <div class="moderow" role="radiogroup" aria-label="Measurement mode">
+              <label><input type="radio" name="liveMode" id="liveModeFull" value="full" checked> Full (bob + card)</label>
+              <label><input type="radio" name="liveMode" id="liveModeMotion" value="motion"> Motion only (bob, scale-free)</label>
+            </div>
+            <details class="acc">
+              <summary>Prompts (defaults usually fine)</summary>
+              <div class="accbody fieldgrid">
+                <label>Bob prompt <input type="text" id="livePromptBob" value="red ball" autocomplete="off"></label>
+                <label id="livePromptCardWrap">Card prompt <input type="text" id="livePromptCard" value="white paper card" autocomplete="off"></label>
+              </div>
+            </details>
+            <div class="btnrow">
+              <button id="liveDetectBtn" class="btn primary" type="button">Detect</button>
+              <span id="liveSpin" class="spinner hidden" role="status" aria-label="detecting"></span>
+            </div>
+            <p class="sub" id="liveDetectHint" style="margin:8px 0 0">Typical for a 237-frame clip: ~2 min vision model, then ~5 min local encoding with no progress bar — keep this tab open.</p>
+            <div id="liveErr" class="errorbox hidden"></div>
+          </div>
+          <div class="liveblock" aria-label="Detected objects">
+            <h3>Detected objects</h3>
+            <div id="objectsList"><div class="object-row"><span class="object-detail">No detection yet — run Detect.</span></div></div>
+            <div class="section-label">Detection source</div>
+            <div class="source-row"><div class="source-icon" aria-hidden="true">S</div><div><div class="source-name">Meta SAM 3.1 (pipeline model)</div><div class="object-detail" id="detectSourceBody">No detection yet.</div></div></div>
+            <div id="liveConfirm" class="hidden">
+              <div class="confirm-status idle" id="confirmStatus">Awaiting your confirmation</div>
+              <div class="notice" id="liveCounts"></div>
+              <div class="btnrow">
+                <button id="liveConfirmBtn" class="btn primary full" type="button">Confirm objects</button>
+                <button id="liveBackBtn" class="btn danger-ghost full" type="button">Reject &amp; re-detect</button>
+              </div>
+            </div>
+          </div>
+          <div class="liveblock hidden" id="liveMeasureWrap" aria-label="Measure">
+            <h3>Measure</h3>
+            <div class="fieldgrid" id="liveMmRow">
+              <label>Card width in mm — type the measured width, never guessed <input type="text" id="liveMm" inputmode="decimal" placeholder="e.g. 85.6" autocomplete="off"></label>
+            </div>
+            <div class="btnrow">
+              <button id="liveMeasureBtn" class="btn primary" type="button">Measure</button>
+              <span id="liveMeasureSpin" class="spinner hidden" role="status" aria-label="measuring"></span>
+            </div>
+            <p class="sub" id="liveMeasureHint" style="margin:8px 0 0">Full mode takes ~20 minutes; motion mode is fast.</p>
+            <div id="liveMeasureErr" class="errorbox hidden"></div>
+            <div class="stateline" id="liveRunNote"></div>
+            <div id="liveMotionOut" class="hidden">
+              <div class="notice" id="liveMotionCompact"></div>
+            </div>
+          </div>
+        </section>
+        <section class="panel" id="noKeyPanel" aria-label="Live capture unavailable">
+          <div class="liveblock">
+            <h3>Live capture unavailable</h3>
+            <p class="sub">Live SAM detection needs MODEL_API_KEY in the server environment. Pinned demos and offline validation work without it.</p>
+          </div>
+        </section>
+      </div>
+      <div class="right-column">
+        <section class="panel" aria-label="Measurement status">
+          <div class="panel-head"><div class="panel-title">Measurement Status</div><span class="tag" id="modeTag">No run</span></div>
+          <div class="status-ring">
+            <svg id="statusRing" width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="18" fill="none" stroke="var(--border)" stroke-width="5"/><circle id="statusArc" cx="22" cy="22" r="18" fill="none" stroke="var(--muted)" stroke-width="5" stroke-linecap="round" stroke-dasharray="113" stroke-dashoffset="113" transform="rotate(-90 22 22)"/></svg>
+            <div><div class="status-title" id="statusTitle">Pending</div><div class="subtle" id="statusNote">Results will appear after measurement.</div></div>
+          </div>
+          <div class="fact-list">
+            <div class="fact-row"><span class="k">Mode</span><span class="v" id="factMode">—</span></div>
+            <div class="fact-row"><span class="k">Frames</span><span class="v" id="factFrames">—</span></div>
+            <div class="fact-row"><span class="k">Resolution</span><span class="v" id="factRes">—</span></div>
+            <div class="fact-row"><span class="k">Duration</span><span class="v" id="factDur">—</span></div>
+          </div>
+        </section>
+        <section class="panel" aria-label="Key results">
+          <div class="panel-head"><div class="panel-title">Key Results (when ready)</div></div>
+          <div class="result-list">
+            <div class="metric"><div class="metric-name">Angular frequency (ω)</div><div class="metric-value na" id="metricOmega">Not available</div><div class="metric-why" id="metricOmegaWhy">No measurement yet.</div></div>
+            <div class="metric"><div class="metric-name">Period (T)</div><div class="metric-value na" id="metricPeriod">Not available</div><div class="metric-why" id="metricPeriodWhy">No measurement yet.</div></div>
+            <div class="metric"><div class="metric-name">Effective length (L_eff)</div><div class="metric-value na" id="metricLeff">Not available</div><div class="metric-why" id="metricLeffWhy">No measurement yet.</div></div>
+            <div class="metric"><div class="metric-name">g / L_eff (ω²)</div><div class="metric-value na" id="metricGoverL">Not available</div><div class="metric-why" id="metricGoverLWhy">No measurement yet.</div></div>
+          </div>
+          <div class="info-box"><span class="info-symbol" aria-hidden="true">i</span><div><strong id="gravityTitle">Gravity (g): not computed</strong><p id="gravityBody">Requires a valid user-supplied physical length. Values stay unavailable until a real run completes.</p></div></div>
+        </section>
+        <section class="panel" aria-label="Evidence and provenance summary">
+          <div class="panel-head"><div class="panel-title">Evidence &amp; Provenance</div><span class="tag" id="provChip">Awaiting run</span></div>
+          <div class="prov-list" id="provSummary"><div class="prov-row"><span class="st" aria-hidden="true">—</span><span>No provenance yet — it appears with your first run.</span></div></div>
+          <div style="padding:0 13px 12px"><button class="btn full" id="provFullBtn" type="button">View full provenance →</button></div>
+        </section>
+      </div>
+    </section>
+    <section class="panel charts-panel" id="chartsPanel" aria-label="Results and charts">
+      <div id="stageIdle" class="idle-compact">
+        <span class="idle-dot" aria-hidden="true"></span>
+        <span><strong>Nothing measured yet</strong> — <span id="idleText">run a demo or stage a clip; every number here comes from a run you started.</span></span>
+        <button class="btn small" id="idleAction" type="button">Stage a clip</button>
+      </div>
+      <div id="stageEmpty" class="empty hidden">
+        <span id="bootSpin" class="spinner" role="status" aria-label="loading"></span>
+        <strong id="stageEmptyTitle">Working…</strong>
+        <span id="stageEmptySub">The live phase shows in the Operations bar above.</span>
+      </div>
+      <div id="stageResult" class="hidden">
+        <div id="verdict" class="verdict"></div>
+        <div id="demoErr" class="errorbox hidden" style="margin:0 15px 10px"></div>
+        <div id="demoBody" class="hidden">
+          <ol class="stepper-list" id="stepList"></ol>
+          <div class="reports-card hidden" id="reportsCard">
+            <div class="reports-head"><strong>Reports</strong><span class="subtle">exact written bytes</span></div>
+            <div class="exports" id="reportLinks"></div>
+          </div>
+          <div class="tabs" role="tablist" aria-label="Result views">
+            <button class="tab" role="tab" id="tabTrajectory" aria-controls="panelTrajectory" aria-selected="true">Trajectory</button>
+            <button class="tab" role="tab" id="tabEvidence" aria-controls="panelEvidence" aria-selected="false" tabindex="-1">Evidence</button>
+            <button class="tab" role="tab" id="tabProvenance" aria-controls="panelProvenance" aria-selected="false" tabindex="-1">Provenance</button>
+          </div>
+          <div role="tabpanel" id="panelTrajectory" aria-labelledby="tabTrajectory" class="tabpanel-pad">
+            <div class="chart-tabs tabs" role="tablist" aria-label="Chart views" style="border-bottom:0;padding:4px 0 9px">
+              <button class="tab" role="tab" id="ctabTrajectory" aria-controls="viewTrajectory" aria-selected="true">Trajectory</button>
+              <button class="tab" role="tab" id="ctabResiduals" aria-controls="viewResiduals" aria-selected="false" tabindex="-1">Residuals</button>
+              <button class="tab" role="tab" id="ctabTrail" aria-controls="viewTrail" aria-selected="false" tabindex="-1">Motion trail</button>
+              <button class="tab" role="tab" id="ctabReplay" aria-controls="viewReplay" aria-selected="false" tabindex="-1">Replay</button>
+            </div>
+            <div role="tabpanel" id="viewTrajectory" aria-labelledby="ctabTrajectory">
+              <div class="chart-empty" id="chartEmpty"><span class="empty-icon" aria-hidden="true">◷</span><strong>No trajectory yet</strong><p>Observed angles plot here after a demo or measurement. Nothing is drawn from guesses.</p></div>
+              <div class="chart-wrap hidden" id="chartWrap">
+                <svg id="chartSvg" class="plot" viewBox="0 0 720 340" role="img" aria-label="Angle series chart: observed and fitted"></svg>
+                <div class="chart-meta">
+                  <span class="legend"><span class="swatch"></span>observed θ(t)</span>
+                  <span class="legend"><span class="swatch fit"></span><span id="fitLegend">fitted θ(t)</span></span>
+                  <span id="chartMeta" class="mono"></span>
+                </div>
+              </div>
+              <p class="sub" id="chartNote" style="margin-top:8px"></p>
+            </div>
+            <div role="tabpanel" id="viewResiduals" aria-labelledby="ctabResiduals" class="hidden">
+              <div class="chart-empty" id="stripEmpty"><span class="empty-icon" aria-hidden="true">◷</span><strong>No residuals yet</strong><p>Pipeline residuals plot here after a demo or measurement.</p></div>
+              <div class="chart-wrap hidden" id="stripWrap">
+                <div class="chart-meta" style="padding-top:4px"><span class="rms-chip hidden" id="rmsChip"></span><span class="subtle">Residuals vs source-PTS time (observed − fitted).</span></div>
+                <svg id="stripSvg" class="plot" viewBox="0 0 720 220" role="img" aria-label="Residual chart"></svg>
+              </div>
+            </div>
+            <div role="tabpanel" id="viewTrail" aria-labelledby="ctabTrail" class="hidden">
+              <div class="chart-empty" id="trailEmpty"><span class="empty-icon" aria-hidden="true">◷</span><strong>No trail yet</strong><p>Measured centroids plot here after a demo or measurement.</p></div>
+              <div class="chart-wrap hidden" id="trailWrap">
+                <svg id="trailSvg" class="plot" viewBox="0 0 720 340" role="img" aria-label="Centroid trail chart"></svg>
+                <div class="chart-meta"><span id="trailMeta" class="mono"></span></div>
+              </div>
+            </div>
+            <div role="tabpanel" id="viewReplay" aria-labelledby="ctabReplay" class="hidden">
+              <p class="sub">Replay view: every chart is shown at once — use the scrubber below; all playheads stay in sync on the source-PTS timebase.</p>
+            </div>
+            <div class="scrubrow">
+              <label for="scrub">Scrub</label>
+              <input type="range" class="scrub" id="scrub" min="0" max="0" value="0" step="1" aria-label="Scrub the time playhead">
+              <span id="playheadReadout" class="mono"></span>
+              <button id="replayBtn" type="button" class="btn small" style="margin-left:auto">Replay animation</button>
+            </div>
+          </div>
+          <div role="tabpanel" id="panelEvidence" aria-labelledby="tabEvidence" class="hidden tabpanel-pad">
+            <details class="acc" open>
+              <summary>Warnings (verbatim)</summary>
+              <div class="accbody"><ul class="tight" id="warnList"></ul></div>
+            </details>
+            <details class="acc">
+              <summary>Reject reasons</summary>
+              <div class="accbody"><ul class="tight" id="reasonList"></ul></div>
+            </details>
+          </div>
+          <div role="tabpanel" id="panelProvenance" aria-labelledby="tabProvenance" class="hidden tabpanel-pad">
+            <details class="acc">
+              <summary>Provenance</summary>
+              <div class="accbody"><table class="kv"><tbody id="provRows"></tbody></table></div>
+            </details>
+            <details class="acc">
+              <summary>Input artifact digests</summary>
+              <div class="accbody"><table class="kv"><tbody id="artifactRows"></tbody></table></div>
+            </details>
+            <details class="acc">
+              <summary>Exports (exact written bytes)</summary>
+              <div class="accbody"><div class="exports" id="exportLinks"></div></div>
+            </details>
+          </div>
+          <details class="acc" id="advDiag" style="margin:4px 15px 12px">
+            <summary>Advanced Diagnostics — mask overlay, raw input replay, assumptions, summary</summary>
+            <div class="accbody">
+              <h3 class="sub">Pinned mask overlay (demo chain)</h3>
+              <img class="overlay" id="overlayImg" src="/api/overlay" alt="Pinned overlay: ball centroid path over the swing">
+              <details class="acc">
+                <summary>Assumptions (verbatim)</summary>
+                <div class="accbody"><ul class="tight" id="assumeList"></ul></div>
+              </details>
+              <details class="acc">
+                <summary>Advisory replay — recorded M-2-era input</summary>
+                <div class="accbody" id="advisoryBox"></div>
+              </details>
+              <details class="acc">
+                <summary>Summary (copied, never recomputed)</summary>
+                <div class="accbody"><pre class="summary" id="summaryPre"></pre></div>
+              </details>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<footer class="footer"><span><strong>⚗ KineticLab</strong> · Deterministic math. Verified evidence. Real physics.</span><span class="footer-host" id="serverFoot">Local Server</span></footer>
+</div>
+<div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
+<script>
+"use strict";
+/* KL-8.8 theme: dark default, light override, persisted preference. */
+function syncThemeIcon() {
+  const theme = document.documentElement.dataset.theme || "dark";
+  const button = document.getElementById("themeToggle");
+  if (button) button.textContent = theme === "dark" ? "Light mode" : "Dark mode";
+}
+(function initTheme() {
+  let saved = null;
+  try { saved = localStorage.getItem("kineticlab-theme"); } catch (err) { void err; }
+  document.documentElement.dataset.theme = saved === "light" ? "light" : "dark";
+  syncThemeIcon();
+})();
+document.getElementById("themeToggle").addEventListener("click", () => {
+  const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem("kineticlab-theme", next); } catch (err) { void err; }
+  syncThemeIcon();
+  repaintCharts();
+  notify("Theme", next === "dark" ? "Dark workstation theme." : "Light workstation theme.", "ok");
+});
+/* Vanilla JS, offline by construction: relative fetch URLs only,
+   no external assets. All server data renders via text nodes —
+   never markup sinks — so served strings cannot become markup.
+   No timers anywhere: toasts and elapsed clocks run on a shared
+   requestAnimationFrame ticker; the stepper derives from response
+   fields and the chart reveal runs on the real PTS timebase. */
+
+function el(id) { return document.getElementById(id); }
+
+function show(node) { node.classList.remove("hidden"); }
+function hide(node) { node.classList.add("hidden"); }
+
+/* Shared rAF ticker for time-driven UI (toast expiry, progress
+   elapsed). Jobs return true to continue, false to retire. The
+   loop runs only while jobs exist. */
+const rafJobs = new Set();
+let rafTicking = false;
+function rafPump(now) {
+  for (const job of Array.from(rafJobs)) {
+    let keep = false;
+    try { keep = job(now); } catch (err) { void err; }
+    if (!keep) rafJobs.delete(job);
+  }
+  if (rafJobs.size > 0) {
+    requestAnimationFrame(rafPump);
+  } else {
+    rafTicking = false;
+  }
+}
+function scheduleRaf(job) {
+  rafJobs.add(job);
+  if (!rafTicking) {
+    rafTicking = true;
+    requestAnimationFrame(rafPump);
+  }
+}
+
+const WARNING_GLOSSES = {
+  W_VFR_TIMING: "timing is non-uniform; durations use measured PTS, not assumed FPS",
+  W_MISSING_FRAMES_RETAINED: "some frames had no usable data and were kept as invalid",
+  W_LOW_CONFIDENCE: "some detections were low-confidence but retained for review",
+  W_PARTIAL_OBSERVATION: "some observations lack full geometry detail",
+  W_ASSUMPTION_UNVERIFIED: "an assumption is stated but not independently verified",
+  W_SHORT_TRACK: "short usable track; fit is less constrained",
+  W_UNCERTAINTY_UNAVAILABLE: "no interval: the pipeline does not invent one",
+  W_APPROXIMATE_GROUND_TRUTH: "reference data is approximate, not certified truth",
+  W_DERIVED_COPY: "measurement ran on a derived copy, not the source bytes",
+};
+
+/* Friendly error layer (KL-8.7): every locked taxonomy code gets a
+   short human title, a one-line explanation, and a suggested next
+   step. showError renders these; the raw server detail always stays
+   reachable inside a collapsed Technical detail block, and the code
+   itself is always shown for auditability. */
+const ERROR_FRIENDLY = {
+  E_MALFORMED_JSON: { title: "A file or reply was not valid JSON.", why: "The pipeline received bytes it could not parse as JSON — a damaged export or a garbled server reply.", action: "Re-run the step; if it persists, the input file is damaged, so start from a fresh export." },
+  E_BAD_SCHEMA: { title: "Unknown record type requested.", why: "The pipeline asked for a record schema that does not exist.", action: "This is a software bug, not your clip — report the code with the technical detail." },
+  E_NOT_AN_OBJECT: { title: "The vision model returned more than one object for your prompt in some frames.", why: "Your prompt matched two regions (for example the ball and the card), and the one-object-per-frame format refuses to guess which you meant.", action: "Try a more specific prompt, or use Motion mode. Nothing was measured; retrying the same clip burns another call for the same result." },
+  E_BAD_VERSION: { title: "Record version mismatch.", why: "A record carries a schema version this build does not understand.", action: "Regenerate the record with this build; never hand-edit version fields." },
+  E_MISSING_FIELD: { title: "Something required is missing.", why: "A required piece of data was absent — a field, an upload part, or the API key.", action: "Read the technical detail for what is missing, supply it, and re-run." },
+  E_UNEXPECTED_FIELD: { title: "Unexpected extra data.", why: "The input carried a field the schema does not define.", action: "Remove the extra field, or regenerate the input with this build." },
+  E_NULL_NOT_ALLOWED: { title: "A required value came back empty.", why: "A field that must hold a value was null.", action: "Supply the missing value and re-run; the detail names the field." },
+  E_WRONG_TYPE: { title: "Wrong kind of value.", why: "A field held a different type than the schema requires — for example text where a number belongs.", action: "Fix the value's type and re-run; the detail names the field." },
+  E_BAD_ENUM: { title: "Unknown option label.", why: "A mode, stage, or role label is outside the locked vocabulary.", action: "Use one of the offered options exactly as spelled." },
+  E_EMPTY_STRING: { title: "Nothing was detected — or a required text was blank.", why: "Either the vision model matched zero frames for this prompt, or a required text such as a prompt was empty.", action: "For zero matches: broaden the prompt or check the clip shows the object. For blank input: fill it in." },
+  E_NON_FINITE: { title: "A number is not finite.", why: "A numeric value arrived as NaN or infinite, which the pipeline never computes with.", action: "Re-enter the number; if it came from a file, the file is damaged." },
+  E_OUT_OF_RANGE: { title: "A number is outside its allowed range.", why: "A value such as a width, count, or bound fell outside the range the pipeline accepts.", action: "Read the detail for the value and its limits, correct it, and re-run." },
+  E_BAD_SHA256: { title: "A file fingerprint is malformed.", why: "A SHA-256 digest was not 64 lowercase hex characters.", action: "Recompute the hash from the exact bytes; never hand-edit digests." },
+  E_BAD_TIME_BASE: { title: "Bad time-base format.", why: "A time base was not an int/int rational string.", action: "This is a software bug, not your clip — report the code with the technical detail." },
+  E_BBOX_ORDER: { title: "A detection box has disordered corners.", why: "A bounding box did not list minima before maxima.", action: "This is a software bug, not your clip — report the code with the technical detail." },
+  E_CENTROID_PAIR: { title: "A centroid is half-missing.", why: "A record set only one of centroid x/y; both or neither is required.", action: "This is a software bug, not your clip — report the code with the technical detail." },
+  E_CORNERS_SHAPE: { title: "Card corners are malformed.", why: "Card corners were not exactly 4 finite [x, y] pairs.", action: "Re-run; if it persists, report the code with the technical detail." },
+  E_TRANSFORM_SHAPE: { title: "Camera transform is malformed.", why: "A plane transform was not a 3x3 finite matrix.", action: "This is a software bug — report the code with the technical detail." },
+  E_PARAMETER_MISMATCH: { title: "Fit parameters disagree.", why: "A fit's parameter names, values, and units contradict each other.", action: "This is a software bug — report the code with the technical detail." },
+  E_INCOHERENT_VALUE: { title: "Valid inputs contradict each other.", why: "Fields that are fine alone disagree in combination — for example Motion mode plus a card width, or a mask that fails its round-trip check.", action: "Read the detail: drop the contradictory input, or re-run — a failed mask check means those bytes cannot be trusted." },
+  E_MISSING_MAPPING: { title: "A frame lost its timing link.", why: "A valid frame lacks its source index, timestamp, or decoded reference.", action: "Re-run; if it persists, the clip's timing tables are damaged — try another clip." },
+  E_NON_MONOTONIC_PTS: { title: "Frame timestamps run backward.", why: "Valid frames must have strictly increasing timestamps; these do not.", action: "The clip's timing is corrupt — try another clip or re-encode it; the pipeline never reorders time." },
+  E_DUPLICATE_FRAME: { title: "A frame index appears twice.", why: "The frame table lists the same frame index more than once.", action: "The clip's tables are corrupt — try another clip." },
+  E_UNCONFIRMED_DIMENSIONS: { title: "Card type needs your measured size.", why: "A confirmed card type arrived without human-confirmed dimensions.", action: "Type the measured card width in mm when asked — it is never guessed." },
+  E_SCALE_AMBIGUOUS: { title: "Scale is over- or under-defined.", why: "Calibration needs exactly one of a scale value or a plane transform.", action: "This is a software bug — report the code with the technical detail." },
+  E_GRAVITY_WITHOUT_LENGTH: { title: "Gravity needs an independent length.", why: "A gravity value arrived without the independently measured pivot length it requires.", action: "No action: the pipeline correctly refused to claim gravity. The g/L value still stands." },
+  E_VALUE_WITHOUT_UNIT: { title: "A value arrived without its unit.", why: "A numeric value lacks the unit that makes it meaningful.", action: "This is a software bug — report the code with the technical detail." },
+  E_INTERVAL_WITHOUT_METHOD: { title: "An interval lacks its method label.", why: "An uncertainty interval arrived without naming how it was computed.", action: "This is a software bug — report the code with the technical detail." },
+  E_INTERVAL_ORDER: { title: "An interval's bounds are flipped.", why: "An interval's lower bound exceeds its upper bound.", action: "This is a software bug — report the code with the technical detail." },
+  E_INCOHERENT_STATE: { title: "The result contradicts itself.", why: "A result's status disagrees with its values, warnings, or reasons.", action: "Nothing here is trustworthy — re-run; if it persists, report the code with the technical detail." },
+  E_UNKNOWN_WARNING_CODE: { title: "Unknown warning code.", why: "A warning carried a code outside the locked taxonomy.", action: "This is a software bug — report the code with the technical detail." },
+  E_UNKNOWN_REASON_CODE: { title: "Unknown reject-reason code.", why: "A reject reason carried a code outside the locked taxonomy.", action: "This is a software bug — report the code with the technical detail." },
+};
+const WARN_FRIENDLY = {
+  W_VFR_TIMING: { title: "Non-uniform frame timing.", why: "Frame timing is non-uniform; no nominal frame rate applies.", action: "No action needed — durations use measured timestamps." },
+  W_MISSING_FRAMES_RETAINED: { title: "Frames kept as invalid.", why: "Frames without usable data were retained as invalid records instead of dropped.", action: "No action needed — check coverage counts if the fit looks weak." },
+  W_LOW_CONFIDENCE: { title: "Some detections were low-confidence.", why: "Observation confidence fell below the stage threshold on some frames.", action: "No action needed — they are retained for review, not trusted blindly." },
+  W_PARTIAL_OBSERVATION: { title: "Some observations lack full geometry.", why: "An observation lacks optional geometric detail (box, area, or mask).", action: "No action needed — valid measurements are unaffected." },
+  W_ASSUMPTION_UNVERIFIED: { title: "An assumption is unverified.", why: "A required assumption is stated but not independently verified.", action: "Verify the assumption yourself if your conclusion depends on it." },
+  W_SHORT_TRACK: { title: "Short usable track.", why: "The usable observation span is short for the requested analysis.", action: "Record a longer swing if you need a tighter fit." },
+  W_UNCERTAINTY_UNAVAILABLE: { title: "No uncertainty estimate.", why: "No uncertainty estimate is available for a reported value.", action: "No action available — the pipeline reports no interval rather than inventing one." },
+  W_APPROXIMATE_GROUND_TRUTH: { title: "Reference data is approximate.", why: "Fixture or reference data is approximate, not certified truth.", action: "Treat comparisons against it as rough checks." },
+  W_DERIVED_COPY: { title: "Measured on a derived copy.", why: "Measurement ran on a derived processing copy, not the source bytes.", action: "No action needed — the copy hash is recorded in provenance." },
+};
+function friendlyEntry(code) {
+  if (Object.prototype.hasOwnProperty.call(ERROR_FRIENDLY, code)) {
+    return { kind: "error", code: code, entry: ERROR_FRIENDLY[code] };
+  }
+  if (Object.prototype.hasOwnProperty.call(WARN_FRIENDLY, code)) {
+    return { kind: "warning", code: code, entry: WARN_FRIENDLY[code] };
+  }
+  return null;
+}
+
+function showError(box, payload, fallback) {
+  box.replaceChildren();
+  const body = payload && payload.error ? payload.error : null;
+  const code = body && body.code ? String(body.code) : "";
+  const friendly = code ? friendlyEntry(code) : null;
+  const title = document.createElement("strong");
+  if (friendly) {
+    title.textContent = friendly.entry.title;
+  } else if (code) {
+    title.textContent = "Request failed (" + code + ").";
+  } else {
+    title.textContent = fallback || "Request failed.";
+  }
+  box.appendChild(title);
+  if (friendly) {
+    const tag = document.createElement("code");
+    tag.className = "tag muted";
+    tag.textContent = friendly.code;
+    box.appendChild(tag);
+    const why = document.createElement("div");
+    why.textContent = friendly.entry.why;
+    box.appendChild(why);
+    const next = document.createElement("div");
+    const label = document.createElement("strong");
+    label.textContent = "Next step: ";
+    next.appendChild(label);
+    next.appendChild(document.createTextNode(friendly.entry.action));
+    box.appendChild(next);
+  }
+  if (body && (body.detail || body.field)) {
+    const details = document.createElement("details");
+    const summary = document.createElement("summary");
+    summary.textContent = "Technical detail";
+    details.appendChild(summary);
+    const pre = document.createElement("div");
+    pre.className = "rawDetail";
+    pre.textContent = (body.field ? body.field + ": " : "") + (body.detail || "");
+    details.appendChild(pre);
+    box.appendChild(details);
+  } else if (!friendly) {
+    const raw = document.createElement("div");
+    raw.className = "rawDetail";
+    try {
+      raw.textContent = JSON.stringify(payload);
+    } catch (err) {
+      raw.textContent = String(payload);
+    }
+    box.appendChild(raw);
+  }
+  show(box);
+}
+
+async function postJSON(url) {
+  const response = await fetch(url, { method: "POST" });
+  const text = await response.text();
+  let payload = null;
+  try {
+    payload = JSON.parse(text);
+  } catch (err) {
+    payload = { error: { code: null, detail: text.slice(0, 400) } };
+  }
+  return { ok: response.ok, status: response.status, payload: payload };
+}
+
+/* Server pill: truthful by construction. The host comes from our own
+   location (the server that served this page); the dot flips only on
+   observed fetch outcomes, never on a guess. */
+function markOnline(ok) {
+  const dot = el("serverDot");
+  const label = el("serverPillText");
+  if (ok) {
+    dot.classList.remove("off");
+    label.textContent = "Local server · " + window.location.host;
+  } else {
+    dot.classList.add("off");
+    label.textContent = "Connection lost · " + window.location.host;
+  }
+}
+
+/* Toasts: success/info retire on a real elapsed clock via the shared
+   rAF ticker; failures persist until dismissed so an error is never
+   concealed. Timer functions are banned; the ticker is the only clock. */
+const TOAST_LINGER_MS = 4200;
+function notify(title, message, kind) {
+  const wrap = el("toastWrap");
+  const toast = document.createElement("div");
+  toast.className = "toast " + (kind || "ok");
+  const close = document.createElement("button");
+  close.className = "toast-x";
+  close.type = "button";
+  close.setAttribute("aria-label", "Dismiss notification");
+  close.textContent = "×";
+  close.addEventListener("click", () => { toast.remove(); });
+  toast.appendChild(close);
+  const head = document.createElement("strong");
+  head.textContent = title;
+  toast.appendChild(head);
+  const body = document.createElement("span");
+  body.textContent = message;
+  toast.appendChild(body);
+  wrap.appendChild(toast);
+  requestAnimationFrame(() => { toast.classList.add("show"); });
+  if (kind !== "bad") {
+    const born = performance.now();
+    scheduleRaf((now) => {
+      if (now - born < TOAST_LINGER_MS) return true;
+      toast.remove();
+      return false;
+    });
+  }
+  while (wrap.children.length > 4) wrap.firstChild.remove();
+}
+
+/* Honest progress: the backend reports completion, never a
+   percentage, and serves one request at a time — so per-frame
+   streaming is impossible and is not faked. The persistent ops bar
+   shows the real operation phases the client can observe (request
+   sent, response received), real frame counts quoted from each
+   completed response, and a real elapsed clock. The track stays
+   indeterminate while busy. Nothing here claims completion early. */
+let progressStart = 0;
+let progressActive = false;
+function showProgress(title, description, statusText) {
+  el("opActivity").textContent = title;
+  el("opDetail").textContent = (description ? description + " " : "") +
+    (statusText || "Indeterminate — no percentage available.");
+  el("opElapsed").textContent = "0.0s";
+  show(el("opTrack"));
+  hide(el("opLast"));
+  progressStart = performance.now();
+  progressActive = true;
+  scheduleRaf((now) => {
+    if (!progressActive) return false;
+    el("opElapsed").textContent =
+      ((now - progressStart) / 1000).toFixed(1) + "s";
+    return true;
+  });
+}
+function hideProgress() {
+  progressActive = false;
+  hide(el("opTrack"));
+}
+function opsComplete(summary) {
+  el("opElapsed").textContent =
+    ((performance.now() - progressStart) / 1000).toFixed(1) + "s total";
+  const last = el("opLast");
+  last.textContent = summary;
+  show(last);
+}
+
+/* Single overall status model. Every panel reads from it: the ops
+   bar chip, the status card, the stepper, and the idle hint all
+   derive from the same state, so they cannot contradict each other.
+   An audited rejection is Complete (the run finished and refused) —
+   the red verdict banner beside it carries the outcome. */
+const APP_STATES = ["Ready for analysis", "Detecting",
+  "Awaiting confirmation", "Measuring", "Complete", "Failed"];
+let appStatus = "Ready for analysis";
+let lastFailedOp = "";
+let hasResult = false;
+/* Terminal and gated states rewrite the activity line too: the chip
+   alone is not enough — a stale "request in flight" under a green
+   Complete chip reads as a lie. In-flight states (Detecting,
+   Measuring) keep their showProgress text, which is already truthful
+   while the request runs. */
+const OPS_IDLE_ACTIVITY = "Idle — no operation running.";
+const OPS_IDLE_DETAIL =
+  "Indeterminate progress: the backend reports completion, never percentages.";
+function setAppStatus(state, note, facts) {
+  appStatus = state;
+  el("opState").setAttribute("data-state", state);
+  el("opsBar").setAttribute("data-state", state);
+  el("opStateText").textContent = state;
+  if (state === "Complete") {
+    el("opActivity").textContent = "Run complete.";
+    el("opDetail").textContent =
+      "Reports and charts are in the results area below.";
+  } else if (state === "Failed") {
+    el("opActivity").textContent = "Run failed.";
+    el("opDetail").textContent =
+      "See the error — the failed panel shows the cause and recovery steps.";
+  } else if (state === "Awaiting confirmation") {
+    el("opActivity").textContent = "Detection finished.";
+    el("opDetail").textContent = "Confirm or reject the boxes to continue.";
+  } else if (state === "Ready for analysis") {
+    el("opActivity").textContent = OPS_IDLE_ACTIVITY;
+    el("opDetail").textContent = OPS_IDLE_DETAIL;
+  }
+  paintStatus(state, note || "", facts);
+  updateIdleState();
+}
+/* The idle row speaks only for the live flow — demos live in the
+   sidebar alone, so this button is never demo-labeled. Each branch
+   pairs the hint text with the button's action; wireIdleAction
+   dispatches on the same states in the same order. */
+function updateIdleState() {
+  if (hasResult) return;
+  const text = el("idleText");
+  const action = el("idleAction");
+  if (!text || !action) return;
+  const live = typeof liveState !== "undefined" ? liveState : null;
+  if (!live || !live.file) {
+    text.textContent =
+      "stage a clip to begin; every number here comes from a run you started.";
+    action.textContent = "Stage a clip";
+  } else if (appStatus === "Failed" && lastFailedOp === "detect") {
+    text.textContent = "the last Detect failed — see the error, then retry.";
+    action.textContent = "Retry Detect";
+  } else if (appStatus === "Failed" && lastFailedOp === "measure") {
+    text.textContent = "the last Measure failed — see the error, then retry.";
+    action.textContent = "Retry Measure";
+  } else if (live.step === "confirmed") {
+    text.textContent = "objects confirmed — press Measure to run the fit.";
+    action.textContent = "Measure";
+  } else if (live.step === "detected") {
+    text.textContent = "confirm the boxes, then Measure.";
+    action.textContent = "Review boxes";
+  } else {
+    text.textContent = "clip staged — press Detect to find objects.";
+    action.textContent = "Detect objects";
+  }
+}
+
+/* Action gating: every action button enables only when its real
+   prerequisites hold — a staged file, a confirmed run, or simply a
+   free backend. The server answers one request at a time, so any
+   in-flight operation disables the rest. */
+let opBusy = false;
+function setBusy(busy) {
+  opBusy = busy;
+  updateActionStates();
+}
+function updateActionStates() {
+  const live = typeof LIVE_AVAILABLE !== "undefined" && LIVE_AVAILABLE;
+  el("demoSuccessBtn").disabled = opBusy;
+  el("demoRejectBtn").disabled = opBusy;
+  el("idleAction").disabled = opBusy;
+  el("uploadBtn").disabled = opBusy || !pendingFile;
+  el("liveDetectBtn").disabled = opBusy || !liveState.file || !live;
+  el("liveMeasureBtn").disabled =
+    opBusy || liveState.step !== "confirmed" || !live;
+}
+
+/* Tab groups with roving arrow-key navigation (main result views and
+   chart views share one implementation). */
+const TAB_IDS = ["tabTrajectory", "tabEvidence", "tabProvenance"];
+const CTAB_IDS = ["ctabTrajectory", "ctabResiduals", "ctabTrail", "ctabReplay"];
+function selectTabIn(ids, activeId) {
+  for (const id of ids) {
+    const tab = el(id);
+    const panel = el(tab.getAttribute("aria-controls"));
+    const on = id === activeId;
+    tab.setAttribute("aria-selected", on ? "true" : "false");
+    tab.tabIndex = on ? 0 : -1;
+    if (on) show(panel); else hide(panel);
+  }
+}
+function selectTab(id) { selectTabIn(TAB_IDS, id); }
+function selectChartTab(id) {
+  selectTabIn(CTAB_IDS, id);
+  const showAll = id === "ctabReplay";
+  for (const [tabId, viewId] of [["ctabTrajectory", "viewTrajectory"],
+      ["ctabResiduals", "viewResiduals"], ["ctabTrail", "viewTrail"]]) {
+    if (showAll || tabId === id) show(el(viewId)); else hide(el(viewId));
+  }
+  if (showAll) show(el("viewReplay")); else hide(el("viewReplay"));
+}
+function wireTabs(ids) {
+  for (const id of ids) {
+    el(id).addEventListener("click", () => {
+      if (ids === CTAB_IDS) selectChartTab(id); else selectTab(id);
+    });
+  }
+  const first = el(ids[0]).parentElement;
+  first.addEventListener("keydown", (event) => {
+    const current = ids.indexOf(document.activeElement.id);
+    if (current < 0) return;
+    let next = null;
+    if (event.key === "ArrowRight") next = ids[(current + 1) % ids.length];
+    else if (event.key === "ArrowLeft") next = ids[(current - 1 + ids.length) % ids.length];
+    else if (event.key === "Home") next = ids[0];
+    else if (event.key === "End") next = ids[ids.length - 1];
+    if (next) {
+      event.preventDefault();
+      if (ids === CTAB_IDS) selectChartTab(next); else selectTab(next);
+      el(next).focus();
+    }
+  });
+}
+
+/* Five-stage workflow stepper: states derive from real workflow
+   events only (file staged, detect/measure responses, user
+   confirmation). Demo chains mark every stage done because the
+   pinned chain genuinely completed each stage offline. */
+const STAGE_IDS = ["stepUpload", "stepDetect", "stepConfirm", "stepMeasure", "stepResults"];
+function setWorkflowStage(stage, state) {
+  const node = el({ upload: "stepUpload", detect: "stepDetect",
+    confirm: "stepConfirm", measure: "stepMeasure",
+    results: "stepResults" }[stage]);
+  if (!node) return;
+  node.classList.remove("done", "active", "processing", "failed");
+  if (state) node.classList.add(state);
+  const badge = node.querySelector(".step-number");
+  const order = { upload: "1", detect: "2", confirm: "3", measure: "4", results: "5" };
+  badge.textContent = state === "done" ? "✓" : state === "failed" ? "!"
+    : state === "processing" ? "…" : order[stage];
+}
+function resetWorkflow() {
+  for (const id of STAGE_IDS) {
+    el(id).classList.remove("done", "active", "processing", "failed");
+  }
+  const order = ["1", "2", "3", "4", "5"];
+  STAGE_IDS.forEach((id, i) => {
+    el(id).querySelector(".step-number").textContent = order[i];
+  });
+}
+
+/* Measurement status card: ring + facts, all from real state.
+   Titles come from the six overall states only. */
+function paintStatus(status, note, facts) {
+  el("statusTitle").textContent = status;
+  el("statusNote").textContent = note;
+  const arc = el("statusArc");
+  const colors = { "Ready for analysis": "var(--muted)",
+    Detecting: "var(--blue)", "Awaiting confirmation": "var(--amber)",
+    Measuring: "var(--blue)", Complete: "var(--green)",
+    Failed: "var(--red)" };
+  arc.setAttribute("stroke", colors[status] || "var(--muted)");
+  arc.setAttribute("stroke-dashoffset",
+    status === "Complete" || status === "Failed" ? "0"
+    : status === "Ready for analysis" ? "113" : "60");
+  if (facts) {
+    el("factMode").textContent = facts.mode || "—";
+    el("factFrames").textContent = facts.frames || "—";
+    el("factRes").textContent = facts.res || "—";
+    el("factDur").textContent = facts.dur || "—";
+  }
+}
+
+/* ---- offline upload validation (structure + timing health) ---- */
+const MEASUREMENT_UNAVAILABLE = "No physics measured from this upload — timing health only. Measurement needs a live SAM pass with prompts (Setup & Detect panel), not an offline file.";
+
+let pendingFile = null;
+let lastUploadVerdict = null;
+
+function setPendingFile(file) {
+  pendingFile = file;
+  const chip = el("fileChip");
+  if (file) {
+    chip.textContent =
+      file.name + " · " + (file.size / 1048576).toFixed(2) + " MB";
+    show(chip);
+    el("fileMeta").textContent = file.name + " · staged for validation and detection.";
+  } else {
+    chip.textContent = "";
+    hide(chip);
+    el("fileMeta").textContent = "No clip loaded — drop an MP4 below.";
+  }
+}
+
+function setViewerFile(file) {
+  const video = el("livePreview");
+  const empty = el("stageEmptyMedia");
+  if (file) {
+    if (video.src && video.src.startsWith("blob:")) URL.revokeObjectURL(video.src);
+    video.src = URL.createObjectURL(file);
+    hide(empty);
+    show(el("playerWrap"));
+  } else {
+    if (video.src && video.src.startsWith("blob:")) URL.revokeObjectURL(video.src);
+    video.removeAttribute("src");
+    video.load();
+    show(empty);
+    hide(el("playerWrap"));
+  }
+  clearFilmstrip();
+  el("timeLabel").textContent = "--:-- / --:--";
+  el("seek").value = "0";
+  el("seek").max = "0";
+}
+
+async function runUploadValidation() {
+  if (!pendingFile) return;
+  const spinner = el("uploadSpin");
+  const errBox = el("uploadErr");
+  hide(el("uploadOut"));
+  hide(errBox);
+  show(spinner);
+  setBusy(true);
+  setWorkflowStage("upload", "processing");
+  showProgress("Validating clip structure",
+    "Reading container structure and timestamp health. No physics is measured here.",
+    "Validation running — structural read only.");
+  try {
+    const form = new FormData();
+    form.append("clip", pendingFile, pendingFile.name);
+    const response = await fetch("/api/upload", { method: "POST", body: form });
+    const payload = await response.json();
+    markOnline(true);
+    if (!response.ok) {
+      showError(errBox, payload, "Upload rejected.");
+      setWorkflowStage("upload", "failed");
+      lastFailedOp = "validation";
+      setAppStatus("Failed", "The clip was rejected — see the validation panel.", null);
+      opsComplete("Validate · failed (" +
+        (payload && payload.error && payload.error.code ? payload.error.code : "no code") + ")");
+      notify("Validation failed", "The clip was rejected — see the validation panel.", "bad");
+      return;
+    }
+    lastUploadVerdict = payload;
+    renderUpload(payload);
+    setWorkflowStage("upload", "done");
+    lastFailedOp = "";
+    setAppStatus("Ready for analysis", "Clip validated. Run Detect or a demo to measure.",
+      statusFacts(null, payload));
+    opsComplete("Validate · " + payload.media.frame_count + " frames · timing " +
+      (payload.pts.healthy ? "healthy" : "unhealthy"));
+    notify("Clip validated", "Structure and timing health recorded below the viewer.", "ok");
+  } catch (err) {
+    markOnline(false);
+    showError(errBox, null, "Upload failed: " + err);
+    setWorkflowStage("upload", "failed");
+    lastFailedOp = "validation";
+    setAppStatus("Failed", "The validation request never completed.", null);
+    opsComplete("Validate · failed (connection lost)");
+    notify("Validation failed", "The request never completed — connection lost.", "bad");
+  } finally {
+    hide(spinner);
+    setBusy(false);
+    hideProgress();
+  }
+}
+
+function renderUpload(verdict) {
+  const mediaRows = el("mediaRows");
+  const ptsRows = el("ptsRows");
+  mediaRows.replaceChildren();
+  ptsRows.replaceChildren();
+  const media = verdict.media;
+  mediaRows.appendChild(row("Container / codec",
+    media.container + " / " + media.codec +
+    (media.codec_detail ? " (" + media.codec_detail + ")" : "")));
+  mediaRows.appendChild(row("Resolution",
+    media.width + "×" + media.height + " px"));
+  mediaRows.appendChild(row("Frames", String(media.frame_count)));
+  mediaRows.appendChild(row("Duration (reported)",
+    fmt(media.duration_seconds, 3) + " s"));
+  mediaRows.appendChild(row("Audio", media.has_audio ? "yes" : "no"));
+  mediaRows.appendChild(row("Cell size", String(media.cell_size_mb) + " MB"));
+  ptsRows.appendChild(row("Samples", String(verdict.pts.samples)));
+  ptsRows.appendChild(row("Null PTS", String(verdict.pts.null_pts)));
+  ptsRows.appendChild(row("Healthy", verdict.pts.healthy ? "yes" : "no"));
+  ptsRows.appendChild(row("Code",
+    verdict.pts.code === null ? "null (healthy)" : verdict.pts.code));
+  el("measureNote").textContent = MEASUREMENT_UNAVAILABLE;
+  const uploadRows = el("uploadRows");
+  uploadRows.replaceChildren();
+  const upload = verdict.upload;
+  uploadRows.appendChild(row("Filename", upload.filename));
+  uploadRows.appendChild(hashRow("SHA-256", upload.sha256));
+  uploadRows.appendChild(row("Bytes", String(upload.bytes)));
+  uploadRows.appendChild(row("Stored", upload.stored));
+  show(el("uploadOut"));
+  el("uploadDetails").open = true;
+}
+
+/* ---- pinned demos ---- */
+function setStage(name) {
+  for (const id of ["stageIdle", "stageEmpty", "stageResult"]) hide(el(id));
+  show(el(name));
+}
+
+async function runDemo(chain) {
+  const spinner = el("demoSpin");
+  setBusy(true);
+  show(spinner);
+  setStage("stageEmpty");
+  for (const stage of ["upload", "detect", "confirm", "measure"]) setWorkflowStage(stage, "processing");
+  setWorkflowStage("results", "active");
+  setAppStatus("Measuring", "Running the pinned " + chain + " chain.",
+    statusFacts({ kind: "demo-" + chain }, null));
+  markChartsLoading(true);
+  showProgress("Running the pinned " + chain + " chain",
+    "Replaying recorded masks and advisory output, then assembling one chain. Takes about half a minute.",
+    "Demo request in flight.");
+  try {
+    const { ok, payload } = await postJSON("/api/demo/" + chain);
+    markOnline(true);
+    if (!ok) {
+      setStage("stageResult");
+      hide(el("demoBody"));
+      showError(el("demoErr"), payload, "Demo request failed.");
+      for (const stage of ["upload", "detect", "confirm", "measure"]) setWorkflowStage(stage, null);
+      setWorkflowStage("results", "failed");
+      lastFailedOp = "demo";
+      setAppStatus("Failed", "The demo request failed — see the error below.", null);
+      opsComplete("Demo (" + chain + ") · failed (" +
+        (payload && payload.error && payload.error.code ? payload.error.code : "no code") + ")");
+      notify("Demo failed", "The demo request failed — see technical detail.", "bad");
+      return;
+    }
+    await renderDemo(payload);
+    for (const stage of ["upload", "detect", "confirm", "measure", "results"]) setWorkflowStage(stage, "done");
+    lastFailedOp = "";
+    const rejected = payload.result.status === "unsupported_input";
+    setAppStatus("Complete",
+      rejected ? payload.status_line + " (audited rejection — see cause below)."
+        : payload.status_line, statusFacts({ kind: "demo-" + chain,
+          summary: { mode: chain, video: null }, files: payload.files,
+          result: payload.result }, null));
+    opsComplete("Demo (" + chain + ") · " + payload.status_line);
+    notify("Demo complete", payload.status_line, rejected ? "warn" : "ok");
+  } catch (err) {
+    markOnline(false);
+    setStage("stageResult");
+    hide(el("demoBody"));
+    showError(el("demoErr"), null, "Demo request failed: " + err);
+    for (const stage of ["upload", "detect", "confirm", "measure"]) setWorkflowStage(stage, null);
+    setWorkflowStage("results", "failed");
+    lastFailedOp = "demo";
+    setAppStatus("Failed", "The demo request never completed.", null);
+    opsComplete("Demo (" + chain + ") · failed (connection lost)");
+    notify("Demo failed", "The request never completed — connection lost.", "bad");
+  } finally {
+    hide(spinner);
+    setBusy(false);
+    markChartsLoading(false);
+    hideProgress();
+    el("chartsPanel").scrollIntoView({ block: "nearest" });
+  }
+}
+
+function paintVerdict(result, errorPayload) {
+  const verdict = el("verdict");
+  verdict.replaceChildren();
+  if (errorPayload && errorPayload.error) {
+    verdict.className = "verdict bad";
+    const code = errorPayload.error.code;
+    verdict.textContent = code ? "Request failed — " + code : "Request failed";
+    return;
+  }
+  const status = result.status;
+  const good = status.indexOf("success") === 0;
+  verdict.className = good
+    ? (status === "success" ? "verdict ok" : "verdict warn")
+    : "verdict bad";
+  const head = document.createElement("span");
+  head.textContent = good
+    ? (status === "success" ? "SUCCESS" : "SUCCESS WITH WARNINGS")
+    : (status === "unsupported_input" ? "REJECTED (unsupported_input)"
+      : "REJECTED (" + status + ")");
+  verdict.appendChild(head);
+  /* KL-9.6 B2: rejection payloads carry fit:null — the badge must
+     never dereference it (the throw used to surface as a false
+     "connection lost"). Omit the badge unless a finite count
+     actually arrived; the REJECTED heading already says it all. */
+  const fit = result ? result.fit : null;
+  const obs = fit && typeof fit.observation_count === "number" &&
+    Number.isFinite(fit.observation_count) ? fit.observation_count : null;
+  if (obs !== null) {
+    const count = document.createElement("span");
+    count.className = "countbadge";
+    count.textContent = "n=" + obs;
+    verdict.appendChild(count);
+  }
+  const sub = document.createElement("small");
+  sub.textContent = status === "success_with_warnings"
+    ? "Fit held. Uncertainty is absent and assumptions are unverified — see Evidence."
+    : status === "success"
+      ? "Fit held and every check passed."
+      : "The audit refused to certify this input — see the cause below. Nothing was smoothed or guessed.";
+  verdict.appendChild(sub);
+}
+
+/* Response-derived stage checklist. Stages come ONLY from the
+   response shape: assembled (a result object arrived), outcome
+   (its status), exports (the files the backend actually wrote),
+   summary (the copied summary.md text arrived unparsed). */
+function paintStepper(payload, summaryOk) {
+  const list = el("stepList");
+  list.replaceChildren();
+  const result = payload.result || null;
+  const files = payload.files || {};
+  const stages = [
+    { title: "Assembled", state: result ? "complete" : "failed",
+      detail: result ? result.measurement_name : "no result object in response" },
+    { title: "Outcome", state: result
+      ? (result.status.indexOf("success") === 0 ? "complete" : "failed")
+      : "pending",
+      detail: result ? result.status : "waiting on assembly" },
+    { title: "Exports", state: Object.keys(files).length > 0 ? "complete" : "pending",
+      detail: Object.keys(files).length > 0
+        ? Object.keys(files).length + " written by the backend"
+        : "nothing written" },
+    { title: "Summary", state: summaryOk ? "complete" : "pending",
+      detail: summaryOk ? "copied verbatim" : "not rendered" },
+  ];
+  for (const stage of stages) {
+    const li = document.createElement("li");
+    li.className = stage.state;
+    const title = document.createElement("span");
+    title.className = "t";
+    title.textContent = stage.title;
+    li.appendChild(title);
+    li.appendChild(document.createTextNode(stage.detail));
+    list.appendChild(li);
+  }
+}
+
+/* Key metric cards. Every value comes from the payload in front of
+   us; anything absent renders "Not available" with the reason.
+   Length is shown ONLY when the payload carries an established
+   independent length — the arc-fit radius is descriptive, never a
+   reference. Gravity appears ONLY with a valid calibration. */
+function metricValue(id, whyId, value, unit, why) {
+  const node = el(id);
+  const note = el(whyId);
+  node.replaceChildren();
+  if (value === null || value === undefined || !isFinite(value)) {
+    node.className = "metric-value na";
+    node.textContent = "Not available";
+    note.textContent = why;
+    return;
+  }
+  node.className = "metric-value";
+  node.textContent = value.toPrecision(4) + " ";
+  const unitNode = document.createElement("small");
+  unitNode.textContent = unit;
+  node.appendChild(unitNode);
+  node.setAttribute("title", String(value));
+  note.textContent = why;
+}
+
+function establishedLength(result, diagnosticsDoc) {
+  const radius = diagnosticsDoc ? diagnosticsDoc.radius : null;
+  if (radius && radius.independent_length === true &&
+      isFinite(radius.radius_mm)) {
+    return { value: radius.radius_mm / 1000, unit: "m",
+      why: "Established independent length (pipeline record)." };
+  }
+  const pivot = result && result.fit ? result.fit.pivot_length_mm : null;
+  if (pivot !== null && pivot !== undefined && isFinite(pivot) &&
+      result.fit.pivot_length_source === "independent") {
+    return { value: pivot / 1000, unit: "m",
+      why: "Established independent pivot length (pipeline record)." };
+  }
+  return { value: null, unit: "",
+    why: "No independent length measured — the arc-fit radius is descriptive, not a reference." };
+}
+
+function paintMetrics(result, report, diagnosticsDoc, modeLabel) {
+  const diag = diagnosticsDoc && diagnosticsDoc.m1 ? diagnosticsDoc.m1 : null;
+  const fitted = diag && diag.fitted ? diag.fitted : null;
+  const omega = report ? report.omega_per_s
+    : fitted ? fitted.omega_per_s : null;
+  const period = report ? report.period_s
+    : fitted ? fitted.period_s : null;
+  metricValue("metricOmega", "metricOmegaWhy", omega, "rad/s",
+    omega === null || omega === undefined
+      ? "No fitted frequency in this payload."
+      : "Fitted angular frequency (" + modeLabel + ").");
+  metricValue("metricPeriod", "metricPeriodWhy", period, "s",
+    period === null || period === undefined
+      ? "No fitted period in this payload."
+      : "Fitted period (" + modeLabel + ").");
+  const length = result ? establishedLength(result, diagnosticsDoc)
+    : { value: null, unit: "",
+      why: "Motion mode is scale-free — no length is established." };
+  metricValue("metricLeff", "metricLeffWhy", length.value, length.unit,
+    length.why);
+  let gover = null;
+  let goverUnit = "";
+  if (report) {
+    gover = report.g_over_l_per_s2;
+    goverUnit = "1/s²";
+  } else if (result && result.identifiable_quantity) {
+    gover = result.identifiable_quantity.value;
+    goverUnit = result.identifiable_quantity.unit || "";
+  }
+  metricValue("metricGoverL", "metricGoverLWhy", gover, goverUnit,
+    gover === null || gover === undefined
+      ? "gravity ÷ effective length is not in this payload."
+      : "Identifiable quantity: gravity ÷ effective length (" + modeLabel + ").");
+  paintGravity(result, modeLabel);
+}
+
+function paintGravity(result, modeLabel) {
+  const title = el("gravityTitle");
+  const body = el("gravityBody");
+  const gravity = result && result.fit ? result.fit.gravity_m_s2 : null;
+  const calibrated = result && result.calibration &&
+    result.calibration.valid === true;
+  if (gravity !== null && gravity !== undefined && calibrated) {
+    title.textContent = "Gravity (g): " + gravity.toPrecision(4) + " m/s²";
+    title.parentElement.setAttribute("title", String(gravity));
+    body.textContent = "Established via valid calibration (" + modeLabel + ").";
+  } else {
+    title.textContent = "Gravity (g): not computed";
+    body.textContent = "g is not claimed because no independent length was provided.";
+  }
+}
+
+function statusFacts(run, uploadVerdict) {
+  const facts = {};
+  const mode = run && run.kind ? run.kind : null;
+  if (mode === "demo-success" || mode === "demo-rejection") {
+    facts.mode = "Pinned demo (" + mode.slice(5) + ")";
+  } else if (run && run.mode) {
+    facts.mode = run.mode === "full" ? "Full (bob + card)" : "Motion (bob only)";
+  }
+  const video = run && run.summary && run.summary.video
+    ? run.summary.video : null;
+  if (video) {
+    facts.frames = String(video.frames);
+    facts.res = video.width + "×" + video.height + " px";
+  } else if (uploadVerdict) {
+    facts.frames = String(uploadVerdict.media.frame_count);
+    facts.res = uploadVerdict.media.width + "×" + uploadVerdict.media.height + " px";
+  }
+  if (uploadVerdict) {
+    facts.dur = fmt(uploadVerdict.media.duration_seconds, 3) + " s (measured)";
+  } else if (!run || (run.kind && run.kind.indexOf("live") === 0)) {
+    const video2 = el("livePreview");
+    if (video2 && isFinite(video2.duration) && video2.duration > 0) {
+      facts.dur = fmt(video2.duration, 2) + " s (container)";
+    }
+  }
+  return facts;
+}
+
+/* Evidence summary card: presence-only rows with truncated hashes
+   and copy buttons. Nothing here claims a check that did not run —
+   the chip reads "Evidence recorded" once a real run rendered. */
+function paintProvSummary(kind, result, report, files) {
+  const list = el("provSummary");
+  list.replaceChildren();
+  const chip = el("provChip");
+  const rows = [];
+  const provenance = result ? result.provenance
+    : report ? report.provenance : null;
+  if (provenance && provenance.input_sha256) {
+    rows.push({ label: "Source video hash", hash: provenance.input_sha256,
+      state: "recorded" });
+  }
+  let modelHash = null;
+  if (result && result.provenance && result.provenance.artifact_hashes) {
+    const hashes = result.provenance.artifact_hashes;
+    modelHash = hashes.raw_bob_one_bit || hashes.raw_card_one_bit || null;
+  }
+  rows.push({ label: "Model output hash", hash: modelHash,
+    state: modelHash ? "recorded" : "missing from payload" });
+  const exports = files ? Object.keys(files).length : 0;
+  rows.push({ label: "Computation hash", hash: null,
+    state: exports > 0 ? exports + " exports recorded" : "no exports" });
+  rows.push({ label: "Calibration input",
+    hash: null, state: calibrationSummary(kind) });
+  rows.push({ label: "SAM 3.1 pipeline", hash: null,
+    state: kind.indexOf("motion") >= 0 || kind === "live-full"
+      ? "live capture, offline replay" : "pinned replay" });
+  for (const item of rows) {
+    const rowNode = document.createElement("div");
+    rowNode.className = "prov-row";
+    const mark = document.createElement("span");
+    mark.className = "st";
+    mark.textContent = item.hash || item.state.indexOf("missing") !== 0 ? "✓" : "—";
+    mark.style.color = item.hash || item.state.indexOf("missing") !== 0
+      ? "var(--green)" : "var(--muted)";
+    rowNode.appendChild(mark);
+    const label = document.createElement("span");
+    label.textContent = item.label;
+    rowNode.appendChild(label);
+    const value = document.createElement("span");
+    value.className = "hash";
+    if (item.hash) {
+      value.textContent = String(item.hash).slice(0, 4) + "…" +
+        String(item.hash).slice(-4);
+      value.setAttribute("title", String(item.hash));
+      const copy = document.createElement("button");
+      copy.type = "button";
+      copy.className = "copybtn";
+      copy.textContent = "copy";
+      copy.addEventListener("click", () => {
+        navigator.clipboard.writeText(String(item.hash));
+      });
+      value.appendChild(copy);
+    } else {
+      value.textContent = item.state;
+    }
+    rowNode.appendChild(value);
+    list.appendChild(rowNode);
+  }
+  chip.textContent = "Evidence recorded";
+  chip.className = "tag green";
+}
+
+function calibrationSummary(kind) {
+  if (kind === "live-full") {
+    const typed = el("liveMm").value.trim();
+    return typed ? typed + " mm — you typed" : "Not supplied";
+  }
+  if (kind === "live-motion") return "Not supplied (Motion mode)";
+  return "Pinned demo record (see Provenance)";
+}
+
+function paintModeTag(kind) {
+  const tag = el("modeTag");
+  if (kind === "live-full" || kind === "demo-success" || kind === "demo-rejection") {
+    tag.textContent = kind.indexOf("live") === 0 ? "FULL — bob + card" : "FULL — pinned";
+    tag.className = "tag blue";
+  } else if (kind === "live-motion") {
+    tag.textContent = "MOTION — bob only, scale-free";
+    tag.className = "tag violet";
+  } else {
+    tag.textContent = "No run";
+    tag.className = "tag";
+  }
+}
+function fmt(value, digits) {
+  if (value === null || value === undefined) return "null";
+  if (typeof value === "number") {
+    if (!isFinite(value)) return String(value);
+    return value.toFixed(digits);
+  }
+  return String(value);
+}
+
+function row(key, value) {
+  const tr = document.createElement("tr");
+  const th = document.createElement("th");
+  th.textContent = key;
+  const td = document.createElement("td");
+  td.className = "mono";
+  td.textContent = value;
+  tr.appendChild(th);
+  tr.appendChild(td);
+  return tr;
+}
+
+function hashRow(key, sha) {
+  const tr = document.createElement("tr");
+  const th = document.createElement("th");
+  th.textContent = key;
+  const td = document.createElement("td");
+  td.className = "mono";
+  const digest = String(sha);
+  const shown = document.createElement("span");
+  shown.textContent = digest.slice(0, 12) + "… (" + digest.length + " hex)";
+  shown.setAttribute("title", digest);
+  td.appendChild(shown);
+  const copy = document.createElement("button");
+  copy.type = "button";
+  copy.className = "copybtn";
+  copy.textContent = "copy";
+  copy.addEventListener("click", () => {
+    navigator.clipboard.writeText(digest);
+  });
+  td.appendChild(copy);
+  tr.appendChild(th);
+  tr.appendChild(td);
+  return tr;
+}
+
+function fillList(listId, items) {
+  const list = el(listId);
+  list.replaceChildren();
+  if (!items || items.length === 0) {
+    const li = document.createElement("li");
+    li.textContent = "none";
+    list.appendChild(li);
+    return;
+  }
+  for (const item of items) {
+    const li = document.createElement("li");
+    if (typeof item === "string") {
+      li.textContent = item;
+    } else {
+      const tag = document.createElement("code");
+      tag.className = "tag";
+      tag.textContent = item.code;
+      li.appendChild(tag);
+      const friendly = friendlyEntry(item.code);
+      const text = item.detail ||
+        (friendly ? friendly.entry.title : WARNING_GLOSSES[item.code] || "");
+      li.appendChild(document.createTextNode(" " + text));
+      if (friendly && friendly.kind === "warning") {
+        const w = item;
+        const action = WARN_FRIENDLY[w.code].action;
+        const next = document.createElement("div");
+        next.className = "sub";
+        next.textContent = "Next step: " + action;
+        li.appendChild(next);
+      }
+    }
+    list.appendChild(li);
+  }
+}
+
+async function renderDemo(payload) {
+  const result = payload.result;
+  const files = payload.files || {};
+  window.__lastFiles = files;
+  hasResult = true;
+  paintVerdict(result, null);
+  hide(el("demoErr"));
+  show(el("demoBody"));
+  setStage("stageResult");
+  selectTab("tabTrajectory");
+  paintEvidence(result, payload.advisory);
+  paintProvenance(result);
+  const summaryOk = await paintSummary(files);
+  const diagnosticsDoc = await paintChart(files, result);
+  paintStepper(payload, summaryOk);
+  paintMetrics(result, null, diagnosticsDoc,
+    payload.mode ? "live " + payload.mode + " mode" : "pinned demo");
+  paintModeTag(payload.mode ? "live-" + payload.mode : "demo-" + payload.chain);
+  paintProvSummary(payload.mode ? "live-" + payload.mode : "demo-" + payload.chain,
+    result, null, files);
+  el("fitLegend").textContent = "fitted θ(t) — observed minus pipeline residual";
+}
+
+function paintEvidence(result, advisory) {
+  const warns = (result.warnings || []).map((code) => {
+    if (typeof code === "string") return { code: code, detail: "" };
+    return code;
+  });
+  fillList("warnList", warns);
+  fillList("assumeList", result.assumptions || []);
+  fillList("reasonList", (result.reject_reasons || []).map((r) => {
+    const friendly = friendlyEntry(r.code);
+    return { code: r.code,
+      detail: friendly ? friendly.entry.title + " " + friendly.entry.why
+        : r.detail || "" };
+  }));
+  paintAdvisory(advisory);
+}
+
+function paintAdvisory(advisory) {
+  const box = el("advisoryBox");
+  box.replaceChildren();
+  if (!advisory) {
+    box.textContent = "No advisory record in this payload.";
+    return;
+  }
+  if (advisory.note && !advisory.setup && !advisory.narrative) {
+    box.textContent = advisory.note;
+    return;
+  }
+  if (advisory.note) {
+    const note = document.createElement("p");
+    note.className = "sub";
+    note.textContent = advisory.note + " Full replay below.";
+    box.appendChild(note);
+  }
+  const setup = advisory.setup || {};
+  const head = document.createElement("p");
+  head.textContent = "Setup review: " + (setup.warnings_added || 0) +
+    " warning(s) added (" + (setup.codes || []).join(", ") + "); " +
+    (setup.status_before || "?") + " → " + (setup.status_after || "?") + ".";
+  box.appendChild(head);
+  const narrative = advisory.narrative || {};
+  const source = document.createElement("p");
+  source.textContent = "Narrative source: " + (narrative.source || "unknown") +
+    " (a template, never a measurement).";
+  box.appendChild(source);
+  if (narrative.text) {
+    const quote = document.createElement("p");
+    quote.className = "sub";
+    quote.textContent = "“" + narrative.text + "”";
+    box.appendChild(quote);
+  }
+}
+
+function paintProvenance(result) {
+  const rows = el("provRows");
+  const artifacts = el("artifactRows");
+  rows.replaceChildren();
+  artifacts.replaceChildren();
+  const provenance = result.provenance || {};
+  rows.appendChild(hashRow("Input SHA-256", provenance.input_sha256 || "missing"));
+  rows.appendChild(row("Capture mode", provenance.capture_mode || "missing"));
+  rows.appendChild(row("Model name", provenance.model_name || "missing"));
+  rows.appendChild(row("Created (UTC)", provenance.created_utc || "missing"));
+  const arrow = result.arrow || {};
+  rows.appendChild(row("Raw → obs mapping",
+    (arrow.raw_to_obs || "missing") + " · " + (arrow.obs_to_target || "missing")));
+  rows.appendChild(row("Transform", arrow.transform || "missing"));
+  rows.appendChild(row("Lossy", String(arrow.lossy)));
+  const hashes = provenance.artifact_hashes || {};
+  const names = Object.keys(hashes).sort();
+  if (names.length === 0) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.textContent = "none recorded";
+    tr.appendChild(td);
+    artifacts.appendChild(tr);
+  }
+  for (const name of names) {
+    artifacts.appendChild(hashRow(name, hashes[name]));
+  }
+  paintExportLinks(el("exportLinks"));
+  paintReportsCard();
+}
+
+/* Single source for every rendered export link: the sorted [name,
+   url] pairs from the last completed payload. Both the accordion
+   list and the surfaced Reports card render from this array, so the
+   two lists can never diverge. */
+function reportFileEntries() {
+  const files = window.__lastFiles || {};
+  return Object.keys(files).sort().map((name) => [name, files[name]]);
+}
+function paintExportLinks(box) {
+  box.replaceChildren();
+  for (const [name, url] of reportFileEntries()) {
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.textContent = name;
+    anchor.setAttribute("download", name);
+    box.appendChild(anchor);
+  }
+}
+function paintReportsCard() {
+  const box = el("reportLinks");
+  box.replaceChildren();
+  const entries = reportFileEntries();
+  for (const [name, url] of entries) {
+    const rowNode = document.createElement("span");
+    rowNode.className = "reports-row";
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.textContent = name;
+    anchor.setAttribute("download", name);
+    rowNode.appendChild(anchor);
+    const copy = document.createElement("button");
+    copy.type = "button";
+    copy.className = "copybtn";
+    copy.textContent = "copy";
+    copy.setAttribute("aria-label", "Copy link to " + name);
+    copy.addEventListener("click", () => {
+      navigator.clipboard.writeText(url);
+    });
+    rowNode.appendChild(copy);
+    box.appendChild(rowNode);
+  }
+  if (entries.length > 0) show(el("reportsCard"));
+  else hide(el("reportsCard"));
+}
+
+async function paintSummary(files) {
+  const pre = el("summaryPre");
+  pre.textContent = "";
+  if (!files["summary.md"]) {
+    pre.textContent = "No summary.md in this payload.";
+    return false;
+  }
+  try {
+    const response = await fetch(files["summary.md"]);
+    pre.textContent = await response.text();
+    return response.ok;
+  } catch (err) {
+    pre.textContent = "Summary fetch failed: " + err;
+    markOnline(false);
+    return false;
+  }
+}
+
+/* ---- trajectory charts: observed points + pipeline residuals ---- */
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+function chartPalette() {
+  if (document.documentElement.dataset.theme === "light") {
+    return { text: "#17243A", muted: "#64748B", grid: "#e7edf6",
+      observed: "#3468F5", fitted: "#7957F5", trail: "#3468F5",
+      strip: "#10B981", frame: "#E2E8F0" };
+  }
+  return { text: "#F1F5F9", muted: "#94A3B8", grid: "#26354B",
+    observed: "#4F7DFF", fitted: "#8B6BFF", trail: "#4F7DFF",
+    strip: "#34D399", frame: "#26354B" };
+}
+
+function svgEl(tag, attrs) {
+  const node = document.createElementNS(SVG_NS, tag);
+  for (const key of Object.keys(attrs)) node.setAttribute(key, attrs[key]);
+  return node;
+}
+
+const chartEmptyDefaults = {};
+function showChartEmpties(message) {
+  for (const id of ["chartEmpty", "stripEmpty", "trailEmpty"]) {
+    const box = el(id);
+    const hint = box.querySelector("p");
+    if (!(id in chartEmptyDefaults)) {
+      chartEmptyDefaults[id] = hint.textContent;
+    }
+    hint.textContent = message || chartEmptyDefaults[id];
+    show(box);
+  }
+}
+
+function clearVisuals(message) {
+  for (const id of ["chartSvg", "trailSvg", "stripSvg"]) {
+    el(id).replaceChildren();
+  }
+  /* Hide the empty bordered chart boxes too — an empty full-width
+     SVG renders hundreds of pixels of nothing under the empty text. */
+  for (const id of ["chartWrap", "trailWrap", "stripWrap"]) {
+    hide(el(id));
+  }
+  showChartEmpties(message);
+  for (const id of ["thetaView", "trailView", "stripView"]) {
+    const view = el(id);
+    if (view) view.remove();
+  }
+  el("chartMeta").textContent = "";
+  el("trailMeta").textContent = "";
+  el("playheadReadout").textContent = "";
+  el("scrub").max = "0";
+  el("scrub").value = "0";
+  seriesData = null;
+  hide(el("rmsChip"));
+}
+
+let seriesData = null;
+
+function svgTitle(svg, text) {
+  const title = svgEl("title", {});
+  title.textContent = text;
+  svg.appendChild(title);
+}
+
+function buildTheta(svg, points, fitted, period_s) {
+  hide(el("chartEmpty"));
+  show(el("chartWrap"));
+  const pal = chartPalette();
+  svg.replaceChildren();
+  svgTitle(svg, points.length + " observed samples with a pipeline-fitted overlay; playhead follows the scrubber.");
+  const W = 720, H = 340, padL = 64, padR = 18, padT = 16, padB = 44;
+  const frame = svgEl("rect", { x: "0.5", y: "0.5", width: String(W - 1),
+    height: String(H - 1), fill: "none", stroke: pal.frame });
+  svg.appendChild(frame);
+  let minT = Infinity, maxT = -Infinity, minY = Infinity, maxY = -Infinity;
+  for (const [t, v] of points) {
+    if (t < minT) minT = t;
+    if (t > maxT) maxT = t;
+    if (v < minY) minY = v;
+    if (v > maxY) maxY = v;
+  }
+  if (fitted) {
+    for (const [t, v] of fitted) {
+      if (v < minY) minY = v;
+      if (v > maxY) maxY = v;
+    }
+  }
+  if (!(maxT > minT)) { maxT = minT + 1; }
+  if (!(maxY > minY)) { maxY = minY + 1; }
+  const spanY = (maxY - minY) * 1.1 || 1;
+  minY -= spanY * 0.05;
+  maxY += spanY * 0.05;
+  const X = (t) => padL + ((t - minT) / (maxT - minT)) * (W - padL - padR);
+  const Y = (v) => padT + (1 - (v - minY) / (maxY - minY)) * (H - padT - padB);
+  const grid = (value, horizontal, label) => {
+    const line = svgEl("line", horizontal
+      ? { x1: String(padL), y1: String(Y(value)), x2: String(W - padR),
+        y2: String(Y(value)), stroke: pal.grid }
+      : { x1: String(X(value)), y1: String(padT), x2: String(X(value)),
+        y2: String(H - padB), stroke: pal.grid });
+    svg.appendChild(line);
+    const text = svgEl("text", horizontal
+      ? { x: String(padL - 8), y: String(Y(value) + 4), "text-anchor": "end",
+        fill: pal.muted, "font-size": "11" }
+      : { x: String(X(value)), y: String(H - padB + 18),
+        "text-anchor": "middle", fill: pal.muted, "font-size": "11" });
+    text.textContent = label;
+    svg.appendChild(text);
+  };
+  for (let i = 0; i <= 4; i++) {
+    const value = minY + ((maxY - minY) * i) / 4;
+    grid(value, true, (value * 57.29578).toFixed(0));
+  }
+  for (let i = 0; i <= 8; i++) {
+    const value = minT + ((maxT - minT) * i) / 8;
+    grid(value, false, value.toFixed(1));
+  }
+  const yLabel = svgEl("text", { x: "16", y: String(H / 2),
+    "text-anchor": "middle", fill: pal.muted, "font-size": "12",
+    transform: "rotate(-90 16 " + H / 2 + ")" });
+  yLabel.textContent = "Angle (°)";
+  svg.appendChild(yLabel);
+  const xLabel = svgEl("text", { x: String((W + padL) / 2), y: String(H - 6),
+    "text-anchor": "middle", fill: pal.muted, "font-size": "12" });
+  xLabel.textContent = "Time (s)";
+  svg.appendChild(xLabel);
+  if (fitted && period_s) {
+    const bracket = svgEl("line", { x1: String(X(minT)), y1: String(padT + 6),
+      x2: String(X(minT + period_s)), y2: String(padT + 6),
+      stroke: pal.fitted, "stroke-dasharray": "4 3", "stroke-width": "1.5" });
+    svg.appendChild(bracket);
+    const bracketLabel = svgEl("text", { x: String(X(minT + period_s / 2)),
+      y: String(padT + 2), "text-anchor": "middle", fill: pal.fitted,
+      "font-size": "10" });
+    bracketLabel.textContent = "T = " + period_s.toPrecision(4) + " s (pipeline)";
+    svg.appendChild(bracketLabel);
+  }
+  const dot = (pt, color, r) => {
+    svg.appendChild(svgEl("circle", { cx: String(X(pt[0])), cy: String(Y(pt[1])),
+      r: String(r), fill: color }));
+  };
+  /* The fitted series draws as a dashed curve through the same
+     fitted points (observed minus pipeline residual) — no formula is
+     recomputed here; this only connects the payload's own values so
+     the curve reads distinctly from the measured dots. */
+  if (fitted && fitted.length > 1) {
+    const line = fitted.map((pt, i) =>
+      (i === 0 ? "M" : "L") + X(pt[0]).toFixed(1) + " " +
+      Y(pt[1]).toFixed(1)).join(" ");
+    svg.appendChild(svgEl("path", { d: line, fill: "none",
+      stroke: pal.fitted, "stroke-width": "1.6",
+      "stroke-dasharray": "5 3" }));
+  }
+  for (const pt of points) dot(pt, pal.observed, 2.2);
+  const head = svgEl("line", { id: "thetaView", x1: "0", y1: String(padT),
+    x2: "0", y2: String(H - padB), stroke: pal.text, "stroke-width": "1.5" });
+  svg.appendChild(head);
+  return { X, count: points.length, span: [minT, maxT] };
+}
+
+function buildTrail(svg, trail) {
+  hide(el("trailEmpty"));
+  show(el("trailWrap"));
+  const pal = chartPalette();
+  svg.replaceChildren();
+  svgTitle(svg, trail.length + " measured bob centroids in pixel space; the playhead marks the scrubbed frame.");
+  const W = 720, H = 340, pad = 30;
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  for (const pt of trail) {
+    if (pt[0] < minX) minX = pt[0];
+    if (pt[0] > maxX) maxX = pt[0];
+    if (pt[1] < minY) minY = pt[1];
+    if (pt[1] > maxY) maxY = pt[1];
+  }
+  if (!(maxX > minX)) maxX = minX + 1;
+  if (!(maxY > minY)) maxY = minY + 1;
+  const span = Math.max(maxX - minX, maxY - minY) * 1.15;
+  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+  const X = (x) => pad + ((x - (cx - span / 2)) / span) * (W - 2 * pad);
+  const Y = (y) => pad + ((y - (cy - span / 2)) / span) * (H - 2 * pad);
+  svg.appendChild(svgEl("rect", { x: "0.5", y: "0.5", width: String(W - 1),
+    height: String(H - 1), fill: "none", stroke: pal.frame }));
+  const path = trail.map((pt, i) =>
+    (i === 0 ? "M" : "L") + X(pt[0]).toFixed(1) + " " + Y(pt[1]).toFixed(1)
+  ).join(" ");
+  svg.appendChild(svgEl("path", { d: path, fill: "none", stroke: pal.trail,
+    "stroke-width": "1.6", opacity: "0.85" }));
+  const first = svgEl("circle", { cx: String(X(trail[0][0])),
+    cy: String(Y(trail[0][1])), r: "4", fill: pal.strip });
+  const firstLabel = svgEl("title", {});
+  firstLabel.textContent = "start";
+  first.appendChild(firstLabel);
+  svg.appendChild(first);
+  const last = trail[trail.length - 1];
+  const end = svgEl("circle", { cx: String(X(last[0])), cy: String(Y(last[1])),
+    r: "4", fill: "none", stroke: pal.text, "stroke-width": "2" });
+  const endLabel = svgEl("title", {});
+  endLabel.textContent = "end";
+  end.appendChild(endLabel);
+  svg.appendChild(end);
+  const head = svgEl("circle", { id: "trailView", cx: "0", cy: "0", r: "5",
+    fill: "none", stroke: pal.text, "stroke-width": "2" });
+  svg.appendChild(head);
+  const cap = svgEl("text", { x: String(W - 12), y: String(H - 10),
+    "text-anchor": "end", fill: pal.muted, "font-size": "11" });
+  cap.textContent = "centroid trail, px (aspect preserved)";
+  svg.appendChild(cap);
+  return { X, Y };
+}
+
+function buildStrip(svg, times, residuals) {
+  hide(el("stripEmpty"));
+  show(el("stripWrap"));
+  const pal = chartPalette();
+  svg.replaceChildren();
+  svgTitle(svg, residuals.length + " pipeline residuals against source-PTS time.");
+  const W = 720, H = 220, padL = 64, padR = 18, padT = 14, padB = 40;
+  let minT = Infinity, maxT = -Infinity, peak = 0;
+  for (let i = 0; i < times.length; i++) {
+    if (times[i] < minT) minT = times[i];
+    if (times[i] > maxT) maxT = times[i];
+    const mag = Math.abs(residuals[i][1]);
+    if (mag > peak) peak = mag;
+  }
+  if (!(maxT > minT)) maxT = minT + 1;
+  if (!(peak > 0)) peak = 1;
+  const X = (t) => padL + ((t - minT) / (maxT - minT)) * (W - padL - padR);
+  const Y = (v) => padT + (1 - (v + peak) / (2 * peak)) * (H - padT - padB);
+  svg.appendChild(svgEl("rect", { x: "0.5", y: "0.5", width: String(W - 1),
+    height: String(H - 1), fill: "none", stroke: pal.frame }));
+  for (const frac of [-1, -0.5, 0, 0.5, 1]) {
+    const value = frac * peak;
+    svg.appendChild(svgEl("line", { x1: String(padL), y1: String(Y(value)),
+      x2: String(W - padR), y2: String(Y(value)), stroke: pal.grid }));
+    const text = svgEl("text", { x: String(padL - 8), y: String(Y(value) + 4),
+      "text-anchor": "end", fill: pal.muted, "font-size": "11" });
+    text.textContent = (value * 57.29578).toFixed(1);
+    svg.appendChild(text);
+  }
+  for (let i = 0; i <= 6; i++) {
+    const value = minT + ((maxT - minT) * i) / 6;
+    const text = svgEl("text", { x: String(X(value)), y: String(H - padB + 18),
+      "text-anchor": "middle", fill: pal.muted, "font-size": "11" });
+    text.textContent = value.toFixed(1);
+    svg.appendChild(text);
+  }
+  const path = residuals.map((pair, i) =>
+    (i === 0 ? "M" : "L") + X(times[i]).toFixed(1) + " " +
+    Y(pair[1]).toFixed(1)).join(" ");
+  svg.appendChild(svgEl("path", { d: path, fill: "none", stroke: pal.strip,
+    "stroke-width": "1.4" }));
+  const head = svgEl("line", { id: "stripView", x1: "0", y1: String(padT),
+    x2: "0", y2: String(H - padB), stroke: pal.text, "stroke-width": "1.5" });
+  svg.appendChild(head);
+  const cap = svgEl("text", { x: String(padL), y: String(H - 6),
+    fill: pal.muted, "font-size": "11" });
+  cap.textContent = "residual (deg) vs time (s)";
+  svg.appendChild(cap);
+  return { X };
+}
+
+function parseAnglesCsv(text) {
+  const lines = text.trim().split("\n");
+  const head = lines[0].split(",");
+  const col = (name) => head.indexOf(name);
+  const iT = col("pts_seconds"), iTheta = col("theta_rad"),
+    iX = col("centroid_x_px"), iY = col("centroid_y_px");
+  /* point_index is absent in the demo angles.csv - fall back to
+     frame_index. A -1 column index would Number() to NaN for every
+     row, and the finite-row guard would then blank all charts. */
+  let iIdx = col("point_index");
+  if (iIdx < 0) iIdx = col("frame_index");
+  const points = [], trail = [], order = [];
+  for (let rowIdx = 1; rowIdx < lines.length; rowIdx++) {
+    const cells = lines[rowIdx].split(",");
+    const row = [Number(cells[iT]), Number(cells[iTheta]),
+      Number(cells[iX]), Number(cells[iY]), Number(cells[iIdx])];
+    /* A row with any non-finite cell (blank/garbled column) would
+       poison charts and the playhead readout with NaN - skip it;
+       the CSV on disk stays the untouched artifact. */
+    if (row.some((v) => !Number.isFinite(v))) continue;
+    points.push([row[0], row[1]]);
+    trail.push([row[2], row[3]]);
+    order.push(row[4]);
+  }
+  return { points, trail, order };
+}
+
+function parseDiagnostics(report, text) {
+  if (report) {
+    const m1 = report.m1 && report.m1.diagnostics
+      ? report.m1.diagnostics : null;
+    const fitted = m1 && m1.fitted ? m1.fitted : null;
+    return {
+      /* KL-9.6 B5: m1.residuals elements are dicts
+         {point_index, residual_rad, t_seconds} — pair[0]/pair[1]
+         indexing silently produced all-NaN. Keep the [t, value]
+         pair contract the strip and fitted-theta consumers use. */
+      residuals: (m1 && m1.residuals ? m1.residuals : []).map(
+        (entry) => [Number(entry.t_seconds),
+          Number(entry.residual_rad)]),
+      period: fitted && fitted.period_s !== null
+        ? Number(fitted.period_s) : null,
+      doc: null,
+    };
+  }
+  const doc = JSON.parse(text);
+  const m1 = doc.m1 || {};
+  return {
+    residuals: (m1.residuals || []).map(
+      (entry) => [Number(entry.t_seconds),
+        Number(entry.residual_rad)]),
+    period: m1.fitted && m1.fitted.period_s !== null
+      ? Number(m1.fitted.period_s) : null,
+    doc: doc,
+  };
+}
+
+function syncPlayheads(idx) {
+  if (!seriesData) return;
+  const { geo, trailGeo, stripGeo, points, trail, order } = seriesData;
+  const safe = Math.max(0, Math.min(order.length - 1, idx));
+  /* Playhead nodes are created dynamically by the chart builders, so
+     they resolve via getElementById rather than the static el() map. */
+  const theta = document.getElementById("thetaView");
+  if (theta) theta.setAttribute("x1", String(geo.X(points[safe][0])));
+  if (theta) theta.setAttribute("x2", String(geo.X(points[safe][0])));
+  const trailHead = document.getElementById("trailView");
+  if (trailHead) {
+    trailHead.setAttribute("cx", String(trailGeo.X(trail[safe][0])));
+    trailHead.setAttribute("cy", String(trailGeo.Y(trail[safe][1])));
+  }
+  const strip = document.getElementById("stripView");
+  /* KL-9.6 B3: stripGeo is null when the payload carries no
+     residuals (e.g. an incomplete motion report) — the playhead
+     update must skip the strip then, not throw. */
+  if (strip && stripGeo) {
+    strip.setAttribute("x1", String(stripGeo.X(points[safe][0])));
+    strip.setAttribute("x2", String(stripGeo.X(points[safe][0])));
+  }
+  el("playheadReadout").textContent =
+      "t = " + points[safe][0].toFixed(3) + " s" +
+      (Number.isFinite(order[safe]) &&
+          Number.isFinite(order[order.length - 1])
+        ? " · i=" + order[safe] +
+          "/" + order[order.length - 1] : "");
+}
+
+function playReveal() {
+  if (!seriesData || revealPlaying) return;
+  revealPlaying = true;
+  const button = el("replayBtn");
+  button.disabled = true;
+  const scrubber = el("scrub");
+  const order = seriesData.order;
+  const points = seriesData.points;
+  const startPts = points[0][0];
+  const endPts = points[points.length - 1][0];
+  const span = endPts - startPts;
+  if (!(span > 0)) {
+    syncPlayheads(order.length - 1);
+    revealPlaying = false;
+    button.disabled = false;
+    return;
+  }
+  if (reducedMotion()) {
+    syncPlayheads(order.length - 1);
+    revealPlaying = false;
+    button.disabled = false;
+    return;
+  }
+  const wallStart = performance.now();
+  const tick = (now) => {
+    const elapsed = (now - wallStart) / 1000;
+    const cursor = startPts + elapsed;
+    let idx = order.length - 1;
+    for (let i = 0; i < points.length; i++) {
+      if (points[i][0] <= cursor) idx = i; else break;
+    }
+    scrubber.value = String(idx);
+    syncPlayheads(idx);
+    if (cursor < endPts) {
+      requestAnimationFrame(tick);
+    } else {
+      revealPlaying = false;
+      button.disabled = false;
+    }
+  };
+  requestAnimationFrame(tick);
+}
+
+function reducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+let revealPlaying = false;
+
+function markChartsLoading(on) {
+  for (const id of ["chartSvg", "trailSvg", "stripSvg"]) {
+    el(id).classList.toggle("skeleton", on);
+  }
+}
+
+async function paintChart(files, result, report) {
+  clearVisuals("Loading measured points…");
+  if (!files["angles.csv"]) {
+    clearVisuals("No angles.csv in this payload — nothing plotted, nothing guessed.");
+    hide(el("rmsChip"));
+    return null;
+  }
+  let csvText;
+  try {
+    const response = await fetch(files["angles.csv"]);
+    if (!response.ok) throw new Error("HTTP " + response.status);
+    csvText = await response.text();
+  } catch (err) {
+    clearVisuals("angles.csv fetch failed: " + err);
+    markOnline(false);
+    hide(el("rmsChip"));
+    return null;
+  }
+  const { points, trail, order } = parseAnglesCsv(csvText);
+  if (points.length === 0) {
+    clearVisuals("No measured points in this payload — nothing plotted, nothing guessed.");
+    hide(el("rmsChip"));
+    return null;
+  }
+  let diagnostics = { residuals: [], period: null, doc: null };
+  if (report) {
+    diagnostics = parseDiagnostics(report, "");
+  } else if (files["diagnostics.json"]) {
+    try {
+      const response = await fetch(files["diagnostics.json"]);
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      diagnostics = parseDiagnostics(null, await response.text());
+    } catch (err) {
+      clearVisuals("diagnostics.json fetch failed: " + err);
+      markOnline(false);
+      hide(el("rmsChip"));
+      return null;
+    }
+  }
+  const residuals = diagnostics.residuals;
+  let fitted = null;
+  if (residuals.length === points.length) {
+    fitted = points.map((pt, i) => [pt[0], points[i][1] - residuals[i][1]]);
+  }
+  const thetaSvg = el("chartSvg");
+  const geo = buildTheta(thetaSvg, points, fitted, diagnostics.period);
+  const trailSvg = el("trailSvg");
+  const trailGeo = buildTrail(trailSvg, trail);
+  const stripSvg = el("stripSvg");
+  const times = points.map((pt) => pt[0]);
+  const stripGeo = residuals.length === points.length
+    ? buildStrip(stripSvg, times, residuals)
+    : (clearStripOnly("No residuals in this payload."), null);
+  seriesData = { geo, trailGeo, stripGeo, points, trail, order,
+    fitted, period: diagnostics.period, times, residuals };
+  const scrubber = el("scrub");
+  scrubber.max = String(order.length - 1);
+  scrubber.value = String(order.length - 1);
+  syncPlayheads(order.length - 1);
+  el("chartMeta").textContent =
+    points.length + " observed samples · residuals " +
+    (residuals.length === points.length ? "paired" : "absent") +
+    " · fitted = observed − residual (computed from pipeline residuals)";
+  el("trailMeta").textContent =
+    trail.length + " measured centroids" +
+    (diagnostics.period !== null
+      ? " · T = " + diagnostics.period.toPrecision(4) + " s (pipeline)"
+      : " · period unavailable (null)");
+  el("chartNote").textContent =
+    "Angles come from the served angles.csv; the fitted overlay is observed minus the pipeline residual at each index — never recomputed from a formula.";
+  paintRmsChip(result, report);
+  playReveal();
+  return diagnostics.doc;
+}
+
+function clearStripOnly(message) {
+  const svg = el("stripSvg");
+  hide(el("stripEmpty"));
+  show(el("stripWrap"));
+  svg.replaceChildren();
+  const label = svgEl("text", { x: "360", y: "110", "text-anchor": "middle",
+    fill: chartPalette().muted, "font-size": "14" });
+  label.textContent = message;
+  svg.appendChild(label);
+  return null;
+}
+
+function paintRmsChip(result, report) {
+  const chip = el("rmsChip");
+  const rmse = result && result.fit && result.fit.residual_summary
+    ? result.fit.residual_summary.rmse
+    : report && report.m1 && report.m1.fit && report.m1.fit.residual_summary
+      ? report.m1.fit.residual_summary.rmse : null;
+  if (rmse === null || rmse === undefined || !isFinite(rmse)) {
+    chip.textContent = "";
+    hide(chip);
+    return;
+  }
+  chip.textContent = "RMS " + rmse.toPrecision(4) + " (pipeline)";
+  chip.setAttribute("title", String(rmse));
+  show(chip);
+}
+
+/* Rebuild charts with the active theme palette after a toggle. */
+function repaintCharts() {
+  if (!seriesData) return;
+  const { points, trail, order, fitted, period, times, residuals } = seriesData;
+  const scrubber = el("scrub");
+  const idx = Math.max(0, Math.min(order.length - 1, Number(scrubber.value) || 0));
+  seriesData.geo = buildTheta(el("chartSvg"), points, fitted, period);
+  seriesData.trailGeo = buildTrail(el("trailSvg"), trail);
+  if (residuals && residuals.length === points.length) {
+    seriesData.stripGeo = buildStrip(el("stripSvg"), times, residuals);
+  }
+  syncPlayheads(idx);
+}
+/* ---- live capture: detect -> confirm -> measure ---- */
+const LIVE_AVAILABLE = __KL_LIVE_AVAILABLE__;
+
+const liveState = {
+  step: "idle",
+  file: null,
+  runId: null,
+  mode: "full",
+  summary: null,
+  measureFiles: null,
+};
+
+function liveMode() {
+  return el("liveModeMotion").checked ? "motion" : "full";
+}
+
+function setLiveFile(file) {
+  liveState.file = file;
+  const chip = el("liveFileChip");
+  if (file) {
+    chip.textContent = file.name;
+    show(chip);
+  } else {
+    chip.textContent = "";
+    hide(chip);
+  }
+  if (liveState.step === "idle" || liveState.step === "file") {
+    liveState.step = file ? "file" : "idle";
+  }
+  updateActionStates();
+  updateIdleState();
+}
+
+function resetLiveSteps() {
+  liveState.step = liveState.file ? "file" : "idle";
+  liveState.runId = null;
+  liveState.summary = null;
+  liveState.measureFiles = null;
+  hide(el("liveConfirm"));
+  hide(el("liveMeasureWrap"));
+  hide(el("liveMotionOut"));
+  el("liveMotionCompact").textContent = "";
+  el("liveRunNote").textContent = "";
+  el("liveMm").value = "";
+  const overlay = el("liveOverlay");
+  if (overlay) overlay.replaceChildren();
+  const objects = el("objectsList");
+  objects.replaceChildren();
+  const idle = document.createElement("div");
+  idle.className = "object-row";
+  const span = document.createElement("span");
+  span.className = "object-detail";
+  span.textContent = "No detection yet — run Detect.";
+  idle.appendChild(span);
+  objects.appendChild(idle);
+  el("detectSourceBody").textContent = "No detection yet.";
+  const confirm = el("confirmStatus");
+  confirm.className = "confirm-status idle";
+  confirm.textContent = "Awaiting your confirmation";
+  updateActionStates();
+  updateIdleState();
+}
+
+function paintObjects(summary) {
+  const box = el("objectsList");
+  box.replaceChildren();
+  const roles = summary.roles || {};
+  const colors = { bob: "#FB7185", card: "#2DD4BF" };
+  const names = Object.keys(roles);
+  if (names.length === 0) {
+    const idle = document.createElement("div");
+    idle.className = "object-row";
+    const span = document.createElement("span");
+    span.className = "object-detail";
+    span.textContent = "No objects in this summary.";
+    idle.appendChild(span);
+    box.appendChild(idle);
+    return;
+  }
+  for (const name of names) {
+    const info = roles[name];
+    const rowNode = document.createElement("div");
+    rowNode.className = "object-row";
+    const dot = document.createElement("span");
+    dot.className = "object-dot";
+    dot.style.background = colors[name] || "var(--blue)";
+    rowNode.appendChild(dot);
+    const text = document.createElement("div");
+    const title = document.createElement("div");
+    title.className = "object-name";
+    title.textContent = name;
+    text.appendChild(title);
+    const detail = document.createElement("div");
+    detail.className = "object-detail";
+    detail.textContent = info.valid + " valid / " + info.records +
+      " records · first frame " + info.first_frame_index;
+    text.appendChild(detail);
+    rowNode.appendChild(text);
+    const spacer = document.createElement("span");
+    spacer.className = "row-spacer";
+    rowNode.appendChild(spacer);
+    const check = document.createElement("span");
+    check.className = "check";
+    check.textContent = "✓";
+    check.setAttribute("title", "detected — awaiting your confirmation");
+    rowNode.appendChild(check);
+    box.appendChild(rowNode);
+  }
+  let total = 0;
+  for (const name of names) total += roles[name].records;
+  el("detectSourceBody").textContent =
+    "sam-3.1 · " + total + " records · raw 1-bit masks saved server-side.";
+}
+
+function drawLiveOverlay(summary) {
+  const svg = el("liveOverlay");
+  const video = el("livePreview");
+  svg.replaceChildren();
+  if (!summary || !summary.video) return;
+  const width = summary.video.width;
+  const height = summary.video.height;
+  svg.setAttribute("viewBox", "0 0 " + width + " " + height);
+  const colors = { bob: "#FB7185", card: "#2DD4BF" };
+  const roles = summary.roles || {};
+  for (const name of Object.keys(roles)) {
+    /* KL-9.6 B6: first_box is an ARRAY [x1, y1, x2, y2] (chain.py
+       emits arrays) — .x1/.y1 reads produced NaN rects that never
+       rendered. Validate the shape; skip dishonest boxes. */
+    const box = roles[name].first_box;
+    if (!Array.isArray(box) || box.length < 4 ||
+        !box.slice(0, 4).every((v) => typeof v === "number" &&
+          Number.isFinite(v))) continue;
+    const rect = svgEl("rect", { x: String(box[0]), y: String(box[1]),
+      width: String(box[2] - box[0]), height: String(box[3] - box[1]),
+      fill: "none", stroke: colors[name] || "#fff", "stroke-width": "3" });
+    svg.appendChild(rect);
+    const label = svgEl("text", { x: String(box[0] + 4), y: String(box[1] - 6),
+      fill: colors[name] || "#fff", "font-size": "22", "font-weight": "bold" });
+    label.textContent = name + " · frame " + roles[name].first_frame_index;
+    svg.appendChild(label);
+  }
+  void video;
+}
+
+async function runLiveDetect() {
+  if (!liveState.file) {
+    showError(el("liveErr"), null, "Choose a clip first — nothing was sent.");
+    notify("No clip", "Choose a clip before pressing Detect.", "warn");
+    return;
+  }
+  const mode = liveMode();
+  liveState.mode = mode;
+  const spinner = el("liveSpin");
+  hide(el("liveErr"));
+  show(spinner);
+  setBusy(true);
+  setWorkflowStage("detect", "processing");
+  setAppStatus("Detecting", "Detecting objects (" + mode + " mode).",
+    statusFacts({ kind: "live-" + mode,
+      summary: liveState.summary }, lastUploadVerdict));
+  markChartsLoading(true);
+  showProgress("Detecting objects",
+    "Vision model running (~2 min), then local encoding (~5 min). One request, no incremental progress — keep this tab open.",
+    "Detect request in flight.");
+  try {
+    const form = new FormData();
+    form.append("stage", "detect");
+    form.append("mode", mode);
+    form.append("prompt_bob", el("livePromptBob").value);
+    if (mode === "full") {
+      form.append("prompt_card", el("livePromptCard").value);
+    }
+    form.append("clip", liveState.file, liveState.file.name || "clip.mp4");
+    const response = await fetch("/api/live", { method: "POST", body: form });
+    const payload = await response.json();
+    markOnline(true);
+    if (!response.ok) {
+      showError(el("liveErr"), payload, "Detect failed.");
+      setWorkflowStage("detect", "failed");
+      lastFailedOp = "detect";
+      setAppStatus("Failed", "Detect failed — see the error in Setup & Detect.", null);
+      opsComplete("Detect · failed (" +
+        (payload && payload.error && payload.error.code ? payload.error.code : "no code") + ")");
+      notify("Detect failed", "See the friendly error with recovery steps.", "bad");
+      return;
+    }
+    liveState.runId = payload.run_id;
+    liveState.summary = payload.summary;
+    liveState.step = "detected";
+    paintObjects(payload.summary);
+    drawLiveOverlay(payload.summary);
+    el("liveCounts").textContent = liveStatusLine(payload);
+    show(el("liveConfirm"));
+    const confirm = el("confirmStatus");
+    confirm.className = "confirm-status idle";
+    confirm.textContent = "Awaiting your confirmation";
+    setWorkflowStage("detect", "done");
+    setWorkflowStage("confirm", "active");
+    lastFailedOp = "";
+    setAppStatus("Awaiting confirmation", "Detected — confirm the boxes to continue.",
+      statusFacts({ kind: "live-" + mode, summary: payload.summary,
+        files: null }, lastUploadVerdict));
+    opsComplete("Detect · " + liveStatusLine(payload));
+    el("frameChip").textContent = payload.summary.video.frames + " frames · " +
+      payload.summary.video.width + "×" + payload.summary.video.height;
+    notify("Detect complete", "Review the boxes, then confirm or re-detect.", "ok");
+  } catch (err) {
+    markOnline(false);
+    showError(el("liveErr"), null, "Detect failed: " + err);
+    setWorkflowStage("detect", "failed");
+    lastFailedOp = "detect";
+    setAppStatus("Failed", "The detect request never completed.", null);
+    opsComplete("Detect · failed (connection lost)");
+    notify("Detect failed", "The request never completed — connection lost.", "bad");
+  } finally {
+    hide(spinner);
+    setBusy(false);
+    markChartsLoading(false);
+    hideProgress();
+  }
+}
+
+function liveStatusLine(payload) {
+  const summary = payload.summary;
+  const roles = summary.roles || {};
+  const parts = [];
+  for (const name of Object.keys(roles)) {
+    parts.push(name + " " + roles[name].valid + "/" + roles[name].records);
+  }
+  return "Run " + payload.run_id + " · " + summary.mode + " · " + parts.join(" · ");
+}
+
+function confirmLive() {
+  if (liveState.step !== "detected" || !liveState.runId) return;
+  liveState.step = "confirmed";
+  const confirm = el("confirmStatus");
+  confirm.className = "confirm-status ok";
+  confirm.textContent = "✓ Objects confirmed — you verified the detected regions.";
+  const full = liveState.mode === "full";
+  if (full) show(el("liveMmRow")); else hide(el("liveMmRow"));
+  show(el("liveMeasureWrap"));
+  setWorkflowStage("confirm", "done");
+  setWorkflowStage("measure", "active");
+  setAppStatus("Ready for analysis",
+    full ? "Objects confirmed — type the card width, then Measure."
+      : "Objects confirmed — press Measure when ready.", null);
+  updateActionStates();
+  notify("Confirmed", "Regions verified. " +
+    (full ? "Type the card width, then Measure." : "Press Measure when ready."), "ok");
+}
+
+function backToPrompts() {
+  if (liveState.step !== "detected" && liveState.step !== "confirmed") return;
+  liveState.step = "detected";
+  hide(el("liveMeasureWrap"));
+  const confirm = el("confirmStatus");
+  confirm.className = "confirm-status idle";
+  confirm.textContent = "Rejected — adjust prompts and re-detect.";
+  setWorkflowStage("confirm", "active");
+  setWorkflowStage("measure", null);
+  setAppStatus("Ready for analysis", "Rejected — adjust prompts and re-detect.", null);
+  updateActionStates();
+  notify("Rejected", "Adjust the prompts and press Detect again.", "warn");
+}
+
+async function runLiveMeasure() {
+  if (liveState.step !== "confirmed" || !liveState.runId) return;
+  const mode = liveState.mode;
+  let mm = null;
+  if (mode === "full") {
+    const raw = el("liveMm").value.trim();
+    mm = raw === "" ? null : Number(raw);
+    if (mm === null || !isFinite(mm) || mm <= 0) {
+      showError(el("liveMeasureErr"), null,
+        "Type the measured card width in mm — it is never guessed.");
+      notify("Card width needed", "Type the measured width; it is never guessed.", "warn");
+      return;
+    }
+  }
+  const spinner = el("liveMeasureSpin");
+  hide(el("liveMeasureErr"));
+  show(spinner);
+  setBusy(true);
+  setStage("stageEmpty");
+  setWorkflowStage("measure", "processing");
+  setAppStatus("Measuring", "Measuring (" + mode + " mode).",
+    statusFacts({ kind: "live-" + mode, summary: liveState.summary,
+      files: null }, lastUploadVerdict));
+  markChartsLoading(true);
+  showProgress("Measuring",
+    mode === "full"
+      ? "Full mode: calibration, fit, and diagnostics — about 20 minutes, no incremental progress."
+      : "Motion mode: fitting the scale-free track.",
+    "Measure request in flight.");
+  try {
+    const form = new FormData();
+    form.append("stage", "measure");
+    form.append("run_id", liveState.runId);
+    if (mode === "full") {
+      form.append("card_width_mm", mm);
+    }
+    const response = await fetch("/api/live", { method: "POST", body: form });
+    const payload = await response.json();
+    markOnline(true);
+    if (!response.ok) {
+      setStage("stageResult");
+      hide(el("demoBody"));
+      showError(el("liveMeasureErr"), payload, "Measure failed.");
+      setWorkflowStage("measure", "failed");
+      lastFailedOp = "measure";
+      setAppStatus("Failed", "Measure failed — see the error in the Measure block.", null);
+      opsComplete("Measure · failed (" +
+        (payload && payload.error && payload.error.code ? payload.error.code : "no code") + ")");
+      notify("Measure failed", "See the friendly error with recovery steps.", "bad");
+      return;
+    }
+    el("liveRunNote").textContent = payload.status_line +
+      " · files: " + Object.keys(payload.files || {}).join(", ");
+    if (mode === "full") {
+      window.__lastFiles = payload.files || {};
+      paintVerdict(payload.result, null);
+      await renderDemo(payload);
+      setWorkflowStage("measure", "done");
+      setWorkflowStage("results", "done");
+      lastFailedOp = "";
+      const rejected = payload.result.status === "unsupported_input";
+      setAppStatus("Complete",
+        rejected ? payload.status_line + " (audited rejection — see cause below)."
+          : payload.status_line, statusFacts({ kind: "live-full",
+            summary: liveState.summary, files: payload.files,
+            result: payload.result }, lastUploadVerdict));
+      opsComplete("Measure (full) · " + payload.status_line);
+    } else {
+      await renderLiveMotion(payload);
+      setWorkflowStage("measure", "done");
+      setWorkflowStage("results", "done");
+      lastFailedOp = "";
+      setAppStatus("Complete", payload.status_line,
+        statusFacts({ kind: "live-motion", summary: liveState.summary,
+          files: payload.files }, lastUploadVerdict));
+      opsComplete("Measure (motion) · " + payload.status_line +
+        " · " + motionCounts(payload.report));
+    }
+    notify("Measure complete", payload.status_line, "ok");
+  } catch (err) {
+    markOnline(false);
+    setStage("stageResult");
+    hide(el("demoBody"));
+    showError(el("liveMeasureErr"), null, "Measure failed: " + err);
+    setWorkflowStage("measure", "failed");
+    lastFailedOp = "measure";
+    setAppStatus("Failed", "The measure request never completed.", null);
+    opsComplete("Measure · failed (connection lost)");
+    notify("Measure failed", "The request never completed — connection lost.", "bad");
+  } finally {
+    hide(spinner);
+    setBusy(false);
+    markChartsLoading(false);
+    hideProgress();
+    el("chartsPanel").scrollIntoView({ block: "nearest" });
+  }
+}
+
+function responseTextSafe(response) {
+  return response.text().catch((err) => "fetch failed: " + err);
+}
+
+/* KL-9.6 B3: the motion report carries n_fit_points / excluded_frames
+   (chain.py) — the page used to read n_points / n_dropped, which do not
+   exist, rendering "undefined points, undefined dropped". */
+function motionCounts(report) {
+  const nFit = typeof report.n_fit_points === "number" &&
+    Number.isFinite(report.n_fit_points)
+    ? String(report.n_fit_points) : "count not recorded";
+  const nDropped = Array.isArray(report.excluded_frames)
+    ? String(report.excluded_frames.length) : "count not recorded";
+  return nFit + " points, " + nDropped + " dropped";
+}
+
+function motionFinite(value) {
+  return typeof value === "number" && Number.isFinite(value)
+    ? value.toPrecision(4) : "not available";
+}
+
+async function renderLiveMotion(payload) {
+  const report = payload.report;
+  const files = payload.files || {};
+  window.__lastFiles = files;
+  setStage("stageResult");
+  show(el("demoBody"));
+  hasResult = true;
+  hide(el("demoErr"));
+  selectTab("tabTrajectory");
+  const complete = report.status === "complete";
+  const reason = typeof report.reason === "string" && report.reason
+    ? report.reason : "no reason recorded";
+  const compact = el("liveMotionCompact");
+  /* KL-9.6 B3: .toPrecision(4) on a null readout threw for incomplete
+     reports. Incomplete states render honestly as "not available"
+     with the backend's reason — never a crash, never a guess. */
+  compact.textContent = complete
+    ? "Motion complete: g/L " + motionFinite(report.g_over_l_per_s2) +
+      " 1/s² · T " + motionFinite(report.period_s) +
+      " s · ω " + motionFinite(report.omega_per_s) + " rad/s · " +
+      motionCounts(report) + "."
+    : "Motion incomplete (" + reason + "): values not available · " +
+      motionCounts(report) + ".";
+  compact.setAttribute("title", JSON.stringify({
+    g_over_l_per_s2: report.g_over_l_per_s2,
+    period_s: report.period_s,
+    omega_per_s: report.omega_per_s,
+  }));
+  show(el("liveMotionOut"));
+  el("verdict").className = complete ? "verdict ok" : "verdict bad";
+  el("verdict").replaceChildren();
+  const head = document.createElement("span");
+  head.textContent = complete ? "MOTION COMPLETE" : "MOTION INCOMPLETE";
+  el("verdict").appendChild(head);
+  const sub = document.createElement("small");
+  sub.textContent = complete
+    ? payload.status_line +
+      " Scale-free track: no length, no gravity — those stay null by design."
+    : payload.status_line + " " + reason;
+  el("verdict").appendChild(sub);
+  paintMotionEvidence(report);
+  await paintSummary(files);
+  const anglesOk = await paintMotionChart(files, report);
+  paintMotionStepper(report, files, anglesOk);
+  paintMetrics(null, report, null, "live motion mode");
+  paintModeTag("live-motion");
+  paintProvSummary("live-motion", null, report, files);
+}
+
+function paintMotionEvidence(report) {
+  paintEvidence({ warnings: report.warnings || [],
+    assumptions: report.assumptions || [], reject_reasons: [] },
+  { note: "Motion mode records no advisory replay: scale-free outputs carry no setup review." });
+  const rows = el("provRows");
+  rows.replaceChildren();
+  const provenance = report.provenance || {};
+  rows.appendChild(hashRow("Input SHA-256", provenance.input_sha256 || "missing"));
+  rows.appendChild(row("Capture mode", provenance.capture_mode || "missing"));
+  rows.appendChild(row("Model name", provenance.model_name || "missing"));
+  const artifacts = el("artifactRows");
+  artifacts.replaceChildren();
+  const empty = document.createElement("tr");
+  const cell = document.createElement("td");
+  cell.textContent = "none recorded (motion exports are the report + angles).";
+  empty.appendChild(cell);
+  artifacts.appendChild(empty);
+  paintExportLinks(el("exportLinks"));
+  paintReportsCard();
+}
+
+function paintMotionStepper(report, files, artifactsOk) {
+  const list = el("stepList");
+  list.replaceChildren();
+  const stages = [
+    { title: "Measured", state: "complete",
+      detail: motionCounts(report) },
+    { title: "Outcome",
+      state: report.status === "complete" ? "complete" : "failed",
+      detail: report.status },
+    { title: "Exports", state: Object.keys(files).length > 0 ? "complete" : "pending",
+      detail: Object.keys(files).length > 0
+        ? Object.keys(files).length + " written by the backend" : "nothing written" },
+    { title: "Charts", state: artifactsOk ? "complete" : "pending",
+      detail: artifactsOk ? "rendered from served bytes" : "not rendered" },
+  ];
+  for (const stage of stages) {
+    const li = document.createElement("li");
+    li.className = stage.state;
+    const title = document.createElement("span");
+    title.className = "t";
+    title.textContent = stage.title;
+    li.appendChild(title);
+    li.appendChild(document.createTextNode(stage.detail));
+    list.appendChild(li);
+  }
+}
+
+async function paintMotionChart(files, report) {
+  if (!files["motion_angles.csv"]) {
+    clearVisuals("No motion_angles.csv in this payload — nothing plotted.");
+    return false;
+  }
+  let csvText;
+  try {
+    const response = await fetch(files["motion_angles.csv"]);
+    if (!response.ok) throw new Error("HTTP " + response.status);
+    csvText = await response.text();
+  } catch (err) {
+    clearVisuals("motion_angles.csv fetch failed: " + err);
+    markOnline(false);
+    return false;
+  }
+  const header = "point_index,pts_seconds,theta_rad,centroid_x_px,centroid_y_px,residual_rad\n";
+  const { points, trail, order } = parseAnglesCsv(header + csvText);
+  if (points.length === 0) {
+    clearVisuals("No measured points in this report — nothing plotted, nothing guessed.");
+    return false;
+  }
+  const diagnostics = parseDiagnostics(report, "");
+  const residuals = diagnostics.residuals;
+  let fitted = null;
+  if (residuals.length === points.length) {
+    fitted = points.map((pt, i) => [pt[0], points[i][1] - residuals[i][1]]);
+  }
+  const geo = buildTheta(el("chartSvg"), points, fitted, diagnostics.period);
+  const trailGeo = buildTrail(el("trailSvg"), trail);
+  const times = points.map((pt) => pt[0]);
+  const stripGeo = residuals.length === points.length
+    ? buildStrip(el("stripSvg"), times, residuals)
+    : (clearStripOnly("No residuals in this report."), null);
+  seriesData = { geo, trailGeo, stripGeo, points, trail, order,
+    fitted, period: diagnostics.period, times, residuals };
+  const scrubber = el("scrub");
+  scrubber.max = String(order.length - 1);
+  scrubber.value = String(order.length - 1);
+  syncPlayheads(order.length - 1);
+  el("chartMeta").textContent =
+    points.length + " observed samples · fitted = observed − residual (computed from pipeline residuals)";
+  el("trailMeta").textContent = trail.length + " measured centroids" +
+    (diagnostics.period !== null
+      ? " · T = " + diagnostics.period.toPrecision(4) + " s (pipeline)"
+      : " · period unavailable (null)");
+  el("chartNote").textContent =
+    "Angles come from the served motion_angles.csv; the fitted overlay is observed minus the pipeline residual at each index.";
+  el("fitLegend").textContent = "fitted θ(t) — observed minus pipeline residual";
+  paintRmsChip(null, report);
+  playReveal();
+  return true;
+}
+
+/* ---- in-browser recording (MP4 requested, staged locally) ---- */
+let mediaRecorder = null;
+let recordedChunks = [];
+let recordStream = null;
+
+async function toggleLiveRecord() {
+  const button = el("liveRecordBtn");
+  const note = el("liveRecordNote");
+  if (mediaRecorder) {
+    mediaRecorder.stop();
+    return;
+  }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    note.textContent = "This browser cannot record MP4 here — choose a file instead. No upload attempted.";
+    notify("Recording unavailable", "This browser exposes no camera capture.", "warn");
+    return;
+  }
+  try {
+    recordStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+  } catch (err) {
+    note.textContent = "Camera unavailable (" + err + "). No upload attempted.";
+    notify("Recording unavailable", "Camera unavailable.", "warn");
+    return;
+  }
+  let options = null;
+  if (window.MediaRecorder && MediaRecorder.isTypeSupported("video/mp4")) {
+    options = { mimeType: "video/mp4" };
+  } else {
+    note.textContent = "This browser cannot record MP4 — choose a file instead. No upload attempted.";
+    for (const track of recordStream.getTracks()) track.stop();
+    recordStream = null;
+    notify("Recording unavailable", "This browser cannot record MP4.", "warn");
+    return;
+  }
+  recordedChunks = [];
+  mediaRecorder = new MediaRecorder(recordStream, options);
+  mediaRecorder.ondataavailable = (event) => {
+    if (event.data && event.data.size > 0) recordedChunks.push(event.data);
+  };
+  mediaRecorder.onstop = () => {
+    const blob = new Blob(recordedChunks, { type: "video/mp4" });
+    const file = new File([blob], "recording.mp4", { type: "video/mp4" });
+    setPendingFile(file);
+    setLiveFile(file);
+    setViewerFile(file);
+    note.textContent = "Recording staged locally (" +
+      (blob.size / 1048576).toFixed(2) + " MB) — not yet sent. Press Detect to measure it.";
+    if (recordStream) {
+      for (const track of recordStream.getTracks()) track.stop();
+      recordStream = null;
+    }
+    mediaRecorder = null;
+    button.textContent = "Record";
+    el("recordEmptyBtn").textContent = "Record";
+    notify("Recording staged", "Press Detect to measure it.", "ok");
+  };
+  mediaRecorder.start();
+  button.textContent = "Stop";
+  el("recordEmptyBtn").textContent = "Stop";
+  note.textContent = "Recording… press Stop to stage the clip.";
+}
+
+/* ---- viewer controls + filmstrip (real file metadata only) ---- */
+function fmtClock(seconds) {
+  if (!isFinite(seconds) || seconds < 0) return "--:--";
+  const minutes = Math.floor(seconds / 60);
+  const rest = seconds - minutes * 60;
+  const whole = String(minutes).padStart(2, "0");
+  const frac = rest < 10 ? "0" + rest.toFixed(2) : rest.toFixed(2);
+  return whole + ":" + frac;
+}
+
+function clearFilmstrip() {
+  const strip = el("filmstrip");
+  strip.replaceChildren();
+  const idle = document.createElement("span");
+  idle.className = "subtle";
+  idle.textContent = "Load a clip to enable the filmstrip.";
+  strip.appendChild(idle);
+}
+
+function buildFilmstrip() {
+  const video = el("livePreview");
+  const duration = video.duration;
+  const strip = el("filmstrip");
+  strip.replaceChildren();
+  if (!isFinite(duration) || duration <= 0) {
+    clearFilmstrip();
+    return;
+  }
+  const count = 9;
+  for (let i = 0; i < count; i++) {
+    const at = (duration * i) / count;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "thumb";
+    button.textContent = fmtClock(at);
+    button.setAttribute("aria-label", "Seek to " + fmtClock(at));
+    button.addEventListener("click", () => { video.currentTime = at; });
+    strip.appendChild(button);
+  }
+}
+
+function syncFilmstrip() {
+  const video = el("livePreview");
+  const thumbs = el("filmstrip").querySelectorAll(".thumb");
+  if (!thumbs.length || !isFinite(video.duration) || video.duration <= 0) return;
+  const at = Math.min(thumbs.length - 1,
+    Math.floor((video.currentTime / video.duration) * thumbs.length));
+  thumbs.forEach((thumb, i) => {
+    thumb.classList.toggle("active", i === at);
+  });
+}
+
+const SPEEDS = [1, 1.5, 2];
+let speedIdx = 0;
+
+function wireViewer() {
+  const video = el("livePreview");
+  video.addEventListener("loadedmetadata", () => {
+    el("seek").max = String(video.duration || 0);
+    el("timeLabel").textContent =
+      fmtClock(0) + " / " + fmtClock(video.duration);
+    buildFilmstrip();
+  });
+  video.addEventListener("loadeddata", () => {
+    if (liveState.summary) drawLiveOverlay(liveState.summary);
+  });
+  video.addEventListener("error", () => {
+    const msg = "The staged clip could not be decoded by this browser — " +
+      "try a different MP4 (H.264) or re-export it.";
+    el("emptyError").textContent = msg;
+    show(el("emptyError"));
+    notify("Clip will not play", msg, "warn");
+  });
+  video.addEventListener("timeupdate", () => {
+    el("timeLabel").textContent =
+      fmtClock(video.currentTime) + " / " + fmtClock(video.duration);
+    if (document.activeElement !== el("seek")) {
+      el("seek").value = String(video.currentTime);
+    }
+    syncFilmstrip();
+  });
+  el("seek").addEventListener("input", () => {
+    video.currentTime = Number(el("seek").value) || 0;
+  });
+  el("playBtn").addEventListener("click", () => {
+    if (!video.src) {
+      notify("No clip", "Load a clip before playing.", "warn");
+      return;
+    }
+    if (video.paused) {
+      video.play();
+      el("playBtn").textContent = "❚❚";
+    } else {
+      video.pause();
+      el("playBtn").textContent = "▶";
+    }
+  });
+  el("speedBtn").addEventListener("click", () => {
+    speedIdx = (speedIdx + 1) % SPEEDS.length;
+    video.playbackRate = SPEEDS[speedIdx];
+    el("speedBtn").textContent = String(SPEEDS[speedIdx]) + "×";
+  });
+  el("fsBtn").addEventListener("click", () => {
+    const stage = el("dropZone");
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else if (stage.requestFullscreen) {
+      stage.requestFullscreen();
+    }
+  });
+  /* Overlay view modes: Overlay (confirmed boxes) and Raw (no
+     overlay). A Mask mode is deliberately omitted — the backend
+     serves no mask rasters to the page, and a fake one would lie. */
+  el("overlayBtn").addEventListener("click", () => {
+    el("liveOverlay").style.display = "";
+    el("overlayBtn").setAttribute("aria-pressed", "true");
+    el("rawViewBtn").setAttribute("aria-pressed", "false");
+  });
+  el("rawViewBtn").addEventListener("click", () => {
+    el("liveOverlay").style.display = "none";
+    el("overlayBtn").setAttribute("aria-pressed", "false");
+    el("rawViewBtn").setAttribute("aria-pressed", "true");
+  });
+}
+
+function stageClip(file) {
+  if (!file) return;
+  el("emptyError").textContent = "";
+  hide(el("emptyError"));
+  setPendingFile(file);
+  setLiveFile(file);
+  setViewerFile(file);
+  resetLiveSteps();
+  setLiveFile(file);
+  hide(el("uploadOut"));
+  hide(el("uploadErr"));
+  el("uploadDetails").open = false;
+  runUploadValidation();
+}
+
+function initLive() {
+  if (!LIVE_AVAILABLE) return;
+  hide(el("noKeyPanel"));
+  show(el("livePanel"));
+  el("liveDetectBtn").addEventListener("click", runLiveDetect);
+  el("liveConfirmBtn").addEventListener("click", confirmLive);
+  el("liveBackBtn").addEventListener("click", backToPrompts);
+  el("liveMeasureBtn").addEventListener("click", runLiveMeasure);
+  el("liveRecordBtn").addEventListener("click", toggleLiveRecord);
+  const syncMode = () => {
+    if (el("liveModeMotion").checked) hide(el("livePromptCardWrap"));
+    else show(el("livePromptCardWrap"));
+    if (liveState.step === "detected" || liveState.step === "confirmed") {
+      resetLiveSteps();
+      notify("Mode changed", "Detection reset — press Detect again.", "warn");
+    }
+  };
+  el("liveModeFull").addEventListener("change", syncMode);
+  el("liveModeMotion").addEventListener("change", syncMode);
+  syncMode();
+  /* Single source-video workflow: the viewer picker (clipFile) is the
+     only file input. This panel only displays the staged clip via
+     setLiveFile, which stageClip already calls. */
+}
+
+function wireUpload() {
+  const zone = el("dropZone");
+  const input = el("clipFile");
+  el("browseBtn").addEventListener("click", () => { input.click(); });
+  el("browseEmptyBtn").addEventListener("click", () => { input.click(); });
+  el("recordEmptyBtn").addEventListener("click", () => {
+    if (LIVE_AVAILABLE) toggleLiveRecord();
+    else notify("Recording unavailable",
+      "Recording needs the live panel — set MODEL_API_KEY and reload.", "warn");
+  });
+  input.addEventListener("change", () => {
+    if (input.files && input.files[0]) stageClip(input.files[0]);
+  });
+  zone.addEventListener("click", (event) => {
+    if (event.target.closest("button, input, a, summary")) return;
+    input.click();
+  });
+  zone.addEventListener("keydown", (event) => {
+    if (event.target !== zone) return;
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      input.click();
+    }
+  });
+  for (const name of ["dragenter", "dragover"]) {
+    zone.addEventListener(name, (event) => {
+      event.preventDefault();
+      zone.classList.add("dragover");
+    });
+  }
+  for (const name of ["dragleave", "drop"]) {
+    zone.addEventListener(name, (event) => {
+      event.preventDefault();
+      zone.classList.remove("dragover");
+    });
+  }
+  zone.addEventListener("drop", (event) => {
+    const files = event.dataTransfer ? event.dataTransfer.files : null;
+    if (files && files[0]) stageClip(files[0]);
+  });
+  el("uploadBtn").addEventListener("click", runUploadValidation);
+}
+
+function wireNav() {
+  el("navAnalysis").addEventListener("click", () => {
+    el("clipFile").click();
+  });
+  el("navCharts").addEventListener("click", () => {
+    el("chartsPanel").scrollIntoView();
+  });
+  el("navEvidence").addEventListener("click", () => {
+    selectTab("tabEvidence");
+    el("chartsPanel").scrollIntoView();
+  });
+  el("provFullBtn").addEventListener("click", () => {
+    selectTab("tabProvenance");
+    el("chartsPanel").scrollIntoView();
+  });
+}
+
+function wireIdleAction() {
+  el("idleAction").addEventListener("click", () => {
+    if (opBusy) return;
+    if (!liveState.file && !pendingFile) {
+      el("clipFile").click();
+      return;
+    }
+    if (lastFailedOp === "detect") {
+      runLiveDetect();
+      return;
+    }
+    if (lastFailedOp === "measure") {
+      runLiveMeasure();
+      return;
+    }
+    if (liveState.step === "confirmed") {
+      runLiveMeasure();
+      return;
+    }
+    if (liveState.step === "detected") {
+      el("liveConfirm").scrollIntoView({ block: "nearest" });
+      el("liveConfirmBtn").focus();
+      return;
+    }
+    if (liveState.file) {
+      runLiveDetect();
+      return;
+    }
+    el("liveDetectBtn").focus();
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  markOnline(true);
+  el("serverFoot").textContent = "Local Server " + window.location.host;
+  wireUpload();
+  wireViewer();
+  wireNav();
+  wireIdleAction();
+  wireTabs(TAB_IDS);
+  wireTabs(CTAB_IDS);
+  selectChartTab("ctabTrajectory");
+  resetWorkflow();
+  setAppStatus("Ready for analysis",
+    "Stage a side-view MP4 clip, then press Detect.", null);
+  updateActionStates();
+  updateIdleState();
+  paintModeTag("none");
+  el("scrub").addEventListener("input", () => {
+    syncPlayheads(Number(el("scrub").value) || 0);
+  });
+  el("replayBtn").addEventListener("click", playReveal);
+  el("demoSuccessBtn").addEventListener("click", () => { runDemo("success"); });
+  el("demoRejectBtn").addEventListener("click", () => { runDemo("rejection"); });
+  initLive();
+});
+</script>
+</body>
+</html>

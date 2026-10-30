@@ -1,0 +1,111 @@
+{
+  "assumptions": [
+    "camera fixed for the clip"
+  ],
+  "calibration": {
+    "camera_fixed_assumption": true,
+    "dimension_source": "not_provided",
+    "observed_corners_px": [
+      [
+        10.0,
+        10.0
+      ],
+      [
+        110.0,
+        12.0
+      ],
+      [
+        108.0,
+        62.0
+      ],
+      [
+        8.0,
+        60.0
+      ]
+    ],
+    "observed_oriented_dimensions_px": {
+      "long_side_px": 100.5,
+      "short_side_px": 50.2
+    },
+    "plane_transform": null,
+    "provenance": null,
+    "reference_dimensions_mm": null,
+    "reference_type": "unknown",
+    "same_plane_assumption": true,
+    "scale_mm_per_px": 0.85,
+    "scale_uncertainty_mm_per_px": null,
+    "schema_version": "calibration.v1",
+    "valid": true,
+    "warnings": []
+  },
+  "exports": [],
+  "fit": {
+    "converged": true,
+    "fit_uncertainty_method": "none",
+    "g_over_l_per_s2": 15.0,
+    "gravity_m_s2": null,
+    "initial_conditions": {
+      "omega0_rad_s": 0.0,
+      "theta0_rad": 0.3
+    },
+    "model_id": "M1",
+    "observation_count": 234,
+    "optimizer": "least_squares",
+    "parameter_names": [
+      "g_over_l"
+    ],
+    "parameter_units": {
+      "g_over_l": "1/s^2"
+    },
+    "parameters": {
+      "g_over_l": 15.0
+    },
+    "pivot_length_mm": null,
+    "pivot_length_source": "not_provided",
+    "provenance": null,
+    "rejected_count": 0,
+    "residual_summary": {
+      "dof": 200,
+      "max_abs": 0.03,
+      "rmse": 0.01
+    },
+    "schema_version": "fit.v1",
+    "solver": "RK45",
+    "warnings": []
+  },
+  "identifiable_quantity": {
+    "name": "g/L_eff",
+    "unit": "1/s^2",
+    "value": 15.0
+  },
+  "interval": null,
+  "interval_method": null,
+  "measurement_name": "pendulum_g_over_l",
+  "provenance": {
+    "input_sha256": "192ae2b5f280e3957952882c73bb9b03d4db7df2229747d86c88f779149647be",
+    "model_name": null,
+    "model_version": null,
+    "raw_refs": [],
+    "software_name": "kineticlab-test",
+    "software_version": "0.1.0",
+    "artifact_hashes": {
+      "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+      "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+      "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+      "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+    }
+  },
+  "quality_metrics": {
+    "calibrated_frames": 230,
+    "frames_total": 234,
+    "frames_usable": 230,
+    "observations_total": 468,
+    "observations_valid": 460
+  },
+  "reject_reasons": [],
+  "schema_version": "result.v1",
+  "status": "success",
+  "unit": "1/s^2",
+  "value": 15.0,
+  "warnings": []
+}

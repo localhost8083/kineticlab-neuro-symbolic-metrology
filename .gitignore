@@ -179,3 +179,44 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# Secrets (KL-0.2): API keys and credential files must never be committed.
+.env.*
+*.pem
+*.key
+*.p12
+secrets/
+
+# KL-8.1 local surface: user uploads and demo exports are runtime
+# artifacts, never committed.
+uploads/
+demo_out/
+# KL-8.4 live surface: live capture runs are scratch, never committed.
+live_out/
+
+# KL-8.7 cleanup 2026-10-29: retained-but-uncommitted evidence + user media
+battery_86_final.out.txt
+battery_final.out.txt
+Smoke/
+Demos/
+
+battery_87_final.out.txt
+battery_uirev_final.out.txt
+battery_ui810_final.out.txt
+battery_ui811_final.out.txt
+battery_ui812_final.out.txt
+kl92_hardening.out.txt
+kl91_regression.out.txt
+kl91_cleanenv.out.txt
+runbook_101_success.out.txt
+runbook_101_rejection.out.txt
+battery_ui811_touchup.out.txt
+test_ui_touchup.out.txt
+kl96_audit.out.txt
+
+# KL-9.4 commit hygiene: local-only material, never staged
+.claude/
+Templete_UI/
+
+# KL-9.4: raw media staging, canonical copies live in Docs/img
+Media/

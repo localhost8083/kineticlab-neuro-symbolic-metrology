@@ -1,0 +1,2743 @@
+{
+  "cases": [
+    {
+      "name": "media_missing_warnings",
+      "schema": "media",
+      "record": {
+        "schema_version": "media.v1",
+        "source_path": "Smoke/test_3.mp4",
+        "source_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "container": "mp4",
+        "video_stream_count": 1,
+        "audio_stream_count": 1,
+        "codec": "h264",
+        "width": 1024,
+        "height": 576,
+        "pixel_format": "yuv420p",
+        "duration_seconds": 7.872,
+        "frame_count": 234,
+        "nominal_frame_rate": null,
+        "time_base": "1/90000",
+        "processing_copy_path": null,
+        "processing_copy_sha256": null,
+        "valid": true,
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_MISSING_FIELD"
+      ]
+    },
+    {
+      "name": "media_width_string",
+      "schema": "media",
+      "record": {
+        "schema_version": "media.v1",
+        "source_path": "Smoke/test_3.mp4",
+        "source_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "container": "mp4",
+        "video_stream_count": 1,
+        "audio_stream_count": 1,
+        "codec": "h264",
+        "width": "1024",
+        "height": 576,
+        "pixel_format": null,
+        "duration_seconds": null,
+        "frame_count": null,
+        "nominal_frame_rate": null,
+        "time_base": null,
+        "processing_copy_path": null,
+        "processing_copy_sha256": null,
+        "valid": false,
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_WRONG_TYPE"
+      ]
+    },
+    {
+      "name": "media_bad_version",
+      "schema": "media",
+      "record": {
+        "schema_version": "media.v2",
+        "source_path": "Smoke/test_3.mp4",
+        "source_sha256": null,
+        "container": "mp4",
+        "video_stream_count": 1,
+        "audio_stream_count": 0,
+        "codec": "h264",
+        "width": 1024,
+        "height": 576,
+        "pixel_format": null,
+        "duration_seconds": null,
+        "frame_count": null,
+        "nominal_frame_rate": null,
+        "time_base": null,
+        "processing_copy_path": null,
+        "processing_copy_sha256": null,
+        "valid": false,
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_BAD_VERSION"
+      ]
+    },
+    {
+      "name": "media_unknown_key",
+      "schema": "media",
+      "record": {
+        "schema_version": "media.v1",
+        "source_path": "Smoke/test_3.mp4",
+        "source_sha256": null,
+        "container": "mp4",
+        "video_stream_count": 1,
+        "audio_stream_count": 0,
+        "codec": "h264",
+        "width": 1024,
+        "height": 576,
+        "pixel_format": null,
+        "duration_seconds": null,
+        "frame_count": null,
+        "nominal_frame_rate": null,
+        "time_base": null,
+        "processing_copy_path": null,
+        "processing_copy_sha256": null,
+        "valid": false,
+        "warnings": [],
+        "provenance": null,
+        "fps_guess": 30
+      },
+      "expect_codes": [
+        "E_UNEXPECTED_FIELD"
+      ]
+    },
+    {
+      "name": "frame_empty",
+      "schema": "frame",
+      "record": {},
+      "expect_codes": [
+        "E_MISSING_FIELD",
+        "E_MISSING_FIELD",
+        "E_MISSING_FIELD",
+        "E_MISSING_FIELD",
+        "E_MISSING_FIELD",
+        "E_MISSING_FIELD",
+        "E_MISSING_FIELD",
+        "E_MISSING_FIELD",
+        "E_MISSING_FIELD"
+      ]
+    },
+    {
+      "name": "frame_missing_pts",
+      "schema": "frame",
+      "record": {
+        "schema_version": "frame.v1",
+        "frame_index": 3,
+        "source_frame_index": 3,
+        "duration_seconds": null,
+        "decoded_reference": "decode:3",
+        "valid": true,
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_MISSING_FIELD",
+        "E_MISSING_MAPPING"
+      ]
+    },
+    {
+      "name": "frame_valid_without_mapping",
+      "schema": "frame",
+      "record": {
+        "schema_version": "frame.v1",
+        "frame_index": 3,
+        "source_frame_index": null,
+        "pts_seconds": null,
+        "duration_seconds": null,
+        "decoded_reference": null,
+        "valid": true,
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_MISSING_MAPPING"
+      ]
+    },
+    {
+      "name": "observation_bad_role",
+      "schema": "observation",
+      "record": {
+        "schema_version": "observation.v1",
+        "frame_index": 0,
+        "pts_seconds": 0.0,
+        "object_role": "pendulum",
+        "object_id": "bob-1",
+        "confidence": 0.9,
+        "bbox": [
+          100.0,
+          200.0,
+          140.0,
+          260.0
+        ],
+        "centroid_x_px": 120.0,
+        "centroid_y_px": 230.0,
+        "mask_area_px": 1256.0,
+        "mask_reference": null,
+        "valid": true,
+        "source": "sam_fixture",
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_BAD_ENUM"
+      ]
+    },
+    {
+      "name": "observation_bbox_disordered",
+      "schema": "observation",
+      "record": {
+        "schema_version": "observation.v1",
+        "frame_index": 0,
+        "pts_seconds": 0.0,
+        "object_role": "bob",
+        "object_id": "bob-1",
+        "confidence": 0.9,
+        "bbox": [
+          140.0,
+          260.0,
+          100.0,
+          200.0
+        ],
+        "centroid_x_px": 120.0,
+        "centroid_y_px": 230.0,
+        "mask_area_px": 1256.0,
+        "mask_reference": null,
+        "valid": true,
+        "source": "sam_fixture",
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_BBOX_ORDER"
+      ]
+    },
+    {
+      "name": "observation_half_centroid",
+      "schema": "observation",
+      "record": {
+        "schema_version": "observation.v1",
+        "frame_index": 0,
+        "pts_seconds": 0.0,
+        "object_role": "bob",
+        "object_id": "bob-1",
+        "confidence": 0.9,
+        "bbox": null,
+        "centroid_x_px": 120.0,
+        "centroid_y_px": null,
+        "mask_area_px": null,
+        "mask_reference": null,
+        "valid": true,
+        "source": "sam_fixture",
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_CENTROID_PAIR",
+        "E_INCOHERENT_VALUE"
+      ]
+    },
+    {
+      "name": "observation_confidence_over_one",
+      "schema": "observation",
+      "record": {
+        "schema_version": "observation.v1",
+        "frame_index": 0,
+        "pts_seconds": 0.0,
+        "object_role": "bob",
+        "object_id": "bob-1",
+        "confidence": 1.5,
+        "bbox": null,
+        "centroid_x_px": null,
+        "centroid_y_px": null,
+        "mask_area_px": null,
+        "mask_reference": null,
+        "valid": false,
+        "source": "sam_fixture",
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_OUT_OF_RANGE"
+      ]
+    },
+    {
+      "name": "calibration_confirmed_without_dims",
+      "schema": "calibration",
+      "record": {
+        "schema_version": "calibration.v1",
+        "reference_type": "iso_id1_confirmed",
+        "reference_dimensions_mm": null,
+        "dimension_source": "not_provided",
+        "observed_corners_px": null,
+        "observed_oriented_dimensions_px": null,
+        "scale_mm_per_px": 0.8,
+        "plane_transform": null,
+        "scale_uncertainty_mm_per_px": null,
+        "same_plane_assumption": true,
+        "camera_fixed_assumption": true,
+        "valid": true,
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_UNCONFIRMED_DIMENSIONS"
+      ]
+    },
+    {
+      "name": "calibration_both_scales",
+      "schema": "calibration",
+      "record": {
+        "schema_version": "calibration.v1",
+        "reference_type": "unknown",
+        "reference_dimensions_mm": null,
+        "dimension_source": "not_provided",
+        "observed_corners_px": null,
+        "observed_oriented_dimensions_px": null,
+        "scale_mm_per_px": 0.8,
+        "plane_transform": [
+          [
+            0.8,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.8,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "scale_uncertainty_mm_per_px": null,
+        "same_plane_assumption": true,
+        "camera_fixed_assumption": true,
+        "valid": true,
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_SCALE_AMBIGUOUS"
+      ]
+    },
+    {
+      "name": "calibration_unstated_assumptions",
+      "schema": "calibration",
+      "record": {
+        "schema_version": "calibration.v1",
+        "reference_type": "unknown",
+        "reference_dimensions_mm": null,
+        "dimension_source": "not_provided",
+        "observed_corners_px": null,
+        "observed_oriented_dimensions_px": null,
+        "scale_mm_per_px": 0.8,
+        "plane_transform": null,
+        "scale_uncertainty_mm_per_px": null,
+        "same_plane_assumption": null,
+        "camera_fixed_assumption": true,
+        "valid": true,
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_INCOHERENT_VALUE"
+      ]
+    },
+    {
+      "name": "fit_gravity_without_length",
+      "schema": "fit",
+      "record": {
+        "schema_version": "fit.v1",
+        "model_id": "M1",
+        "parameter_names": [
+          "g_over_l"
+        ],
+        "parameters": {
+          "g_over_l": 15.2
+        },
+        "parameter_units": {
+          "g_over_l": "1/s^2"
+        },
+        "initial_conditions": {
+          "theta0_rad": 0.31,
+          "omega0_rad_s": 0.0
+        },
+        "solver": "RK45",
+        "optimizer": "least_squares",
+        "converged": true,
+        "residual_summary": null,
+        "observation_count": 230,
+        "rejected_count": 0,
+        "fit_uncertainty_method": "none",
+        "pivot_length_mm": null,
+        "pivot_length_source": "not_provided",
+        "g_over_l_per_s2": 15.2,
+        "gravity_m_s2": 9.81,
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_GRAVITY_WITHOUT_LENGTH"
+      ]
+    },
+    {
+      "name": "fit_gravity_unmeasured_length",
+      "schema": "fit",
+      "record": {
+        "schema_version": "fit.v1",
+        "model_id": "M1",
+        "parameter_names": [
+          "g_over_l"
+        ],
+        "parameters": {
+          "g_over_l": 15.2
+        },
+        "parameter_units": {
+          "g_over_l": "1/s^2"
+        },
+        "initial_conditions": {
+          "theta0_rad": 0.31,
+          "omega0_rad_s": 0.0
+        },
+        "solver": "RK45",
+        "optimizer": "least_squares",
+        "converged": true,
+        "residual_summary": null,
+        "observation_count": 230,
+        "rejected_count": 0,
+        "fit_uncertainty_method": "none",
+        "pivot_length_mm": 650.0,
+        "pivot_length_source": "not_provided",
+        "g_over_l_per_s2": 15.2,
+        "gravity_m_s2": 9.81,
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_GRAVITY_WITHOUT_LENGTH",
+        "E_INCOHERENT_VALUE"
+      ]
+    },
+    {
+      "name": "fit_parameter_mismatch",
+      "schema": "fit",
+      "record": {
+        "schema_version": "fit.v1",
+        "model_id": "M1",
+        "parameter_names": [
+          "g_over_l",
+          "theta0"
+        ],
+        "parameters": {
+          "g_over_l": 15.2,
+          "theta0": 0.31
+        },
+        "parameter_units": {
+          "g_over_l": "1/s^2"
+        },
+        "initial_conditions": {
+          "theta0_rad": 0.31,
+          "omega0_rad_s": 0.0
+        },
+        "solver": "RK45",
+        "optimizer": "least_squares",
+        "converged": true,
+        "residual_summary": null,
+        "observation_count": 230,
+        "rejected_count": 0,
+        "fit_uncertainty_method": "none",
+        "pivot_length_mm": null,
+        "pivot_length_source": "not_provided",
+        "g_over_l_per_s2": 15.2,
+        "gravity_m_s2": null,
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_PARAMETER_MISMATCH"
+      ]
+    },
+    {
+      "name": "fit_model_m3",
+      "schema": "fit",
+      "record": {
+        "schema_version": "fit.v1",
+        "model_id": "M3",
+        "parameter_names": [
+          "g_over_l"
+        ],
+        "parameters": {
+          "g_over_l": 15.2
+        },
+        "parameter_units": {
+          "g_over_l": "1/s^2"
+        },
+        "initial_conditions": {
+          "theta0_rad": 0.31,
+          "omega0_rad_s": 0.0
+        },
+        "solver": "RK45",
+        "optimizer": "least_squares",
+        "converged": false,
+        "residual_summary": null,
+        "observation_count": 0,
+        "rejected_count": 0,
+        "fit_uncertainty_method": "none",
+        "pivot_length_mm": null,
+        "pivot_length_source": "not_provided",
+        "g_over_l_per_s2": null,
+        "gravity_m_s2": null,
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_BAD_ENUM",
+        "E_INCOHERENT_VALUE"
+      ]
+    },
+    {
+      "name": "result_success_with_reasons",
+      "schema": "result",
+      "record": {
+        "schema_version": "result.v1",
+        "status": "success",
+        "measurement_name": "pendulum_g_over_l",
+        "value": 15.2,
+        "unit": "1/s^2",
+        "interval": null,
+        "interval_method": null,
+        "identifiable_quantity": {
+          "name": "g/L_eff",
+          "value": 15.2,
+          "unit": "1/s^2"
+        },
+        "calibration": null,
+        "fit": null,
+        "quality_metrics": null,
+        "assumptions": [],
+        "warnings": [],
+        "reject_reasons": [
+          {
+            "code": "E_MISSING_MAPPING",
+            "field": null,
+            "detail": "stale reason on success"
+          }
+        ],
+        "provenance": {
+          "software_name": "kineticlab-test",
+          "software_version": "0.1.0",
+          "input_sha256": null,
+          "model_name": null,
+          "model_version": null,
+          "raw_refs": [],
+          "artifact_hashes": {
+            "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+            "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+            "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+            "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+          }
+        },
+        "exports": []
+      },
+      "expect_codes": [
+        "E_INCOHERENT_STATE",
+        "E_INCOHERENT_STATE"
+      ]
+    },
+    {
+      "name": "result_failure_with_value",
+      "schema": "result",
+      "record": {
+        "schema_version": "result.v1",
+        "status": "insufficient_data",
+        "measurement_name": "pendulum_g_over_l",
+        "value": 9.81,
+        "unit": "m/s^2",
+        "interval": null,
+        "interval_method": null,
+        "identifiable_quantity": {
+          "name": "g/L_eff",
+          "value": null,
+          "unit": "1/s^2"
+        },
+        "calibration": null,
+        "fit": null,
+        "quality_metrics": null,
+        "assumptions": [],
+        "warnings": [],
+        "reject_reasons": [
+          {
+            "code": "E_MISSING_MAPPING",
+            "field": "frames",
+            "detail": "no usable frames"
+          }
+        ],
+        "provenance": {
+          "software_name": "kineticlab-test",
+          "software_version": "0.1.0",
+          "input_sha256": null,
+          "model_name": null,
+          "model_version": null,
+          "raw_refs": [],
+          "artifact_hashes": {
+            "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+            "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+            "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+            "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+          }
+        },
+        "exports": []
+      },
+      "expect_codes": [
+        "E_INCOHERENT_STATE",
+        "E_INCOHERENT_VALUE",
+        "E_INCOHERENT_VALUE",
+        "E_INCOHERENT_VALUE"
+      ]
+    },
+    {
+      "name": "result_value_without_unit",
+      "schema": "result",
+      "record": {
+        "schema_version": "result.v1",
+        "status": "success",
+        "measurement_name": "pendulum_g_over_l",
+        "value": 15.2,
+        "unit": null,
+        "interval": null,
+        "interval_method": null,
+        "identifiable_quantity": {
+          "name": "g/L_eff",
+          "value": 15.2,
+          "unit": "1/s^2"
+        },
+        "calibration": null,
+        "fit": null,
+        "quality_metrics": null,
+        "assumptions": [],
+        "warnings": [],
+        "reject_reasons": [],
+        "provenance": {
+          "software_name": "kineticlab-test",
+          "software_version": "0.1.0",
+          "input_sha256": null,
+          "model_name": null,
+          "model_version": null,
+          "raw_refs": [],
+          "artifact_hashes": {
+            "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+            "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+            "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+            "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+          }
+        },
+        "exports": []
+      },
+      "expect_codes": [
+        "E_INCOHERENT_STATE",
+        "E_INCOHERENT_STATE",
+        "E_VALUE_WITHOUT_UNIT"
+      ]
+    },
+    {
+      "name": "result_unknown_warning_code",
+      "schema": "result",
+      "record": {
+        "schema_version": "result.v1",
+        "status": "success",
+        "measurement_name": "pendulum_g_over_l",
+        "value": 15.2,
+        "unit": "1/s^2",
+        "interval": null,
+        "interval_method": null,
+        "identifiable_quantity": {
+          "name": "g/L_eff",
+          "value": 15.2,
+          "unit": "1/s^2"
+        },
+        "calibration": null,
+        "fit": null,
+        "quality_metrics": null,
+        "assumptions": [],
+        "warnings": [
+          {
+            "code": "W_BOGUS",
+            "detail": "made up"
+          }
+        ],
+        "reject_reasons": [],
+        "provenance": {
+          "software_name": "kineticlab-test",
+          "software_version": "0.1.0",
+          "input_sha256": null,
+          "model_name": null,
+          "model_version": null,
+          "raw_refs": [],
+          "artifact_hashes": {
+            "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+            "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+            "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+            "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+          }
+        },
+        "exports": []
+      },
+      "expect_codes": [
+        "E_INCOHERENT_STATE",
+        "E_UNKNOWN_WARNING_CODE"
+      ]
+    },
+    {
+      "name": "result_nested_fit_error",
+      "schema": "result",
+      "record": {
+        "schema_version": "result.v1",
+        "status": "success",
+        "measurement_name": "pendulum_g_over_l",
+        "value": 15.2,
+        "unit": "1/s^2",
+        "interval": null,
+        "interval_method": null,
+        "identifiable_quantity": {
+          "name": "g/L_eff",
+          "value": 15.2,
+          "unit": "1/s^2"
+        },
+        "calibration": null,
+        "fit": {
+          "schema_version": "fit.v1",
+          "model_id": "M9",
+          "parameter_names": [
+            "g_over_l"
+          ],
+          "parameters": {
+            "g_over_l": 15.2
+          },
+          "parameter_units": {
+            "g_over_l": "1/s^2"
+          },
+          "initial_conditions": {
+            "theta0_rad": 0.31,
+            "omega0_rad_s": 0.0
+          },
+          "solver": "RK45",
+          "optimizer": "least_squares",
+          "converged": true,
+          "residual_summary": null,
+          "observation_count": 230,
+          "rejected_count": 0,
+          "fit_uncertainty_method": "none",
+          "pivot_length_mm": null,
+          "pivot_length_source": "not_provided",
+          "g_over_l_per_s2": 15.2,
+          "gravity_m_s2": null,
+          "warnings": [],
+          "provenance": null
+        },
+        "quality_metrics": null,
+        "assumptions": [],
+        "warnings": [],
+        "reject_reasons": [],
+        "provenance": {
+          "software_name": "kineticlab-test",
+          "software_version": "0.1.0",
+          "input_sha256": null,
+          "model_name": null,
+          "model_version": null,
+          "raw_refs": [],
+          "artifact_hashes": {
+            "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+            "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+            "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+            "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+          }
+        },
+        "exports": []
+      },
+      "expect_codes": [
+        "E_BAD_ENUM"
+      ]
+    },
+    {
+      "name": "media_bad_sha256",
+      "schema": "media",
+      "record": {
+        "schema_version": "media.v1",
+        "source_path": "Smoke/test_3.mp4",
+        "source_sha256": "xyz",
+        "container": "mp4",
+        "video_stream_count": 1,
+        "audio_stream_count": 0,
+        "codec": "h264",
+        "width": 1024,
+        "height": 576,
+        "pixel_format": null,
+        "duration_seconds": null,
+        "frame_count": null,
+        "nominal_frame_rate": null,
+        "time_base": null,
+        "processing_copy_path": null,
+        "processing_copy_sha256": null,
+        "valid": false,
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_BAD_SHA256"
+      ]
+    },
+    {
+      "name": "media_bad_time_base",
+      "schema": "media",
+      "record": {
+        "schema_version": "media.v1",
+        "source_path": "Smoke/test_3.mp4",
+        "source_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "container": "mp4",
+        "video_stream_count": 1,
+        "audio_stream_count": 1,
+        "codec": "h264",
+        "width": 1024,
+        "height": 576,
+        "pixel_format": "yuv420p",
+        "duration_seconds": 7.872,
+        "frame_count": 234,
+        "nominal_frame_rate": null,
+        "time_base": "1/0",
+        "processing_copy_path": null,
+        "processing_copy_sha256": null,
+        "valid": true,
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_BAD_TIME_BASE"
+      ]
+    },
+    {
+      "name": "frame_bool_index",
+      "schema": "frame",
+      "record": {
+        "schema_version": "frame.v1",
+        "frame_index": true,
+        "source_frame_index": 0,
+        "pts_seconds": 0.0,
+        "duration_seconds": null,
+        "decoded_reference": "decode:0",
+        "valid": true,
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_WRONG_TYPE"
+      ]
+    },
+    {
+      "name": "fit_unit_false_binding",
+      "schema": "fit",
+      "record": {
+        "schema_version": "fit.v1",
+        "model_id": "M1",
+        "parameter_names": [
+          "g_over_l"
+        ],
+        "parameters": {
+          "g_over_l": 15.2
+        },
+        "parameter_units": {
+          "g_over_l": "m/s^2"
+        },
+        "initial_conditions": {
+          "theta0_rad": 0.31,
+          "omega0_rad_s": 0.0
+        },
+        "solver": "RK45",
+        "optimizer": "least_squares",
+        "converged": true,
+        "residual_summary": null,
+        "observation_count": 230,
+        "rejected_count": 0,
+        "fit_uncertainty_method": "none",
+        "pivot_length_mm": null,
+        "pivot_length_source": "not_provided",
+        "g_over_l_per_s2": 15.2,
+        "gravity_m_s2": null,
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_INCOHERENT_VALUE"
+      ]
+    },
+    {
+      "name": "fit_unit_outside_vocab",
+      "schema": "fit",
+      "record": {
+        "schema_version": "fit.v1",
+        "model_id": "M1",
+        "parameter_names": [
+          "g_over_l"
+        ],
+        "parameters": {
+          "g_over_l": 15.2
+        },
+        "parameter_units": {
+          "g_over_l": "m"
+        },
+        "initial_conditions": {
+          "theta0_rad": 0.31,
+          "omega0_rad_s": 0.0
+        },
+        "solver": "RK45",
+        "optimizer": "least_squares",
+        "converged": true,
+        "residual_summary": null,
+        "observation_count": 230,
+        "rejected_count": 0,
+        "fit_uncertainty_method": "none",
+        "pivot_length_mm": null,
+        "pivot_length_source": "not_provided",
+        "g_over_l_per_s2": 15.2,
+        "gravity_m_s2": null,
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_BAD_ENUM"
+      ]
+    },
+    {
+      "name": "fit_g_over_l_summary_mismatch",
+      "schema": "fit",
+      "record": {
+        "schema_version": "fit.v1",
+        "model_id": "M1",
+        "parameter_names": [
+          "g_over_l"
+        ],
+        "parameters": {
+          "g_over_l": 15.2
+        },
+        "parameter_units": {
+          "g_over_l": "1/s^2"
+        },
+        "initial_conditions": {
+          "theta0_rad": 0.31,
+          "omega0_rad_s": 0.0
+        },
+        "solver": "RK45",
+        "optimizer": "least_squares",
+        "converged": true,
+        "residual_summary": null,
+        "observation_count": 230,
+        "rejected_count": 0,
+        "fit_uncertainty_method": "none",
+        "pivot_length_mm": null,
+        "pivot_length_source": "not_provided",
+        "g_over_l_per_s2": 15.3,
+        "gravity_m_s2": null,
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_INCOHERENT_VALUE"
+      ]
+    },
+    {
+      "name": "fit_gravity_arithmetic_mismatch",
+      "schema": "fit",
+      "record": {
+        "schema_version": "fit.v1",
+        "model_id": "M1",
+        "parameter_names": [
+          "g_over_l"
+        ],
+        "parameters": {
+          "g_over_l": 15.2
+        },
+        "parameter_units": {
+          "g_over_l": "1/s^2"
+        },
+        "initial_conditions": {
+          "theta0_rad": 0.31,
+          "omega0_rad_s": 0.0
+        },
+        "solver": "RK45",
+        "optimizer": "least_squares",
+        "converged": true,
+        "residual_summary": null,
+        "observation_count": 230,
+        "rejected_count": 0,
+        "fit_uncertainty_method": "none",
+        "pivot_length_mm": 650.0,
+        "pivot_length_source": "independent_measurement",
+        "g_over_l_per_s2": 15.2,
+        "gravity_m_s2": 9.0,
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_INCOHERENT_VALUE"
+      ]
+    },
+    {
+      "name": "fit_rmse_exceeds_max",
+      "schema": "fit",
+      "record": {
+        "schema_version": "fit.v1",
+        "model_id": "M1",
+        "parameter_names": [
+          "g_over_l"
+        ],
+        "parameters": {
+          "g_over_l": 15.2
+        },
+        "parameter_units": {
+          "g_over_l": "1/s^2"
+        },
+        "initial_conditions": {
+          "theta0_rad": 0.31,
+          "omega0_rad_s": 0.0
+        },
+        "solver": "RK45",
+        "optimizer": "least_squares",
+        "converged": true,
+        "residual_summary": {
+          "rmse": 0.05,
+          "max_abs": 0.03,
+          "dof": 200
+        },
+        "observation_count": 230,
+        "rejected_count": 0,
+        "fit_uncertainty_method": "none",
+        "pivot_length_mm": null,
+        "pivot_length_source": "not_provided",
+        "g_over_l_per_s2": 15.2,
+        "gravity_m_s2": null,
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_INCOHERENT_VALUE"
+      ]
+    },
+    {
+      "name": "result_unit_quantity_mismatch",
+      "schema": "result",
+      "record": {
+        "schema_version": "result.v1",
+        "status": "success",
+        "measurement_name": "pendulum_g_over_l",
+        "value": 15.2,
+        "unit": "1/s^2",
+        "interval": null,
+        "interval_method": null,
+        "identifiable_quantity": {
+          "name": "g/L_eff",
+          "value": 15.2,
+          "unit": "m/s^2"
+        },
+        "calibration": null,
+        "fit": {
+          "schema_version": "fit.v1",
+          "model_id": "M1",
+          "parameter_names": [
+            "g_over_l"
+          ],
+          "parameters": {
+            "g_over_l": 15.2
+          },
+          "parameter_units": {
+            "g_over_l": "1/s^2"
+          },
+          "initial_conditions": {
+            "theta0_rad": 0.31,
+            "omega0_rad_s": 0.0
+          },
+          "solver": "RK45",
+          "optimizer": "least_squares",
+          "converged": true,
+          "residual_summary": null,
+          "observation_count": 230,
+          "rejected_count": 0,
+          "fit_uncertainty_method": "none",
+          "pivot_length_mm": null,
+          "pivot_length_source": "not_provided",
+          "g_over_l_per_s2": 15.2,
+          "gravity_m_s2": null,
+          "warnings": [],
+          "provenance": null
+        },
+        "quality_metrics": null,
+        "assumptions": [],
+        "warnings": [],
+        "reject_reasons": [],
+        "provenance": {
+          "software_name": "kineticlab-test",
+          "software_version": "0.1.0",
+          "input_sha256": null,
+          "model_name": null,
+          "model_version": null,
+          "raw_refs": [],
+          "artifact_hashes": {
+            "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+            "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+            "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+            "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+          }
+        },
+        "exports": []
+      },
+      "expect_codes": [
+        "E_INCOHERENT_VALUE"
+      ]
+    },
+    {
+      "name": "result_value_quantity_mismatch",
+      "schema": "result",
+      "record": {
+        "schema_version": "result.v1",
+        "status": "success",
+        "measurement_name": "pendulum_g_over_l",
+        "value": 15.2,
+        "unit": "1/s^2",
+        "interval": null,
+        "interval_method": null,
+        "identifiable_quantity": {
+          "name": "g/L_eff",
+          "value": 15.3,
+          "unit": "1/s^2"
+        },
+        "calibration": null,
+        "fit": {
+          "schema_version": "fit.v1",
+          "model_id": "M1",
+          "parameter_names": [
+            "g_over_l"
+          ],
+          "parameters": {
+            "g_over_l": 15.2
+          },
+          "parameter_units": {
+            "g_over_l": "1/s^2"
+          },
+          "initial_conditions": {
+            "theta0_rad": 0.31,
+            "omega0_rad_s": 0.0
+          },
+          "solver": "RK45",
+          "optimizer": "least_squares",
+          "converged": true,
+          "residual_summary": null,
+          "observation_count": 230,
+          "rejected_count": 0,
+          "fit_uncertainty_method": "none",
+          "pivot_length_mm": null,
+          "pivot_length_source": "not_provided",
+          "g_over_l_per_s2": 15.2,
+          "gravity_m_s2": null,
+          "warnings": [],
+          "provenance": null
+        },
+        "quality_metrics": null,
+        "assumptions": [],
+        "warnings": [],
+        "reject_reasons": [],
+        "provenance": {
+          "software_name": "kineticlab-test",
+          "software_version": "0.1.0",
+          "input_sha256": null,
+          "model_name": null,
+          "model_version": null,
+          "raw_refs": [],
+          "artifact_hashes": {
+            "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+            "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+            "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+            "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+          }
+        },
+        "exports": []
+      },
+      "expect_codes": [
+        "E_INCOHERENT_VALUE"
+      ]
+    },
+    {
+      "name": "result_value_fit_mismatch",
+      "schema": "result",
+      "record": {
+        "schema_version": "result.v1",
+        "status": "success",
+        "measurement_name": "pendulum_g_over_l",
+        "value": 15.2,
+        "unit": "1/s^2",
+        "interval": null,
+        "interval_method": null,
+        "identifiable_quantity": {
+          "name": "g/L_eff",
+          "value": 15.2,
+          "unit": "1/s^2"
+        },
+        "calibration": null,
+        "fit": {
+          "schema_version": "fit.v1",
+          "model_id": "M1",
+          "parameter_names": [
+            "g_over_l"
+          ],
+          "parameters": {
+            "g_over_l": 15.9
+          },
+          "parameter_units": {
+            "g_over_l": "1/s^2"
+          },
+          "initial_conditions": {
+            "theta0_rad": 0.31,
+            "omega0_rad_s": 0.0
+          },
+          "solver": "RK45",
+          "optimizer": "least_squares",
+          "converged": true,
+          "residual_summary": null,
+          "observation_count": 230,
+          "rejected_count": 0,
+          "fit_uncertainty_method": "none",
+          "pivot_length_mm": null,
+          "pivot_length_source": "not_provided",
+          "g_over_l_per_s2": 15.9,
+          "gravity_m_s2": null,
+          "warnings": [],
+          "provenance": null
+        },
+        "quality_metrics": null,
+        "assumptions": [],
+        "warnings": [],
+        "reject_reasons": [],
+        "provenance": {
+          "software_name": "kineticlab-test",
+          "software_version": "0.1.0",
+          "input_sha256": null,
+          "model_name": null,
+          "model_version": null,
+          "raw_refs": [],
+          "artifact_hashes": {
+            "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+            "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+            "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+            "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+          }
+        },
+        "exports": []
+      },
+      "expect_codes": [
+        "E_INCOHERENT_STATE"
+      ]
+    },
+    {
+      "name": "result_success_without_fit",
+      "schema": "result",
+      "record": {
+        "schema_version": "result.v1",
+        "status": "success",
+        "measurement_name": "pendulum_g_over_l",
+        "value": 15.2,
+        "unit": "1/s^2",
+        "interval": null,
+        "interval_method": null,
+        "identifiable_quantity": {
+          "name": "g/L_eff",
+          "value": 15.2,
+          "unit": "1/s^2"
+        },
+        "calibration": null,
+        "fit": null,
+        "quality_metrics": null,
+        "assumptions": [],
+        "warnings": [],
+        "reject_reasons": [],
+        "provenance": {
+          "software_name": "kineticlab-test",
+          "software_version": "0.1.0",
+          "input_sha256": null,
+          "model_name": null,
+          "model_version": null,
+          "raw_refs": [],
+          "artifact_hashes": {
+            "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+            "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+            "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+            "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+          }
+        },
+        "exports": []
+      },
+      "expect_codes": [
+        "E_INCOHERENT_STATE"
+      ]
+    },
+    {
+      "name": "result_success_unconverged_fit",
+      "schema": "result",
+      "record": {
+        "schema_version": "result.v1",
+        "status": "success",
+        "measurement_name": "pendulum_g_over_l",
+        "value": 15.2,
+        "unit": "1/s^2",
+        "interval": null,
+        "interval_method": null,
+        "identifiable_quantity": {
+          "name": "g/L_eff",
+          "value": 15.2,
+          "unit": "1/s^2"
+        },
+        "calibration": null,
+        "fit": {
+          "schema_version": "fit.v1",
+          "model_id": "M1",
+          "parameter_names": [
+            "g_over_l"
+          ],
+          "parameters": {
+            "g_over_l": 15.2
+          },
+          "parameter_units": {
+            "g_over_l": "1/s^2"
+          },
+          "initial_conditions": {
+            "theta0_rad": 0.31,
+            "omega0_rad_s": 0.0
+          },
+          "solver": "RK45",
+          "optimizer": "least_squares",
+          "converged": false,
+          "residual_summary": null,
+          "observation_count": 230,
+          "rejected_count": 0,
+          "fit_uncertainty_method": "none",
+          "pivot_length_mm": null,
+          "pivot_length_source": "not_provided",
+          "g_over_l_per_s2": 15.2,
+          "gravity_m_s2": null,
+          "warnings": [],
+          "provenance": null
+        },
+        "quality_metrics": null,
+        "assumptions": [],
+        "warnings": [],
+        "reject_reasons": [],
+        "provenance": {
+          "software_name": "kineticlab-test",
+          "software_version": "0.1.0",
+          "input_sha256": null,
+          "model_name": null,
+          "model_version": null,
+          "raw_refs": [],
+          "artifact_hashes": {
+            "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+            "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+            "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+            "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+          }
+        },
+        "exports": []
+      },
+      "expect_codes": [
+        "E_INCOHERENT_STATE"
+      ]
+    },
+    {
+      "name": "result_bad_unit",
+      "schema": "result",
+      "record": {
+        "schema_version": "result.v1",
+        "status": "success",
+        "measurement_name": "pendulum_g_over_l",
+        "value": 15.2,
+        "unit": "m",
+        "interval": null,
+        "interval_method": null,
+        "identifiable_quantity": {
+          "name": "g/L_eff",
+          "value": 15.2,
+          "unit": "m"
+        },
+        "calibration": null,
+        "fit": {
+          "schema_version": "fit.v1",
+          "model_id": "M1",
+          "parameter_names": [
+            "g_over_l"
+          ],
+          "parameters": {
+            "g_over_l": 15.2
+          },
+          "parameter_units": {
+            "g_over_l": "1/s^2"
+          },
+          "initial_conditions": {
+            "theta0_rad": 0.31,
+            "omega0_rad_s": 0.0
+          },
+          "solver": "RK45",
+          "optimizer": "least_squares",
+          "converged": true,
+          "residual_summary": null,
+          "observation_count": 230,
+          "rejected_count": 0,
+          "fit_uncertainty_method": "none",
+          "pivot_length_mm": null,
+          "pivot_length_source": "not_provided",
+          "g_over_l_per_s2": 15.2,
+          "gravity_m_s2": null,
+          "warnings": [],
+          "provenance": null
+        },
+        "quality_metrics": null,
+        "assumptions": [],
+        "warnings": [],
+        "reject_reasons": [],
+        "provenance": {
+          "software_name": "kineticlab-test",
+          "software_version": "0.1.0",
+          "input_sha256": null,
+          "model_name": null,
+          "model_version": null,
+          "raw_refs": [],
+          "artifact_hashes": {
+            "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+            "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+            "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+            "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+          }
+        },
+        "exports": []
+      },
+      "expect_codes": [
+        "E_BAD_ENUM",
+        "E_BAD_ENUM",
+        "E_INCOHERENT_VALUE"
+      ]
+    },
+    {
+      "name": "result_bad_interval_method",
+      "schema": "result",
+      "record": {
+        "schema_version": "result.v1",
+        "status": "success",
+        "measurement_name": "pendulum_g_over_l",
+        "value": 15.2,
+        "unit": "1/s^2",
+        "interval": {
+          "lower": 14.0,
+          "upper": 16.0
+        },
+        "interval_method": "bootstrap",
+        "identifiable_quantity": {
+          "name": "g/L_eff",
+          "value": 15.2,
+          "unit": "1/s^2"
+        },
+        "calibration": null,
+        "fit": {
+          "schema_version": "fit.v1",
+          "model_id": "M1",
+          "parameter_names": [
+            "g_over_l"
+          ],
+          "parameters": {
+            "g_over_l": 15.2
+          },
+          "parameter_units": {
+            "g_over_l": "1/s^2"
+          },
+          "initial_conditions": {
+            "theta0_rad": 0.31,
+            "omega0_rad_s": 0.0
+          },
+          "solver": "RK45",
+          "optimizer": "least_squares",
+          "converged": true,
+          "residual_summary": null,
+          "observation_count": 230,
+          "rejected_count": 0,
+          "fit_uncertainty_method": "none",
+          "pivot_length_mm": null,
+          "pivot_length_source": "not_provided",
+          "g_over_l_per_s2": 15.2,
+          "gravity_m_s2": null,
+          "warnings": [],
+          "provenance": null
+        },
+        "quality_metrics": null,
+        "assumptions": [],
+        "warnings": [],
+        "reject_reasons": [],
+        "provenance": {
+          "software_name": "kineticlab-test",
+          "software_version": "0.1.0",
+          "input_sha256": null,
+          "model_name": null,
+          "model_version": null,
+          "raw_refs": [],
+          "artifact_hashes": {
+            "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+            "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+            "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+            "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+          }
+        },
+        "exports": []
+      },
+      "expect_codes": [
+        "E_BAD_ENUM"
+      ]
+    },
+    {
+      "name": "result_value_outside_interval",
+      "schema": "result",
+      "record": {
+        "schema_version": "result.v1",
+        "status": "success",
+        "measurement_name": "pendulum_g_over_l",
+        "value": 20.0,
+        "unit": "1/s^2",
+        "interval": {
+          "lower": 14.0,
+          "upper": 16.0
+        },
+        "interval_method": "analytic_linearized",
+        "identifiable_quantity": {
+          "name": "g/L_eff",
+          "value": 20.0,
+          "unit": "1/s^2"
+        },
+        "calibration": null,
+        "fit": {
+          "schema_version": "fit.v1",
+          "model_id": "M1",
+          "parameter_names": [
+            "g_over_l"
+          ],
+          "parameters": {
+            "g_over_l": 20.0
+          },
+          "parameter_units": {
+            "g_over_l": "1/s^2"
+          },
+          "initial_conditions": {
+            "theta0_rad": 0.31,
+            "omega0_rad_s": 0.0
+          },
+          "solver": "RK45",
+          "optimizer": "least_squares",
+          "converged": true,
+          "residual_summary": null,
+          "observation_count": 230,
+          "rejected_count": 0,
+          "fit_uncertainty_method": "none",
+          "pivot_length_mm": null,
+          "pivot_length_source": "not_provided",
+          "g_over_l_per_s2": 20.0,
+          "gravity_m_s2": null,
+          "warnings": [],
+          "provenance": null
+        },
+        "quality_metrics": null,
+        "assumptions": [],
+        "warnings": [],
+        "reject_reasons": [],
+        "provenance": {
+          "software_name": "kineticlab-test",
+          "software_version": "0.1.0",
+          "input_sha256": null,
+          "model_name": null,
+          "model_version": null,
+          "raw_refs": [],
+          "artifact_hashes": {
+            "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+            "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+            "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+            "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+          }
+        },
+        "exports": []
+      },
+      "expect_codes": [
+        "E_INCOHERENT_VALUE"
+      ]
+    },
+    {
+      "name": "metrics_usable_exceeds_total",
+      "schema": "result",
+      "record": {
+        "schema_version": "result.v1",
+        "status": "success",
+        "measurement_name": "pendulum_g_over_l",
+        "value": 15.2,
+        "unit": "1/s^2",
+        "interval": null,
+        "interval_method": null,
+        "identifiable_quantity": {
+          "name": "g/L_eff",
+          "value": 15.2,
+          "unit": "1/s^2"
+        },
+        "calibration": null,
+        "fit": {
+          "schema_version": "fit.v1",
+          "model_id": "M1",
+          "parameter_names": [
+            "g_over_l"
+          ],
+          "parameters": {
+            "g_over_l": 15.2
+          },
+          "parameter_units": {
+            "g_over_l": "1/s^2"
+          },
+          "initial_conditions": {
+            "theta0_rad": 0.31,
+            "omega0_rad_s": 0.0
+          },
+          "solver": "RK45",
+          "optimizer": "least_squares",
+          "converged": true,
+          "residual_summary": null,
+          "observation_count": 230,
+          "rejected_count": 0,
+          "fit_uncertainty_method": "none",
+          "pivot_length_mm": null,
+          "pivot_length_source": "not_provided",
+          "g_over_l_per_s2": 15.2,
+          "gravity_m_s2": null,
+          "warnings": [],
+          "provenance": null
+        },
+        "quality_metrics": {
+          "frames_total": 100,
+          "frames_usable": 120,
+          "observations_total": null,
+          "observations_valid": null,
+          "calibrated_frames": null
+        },
+        "assumptions": [],
+        "warnings": [],
+        "reject_reasons": [],
+        "provenance": {
+          "software_name": "kineticlab-test",
+          "software_version": "0.1.0",
+          "input_sha256": null,
+          "model_name": null,
+          "model_version": null,
+          "raw_refs": [],
+          "artifact_hashes": {
+            "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+            "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+            "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+            "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+          }
+        },
+        "exports": []
+      },
+      "expect_codes": [
+        "E_INCOHERENT_VALUE"
+      ]
+    },
+    {
+      "name": "metrics_valid_exceeds_total",
+      "schema": "result",
+      "record": {
+        "schema_version": "result.v1",
+        "status": "success",
+        "measurement_name": "pendulum_g_over_l",
+        "value": 15.2,
+        "unit": "1/s^2",
+        "interval": null,
+        "interval_method": null,
+        "identifiable_quantity": {
+          "name": "g/L_eff",
+          "value": 15.2,
+          "unit": "1/s^2"
+        },
+        "calibration": null,
+        "fit": {
+          "schema_version": "fit.v1",
+          "model_id": "M1",
+          "parameter_names": [
+            "g_over_l"
+          ],
+          "parameters": {
+            "g_over_l": 15.2
+          },
+          "parameter_units": {
+            "g_over_l": "1/s^2"
+          },
+          "initial_conditions": {
+            "theta0_rad": 0.31,
+            "omega0_rad_s": 0.0
+          },
+          "solver": "RK45",
+          "optimizer": "least_squares",
+          "converged": true,
+          "residual_summary": null,
+          "observation_count": 230,
+          "rejected_count": 0,
+          "fit_uncertainty_method": "none",
+          "pivot_length_mm": null,
+          "pivot_length_source": "not_provided",
+          "g_over_l_per_s2": 15.2,
+          "gravity_m_s2": null,
+          "warnings": [],
+          "provenance": null
+        },
+        "quality_metrics": {
+          "frames_total": 234,
+          "frames_usable": 230,
+          "observations_total": 460,
+          "observations_valid": 500,
+          "calibrated_frames": null
+        },
+        "assumptions": [],
+        "warnings": [],
+        "reject_reasons": [],
+        "provenance": {
+          "software_name": "kineticlab-test",
+          "software_version": "0.1.0",
+          "input_sha256": null,
+          "model_name": null,
+          "model_version": null,
+          "raw_refs": [],
+          "artifact_hashes": {
+            "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+            "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+            "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+            "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+          }
+        },
+        "exports": []
+      },
+      "expect_codes": [
+        "E_INCOHERENT_VALUE"
+      ]
+    },
+    {
+      "name": "metrics_calibrated_exceeds_usable",
+      "schema": "result",
+      "record": {
+        "schema_version": "result.v1",
+        "status": "success",
+        "measurement_name": "pendulum_g_over_l",
+        "value": 15.2,
+        "unit": "1/s^2",
+        "interval": null,
+        "interval_method": null,
+        "identifiable_quantity": {
+          "name": "g/L_eff",
+          "value": 15.2,
+          "unit": "1/s^2"
+        },
+        "calibration": null,
+        "fit": {
+          "schema_version": "fit.v1",
+          "model_id": "M1",
+          "parameter_names": [
+            "g_over_l"
+          ],
+          "parameters": {
+            "g_over_l": 15.2
+          },
+          "parameter_units": {
+            "g_over_l": "1/s^2"
+          },
+          "initial_conditions": {
+            "theta0_rad": 0.31,
+            "omega0_rad_s": 0.0
+          },
+          "solver": "RK45",
+          "optimizer": "least_squares",
+          "converged": true,
+          "residual_summary": null,
+          "observation_count": 230,
+          "rejected_count": 0,
+          "fit_uncertainty_method": "none",
+          "pivot_length_mm": null,
+          "pivot_length_source": "not_provided",
+          "g_over_l_per_s2": 15.2,
+          "gravity_m_s2": null,
+          "warnings": [],
+          "provenance": null
+        },
+        "quality_metrics": {
+          "frames_total": 234,
+          "frames_usable": 230,
+          "observations_total": 460,
+          "observations_valid": 452,
+          "calibrated_frames": 231
+        },
+        "assumptions": [],
+        "warnings": [],
+        "reject_reasons": [],
+        "provenance": {
+          "software_name": "kineticlab-test",
+          "software_version": "0.1.0",
+          "input_sha256": null,
+          "model_name": null,
+          "model_version": null,
+          "raw_refs": [],
+          "artifact_hashes": {
+            "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+            "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+            "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+            "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+          }
+        },
+        "exports": []
+      },
+      "expect_codes": [
+        "E_INCOHERENT_VALUE"
+      ]
+    },
+    {
+      "name": "observation_valid_without_pts",
+      "schema": "observation",
+      "record": {
+        "schema_version": "observation.v1",
+        "frame_index": 0,
+        "pts_seconds": null,
+        "object_role": "bob",
+        "object_id": "bob-1",
+        "confidence": 0.9,
+        "bbox": [
+          100.0,
+          200.0,
+          140.0,
+          260.0
+        ],
+        "centroid_x_px": 120.0,
+        "centroid_y_px": 230.0,
+        "mask_area_px": 1256.0,
+        "mask_reference": null,
+        "valid": true,
+        "source": "sam_fixture",
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_INCOHERENT_VALUE"
+      ]
+    },
+    {
+      "name": "calibration_dims_without_source",
+      "schema": "calibration",
+      "record": {
+        "schema_version": "calibration.v1",
+        "reference_type": "unknown",
+        "reference_dimensions_mm": {
+          "width_mm": 85.6,
+          "height_mm": 53.98
+        },
+        "dimension_source": "not_provided",
+        "observed_corners_px": null,
+        "observed_oriented_dimensions_px": null,
+        "scale_mm_per_px": 0.8,
+        "plane_transform": null,
+        "scale_uncertainty_mm_per_px": null,
+        "same_plane_assumption": true,
+        "camera_fixed_assumption": true,
+        "valid": true,
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_INCOHERENT_VALUE"
+      ]
+    },
+    {
+      "name": "calibration_source_without_dims",
+      "schema": "calibration",
+      "record": {
+        "schema_version": "calibration.v1",
+        "reference_type": "unknown",
+        "reference_dimensions_mm": null,
+        "dimension_source": "user_confirmed",
+        "observed_corners_px": null,
+        "observed_oriented_dimensions_px": null,
+        "scale_mm_per_px": 0.8,
+        "plane_transform": null,
+        "scale_uncertainty_mm_per_px": null,
+        "same_plane_assumption": true,
+        "camera_fixed_assumption": true,
+        "valid": true,
+        "warnings": [],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_INCOHERENT_VALUE"
+      ]
+    },
+    {
+      "name": "result_quantity_name_unit_mismatch",
+      "schema": "result",
+      "record": {
+        "schema_version": "result.v1",
+        "status": "success",
+        "measurement_name": "pendulum_g_over_l",
+        "value": 15.2,
+        "unit": "1/s^2",
+        "interval": null,
+        "interval_method": null,
+        "identifiable_quantity": {
+          "name": "gravity",
+          "value": 15.2,
+          "unit": "1/s^2"
+        },
+        "calibration": null,
+        "fit": {
+          "schema_version": "fit.v1",
+          "model_id": "M1",
+          "parameter_names": [
+            "g_over_l"
+          ],
+          "parameters": {
+            "g_over_l": 15.2
+          },
+          "parameter_units": {
+            "g_over_l": "1/s^2"
+          },
+          "initial_conditions": {
+            "theta0_rad": 0.31,
+            "omega0_rad_s": 0.0
+          },
+          "solver": "RK45",
+          "optimizer": "least_squares",
+          "converged": true,
+          "residual_summary": null,
+          "observation_count": 230,
+          "rejected_count": 0,
+          "fit_uncertainty_method": "none",
+          "pivot_length_mm": null,
+          "pivot_length_source": "not_provided",
+          "g_over_l_per_s2": 15.2,
+          "gravity_m_s2": null,
+          "warnings": [],
+          "provenance": null
+        },
+        "quality_metrics": null,
+        "assumptions": [],
+        "warnings": [],
+        "reject_reasons": [],
+        "provenance": {
+          "software_name": "kineticlab-test",
+          "software_version": "0.1.0",
+          "input_sha256": null,
+          "model_name": null,
+          "model_version": null,
+          "raw_refs": [],
+          "artifact_hashes": {
+            "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+            "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+            "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+            "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+          }
+        },
+        "exports": []
+      },
+      "expect_codes": [
+        "E_INCOHERENT_VALUE"
+      ]
+    },
+    {
+      "name": "result_quantity_unknown_name",
+      "schema": "result",
+      "record": {
+        "schema_version": "result.v1",
+        "status": "success",
+        "measurement_name": "pendulum_g_over_l",
+        "value": 15.2,
+        "unit": "1/s^2",
+        "interval": null,
+        "interval_method": null,
+        "identifiable_quantity": {
+          "name": "pendulum_period",
+          "value": 15.2,
+          "unit": "1/s^2"
+        },
+        "calibration": null,
+        "fit": {
+          "schema_version": "fit.v1",
+          "model_id": "M1",
+          "parameter_names": [
+            "g_over_l"
+          ],
+          "parameters": {
+            "g_over_l": 15.2
+          },
+          "parameter_units": {
+            "g_over_l": "1/s^2"
+          },
+          "initial_conditions": {
+            "theta0_rad": 0.31,
+            "omega0_rad_s": 0.0
+          },
+          "solver": "RK45",
+          "optimizer": "least_squares",
+          "converged": true,
+          "residual_summary": null,
+          "observation_count": 230,
+          "rejected_count": 0,
+          "fit_uncertainty_method": "none",
+          "pivot_length_mm": null,
+          "pivot_length_source": "not_provided",
+          "g_over_l_per_s2": 15.2,
+          "gravity_m_s2": null,
+          "warnings": [],
+          "provenance": null
+        },
+        "quality_metrics": null,
+        "assumptions": [],
+        "warnings": [],
+        "reject_reasons": [],
+        "provenance": {
+          "software_name": "kineticlab-test",
+          "software_version": "0.1.0",
+          "input_sha256": null,
+          "model_name": null,
+          "model_version": null,
+          "raw_refs": [],
+          "artifact_hashes": {
+            "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+            "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+            "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+            "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+          }
+        },
+        "exports": []
+      },
+      "expect_codes": [
+        "E_BAD_ENUM"
+      ]
+    },
+    {
+      "name": "result_missing_g_over_l_parameter",
+      "schema": "result",
+      "record": {
+        "schema_version": "result.v1",
+        "status": "success",
+        "measurement_name": "pendulum_g_over_l",
+        "value": 15.2,
+        "unit": "1/s^2",
+        "interval": null,
+        "interval_method": null,
+        "identifiable_quantity": {
+          "name": "g/L_eff",
+          "value": 15.2,
+          "unit": "1/s^2"
+        },
+        "calibration": null,
+        "fit": {
+          "schema_version": "fit.v1",
+          "model_id": "M1",
+          "parameter_names": [
+            "theta0"
+          ],
+          "parameters": {
+            "theta0": 0.31
+          },
+          "parameter_units": {
+            "theta0": "rad"
+          },
+          "initial_conditions": {
+            "theta0_rad": 0.31,
+            "omega0_rad_s": 0.0
+          },
+          "solver": "RK45",
+          "optimizer": "least_squares",
+          "converged": true,
+          "residual_summary": null,
+          "observation_count": 230,
+          "rejected_count": 0,
+          "fit_uncertainty_method": "none",
+          "pivot_length_mm": null,
+          "pivot_length_source": "not_provided",
+          "g_over_l_per_s2": 15.2,
+          "gravity_m_s2": null,
+          "warnings": [],
+          "provenance": null
+        },
+        "quality_metrics": null,
+        "assumptions": [],
+        "warnings": [],
+        "reject_reasons": [],
+        "provenance": {
+          "software_name": "kineticlab-test",
+          "software_version": "0.1.0",
+          "input_sha256": null,
+          "model_name": null,
+          "model_version": null,
+          "raw_refs": [],
+          "artifact_hashes": {
+            "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+            "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+            "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+            "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+          }
+        },
+        "exports": []
+      },
+      "expect_codes": [
+        "E_INCOHERENT_VALUE",
+        "E_PARAMETER_MISMATCH"
+      ]
+    },
+    {
+      "name": "result_gravity_missing_g_over_l_parameter",
+      "schema": "result",
+      "record": {
+        "schema_version": "result.v1",
+        "status": "success",
+        "measurement_name": "pendulum_gravity",
+        "value": 9.88,
+        "unit": "m/s^2",
+        "interval": null,
+        "interval_method": null,
+        "identifiable_quantity": {
+          "name": "gravity",
+          "value": 9.88,
+          "unit": "m/s^2"
+        },
+        "calibration": null,
+        "fit": {
+          "schema_version": "fit.v1",
+          "model_id": "M1",
+          "parameter_names": [
+            "theta0"
+          ],
+          "parameters": {
+            "theta0": 0.31
+          },
+          "parameter_units": {
+            "theta0": "rad"
+          },
+          "initial_conditions": {
+            "theta0_rad": 0.31,
+            "omega0_rad_s": 0.0
+          },
+          "solver": "RK45",
+          "optimizer": "least_squares",
+          "converged": true,
+          "residual_summary": null,
+          "observation_count": 230,
+          "rejected_count": 0,
+          "fit_uncertainty_method": "none",
+          "pivot_length_mm": 650.0,
+          "pivot_length_source": "independent_measurement",
+          "g_over_l_per_s2": 15.2,
+          "gravity_m_s2": 9.88,
+          "warnings": [],
+          "provenance": null
+        },
+        "quality_metrics": null,
+        "assumptions": [],
+        "warnings": [],
+        "reject_reasons": [],
+        "provenance": {
+          "software_name": "kineticlab-test",
+          "software_version": "0.1.0",
+          "input_sha256": null,
+          "model_name": null,
+          "model_version": null,
+          "raw_refs": [],
+          "artifact_hashes": {
+            "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+            "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+            "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+            "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+          }
+        },
+        "exports": []
+      },
+      "expect_codes": [
+        "E_INCOHERENT_VALUE",
+        "E_PARAMETER_MISMATCH"
+      ]
+    },
+    {
+      "name": "result_failure_quantity_mismatch",
+      "schema": "result",
+      "record": {
+        "schema_version": "result.v1",
+        "status": "insufficient_data",
+        "measurement_name": "pendulum_g_over_l",
+        "value": null,
+        "unit": null,
+        "interval": null,
+        "interval_method": null,
+        "identifiable_quantity": {
+          "name": "gravity",
+          "value": null,
+          "unit": "1/s^2"
+        },
+        "calibration": null,
+        "fit": null,
+        "quality_metrics": null,
+        "assumptions": [],
+        "warnings": [],
+        "reject_reasons": [
+          {
+            "code": "E_MISSING_MAPPING",
+            "field": "frames",
+            "detail": "no usable frames"
+          }
+        ],
+        "provenance": {
+          "software_name": "kineticlab-test",
+          "software_version": "0.1.0",
+          "input_sha256": null,
+          "model_name": null,
+          "model_version": null,
+          "raw_refs": [],
+          "artifact_hashes": {
+            "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+            "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+            "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+            "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+          }
+        },
+        "exports": []
+      },
+      "expect_codes": [
+        "E_INCOHERENT_VALUE"
+      ]
+    },
+    {
+      "name": "fit_summary_without_parameter",
+      "schema": "fit",
+      "record": {
+        "schema_version": "fit.v1",
+        "model_id": "M1",
+        "parameter_names": [],
+        "parameters": {},
+        "parameter_units": {},
+        "initial_conditions": {
+          "theta0_rad": 0.31,
+          "omega0_rad_s": 0.0
+        },
+        "solver": "RK45",
+        "optimizer": "least_squares",
+        "converged": true,
+        "residual_summary": {
+          "rmse": 0.012,
+          "max_abs": 0.035,
+          "dof": 228
+        },
+        "observation_count": 230,
+        "rejected_count": 4,
+        "fit_uncertainty_method": "none",
+        "pivot_length_mm": null,
+        "pivot_length_source": "not_provided",
+        "g_over_l_per_s2": 15.2,
+        "gravity_m_s2": null,
+        "warnings": [
+          {
+            "code": "W_UNCERTAINTY_UNAVAILABLE",
+            "detail": "no uncertainty method run"
+          }
+        ],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_INCOHERENT_VALUE",
+        "E_INCOHERENT_VALUE",
+        "E_PARAMETER_MISMATCH"
+      ]
+    },
+    {
+      "name": "result_zero_observation_success",
+      "schema": "result",
+      "record": {
+        "schema_version": "result.v1",
+        "status": "success_with_warnings",
+        "measurement_name": "pendulum_g_over_l",
+        "value": 15.2,
+        "unit": "1/s^2",
+        "interval": null,
+        "interval_method": null,
+        "identifiable_quantity": {
+          "name": "g/L_eff",
+          "value": 15.2,
+          "unit": "1/s^2"
+        },
+        "calibration": {
+          "schema_version": "calibration.v1",
+          "reference_type": "unknown",
+          "reference_dimensions_mm": null,
+          "dimension_source": "not_provided",
+          "observed_corners_px": [
+            [
+              410.5,
+              300.0
+            ],
+            [
+              520.5,
+              302.0
+            ],
+            [
+              518.5,
+              368.0
+            ],
+            [
+              408.5,
+              366.0
+            ]
+          ],
+          "observed_oriented_dimensions_px": {
+            "long_side_px": 110.0,
+            "short_side_px": 66.0
+          },
+          "scale_mm_per_px": 0.78,
+          "plane_transform": null,
+          "scale_uncertainty_mm_per_px": null,
+          "same_plane_assumption": true,
+          "camera_fixed_assumption": true,
+          "valid": true,
+          "warnings": [
+            {
+              "code": "W_ASSUMPTION_UNVERIFIED",
+              "detail": "coplanarity stated, not measured"
+            }
+          ],
+          "provenance": null
+        },
+        "fit": {
+          "schema_version": "fit.v1",
+          "model_id": "M1",
+          "parameter_names": [
+            "g_over_l"
+          ],
+          "parameters": {
+            "g_over_l": 15.2
+          },
+          "parameter_units": {
+            "g_over_l": "1/s^2"
+          },
+          "initial_conditions": {
+            "theta0_rad": 0.31,
+            "omega0_rad_s": 0.0
+          },
+          "solver": "RK45",
+          "optimizer": "least_squares",
+          "converged": true,
+          "residual_summary": {
+            "rmse": 0.012,
+            "max_abs": 0.035,
+            "dof": 228
+          },
+          "observation_count": 0,
+          "rejected_count": 4,
+          "fit_uncertainty_method": "none",
+          "pivot_length_mm": null,
+          "pivot_length_source": "not_provided",
+          "g_over_l_per_s2": 15.2,
+          "gravity_m_s2": null,
+          "warnings": [
+            {
+              "code": "W_UNCERTAINTY_UNAVAILABLE",
+              "detail": "no uncertainty method run"
+            }
+          ],
+          "provenance": null
+        },
+        "quality_metrics": {
+          "frames_total": 234,
+          "frames_usable": 230,
+          "observations_total": 460,
+          "observations_valid": 452,
+          "calibrated_frames": 228
+        },
+        "assumptions": [
+          "camera fixed for the clip",
+          "card near-coplanar with swing plane"
+        ],
+        "warnings": [
+          {
+            "code": "W_SHORT_TRACK",
+            "detail": "usable span 7.6s of 7.9s"
+          }
+        ],
+        "reject_reasons": [],
+        "provenance": {
+          "software_name": "kineticlab-test",
+          "software_version": "0.1.0",
+          "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+          "model_name": "sam-3.1",
+          "model_version": "fixture",
+          "raw_refs": [
+            "Smoke/test_3.mp4",
+            "Smoke/results/test_3_white_card_raw.txt"
+          ],
+          "artifact_hashes": {
+            "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+            "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+            "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+            "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+          }
+        },
+        "exports": [
+          {
+            "format": "json",
+            "path": "results/test_3_result.json"
+          }
+        ]
+      },
+      "expect_codes": [
+        "E_INCOHERENT_VALUE"
+      ]
+    },
+    {
+      "name": "result_orphan_interval_method",
+      "schema": "result",
+      "record": {
+        "schema_version": "result.v1",
+        "status": "success_with_warnings",
+        "measurement_name": "pendulum_g_over_l",
+        "value": 15.2,
+        "unit": "1/s^2",
+        "interval": null,
+        "interval_method": "analytic_linearized",
+        "identifiable_quantity": {
+          "name": "g/L_eff",
+          "value": 15.2,
+          "unit": "1/s^2"
+        },
+        "calibration": {
+          "schema_version": "calibration.v1",
+          "reference_type": "unknown",
+          "reference_dimensions_mm": null,
+          "dimension_source": "not_provided",
+          "observed_corners_px": [
+            [
+              410.5,
+              300.0
+            ],
+            [
+              520.5,
+              302.0
+            ],
+            [
+              518.5,
+              368.0
+            ],
+            [
+              408.5,
+              366.0
+            ]
+          ],
+          "observed_oriented_dimensions_px": {
+            "long_side_px": 110.0,
+            "short_side_px": 66.0
+          },
+          "scale_mm_per_px": 0.78,
+          "plane_transform": null,
+          "scale_uncertainty_mm_per_px": null,
+          "same_plane_assumption": true,
+          "camera_fixed_assumption": true,
+          "valid": true,
+          "warnings": [
+            {
+              "code": "W_ASSUMPTION_UNVERIFIED",
+              "detail": "coplanarity stated, not measured"
+            }
+          ],
+          "provenance": null
+        },
+        "fit": {
+          "schema_version": "fit.v1",
+          "model_id": "M1",
+          "parameter_names": [
+            "g_over_l"
+          ],
+          "parameters": {
+            "g_over_l": 15.2
+          },
+          "parameter_units": {
+            "g_over_l": "1/s^2"
+          },
+          "initial_conditions": {
+            "theta0_rad": 0.31,
+            "omega0_rad_s": 0.0
+          },
+          "solver": "RK45",
+          "optimizer": "least_squares",
+          "converged": true,
+          "residual_summary": {
+            "rmse": 0.012,
+            "max_abs": 0.035,
+            "dof": 228
+          },
+          "observation_count": 230,
+          "rejected_count": 4,
+          "fit_uncertainty_method": "none",
+          "pivot_length_mm": null,
+          "pivot_length_source": "not_provided",
+          "g_over_l_per_s2": 15.2,
+          "gravity_m_s2": null,
+          "warnings": [
+            {
+              "code": "W_UNCERTAINTY_UNAVAILABLE",
+              "detail": "no uncertainty method run"
+            }
+          ],
+          "provenance": null
+        },
+        "quality_metrics": {
+          "frames_total": 234,
+          "frames_usable": 230,
+          "observations_total": 460,
+          "observations_valid": 452,
+          "calibrated_frames": 228
+        },
+        "assumptions": [
+          "camera fixed for the clip",
+          "card near-coplanar with swing plane"
+        ],
+        "warnings": [
+          {
+            "code": "W_SHORT_TRACK",
+            "detail": "usable span 7.6s of 7.9s"
+          }
+        ],
+        "reject_reasons": [],
+        "provenance": {
+          "software_name": "kineticlab-test",
+          "software_version": "0.1.0",
+          "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+          "model_name": "sam-3.1",
+          "model_version": "fixture",
+          "raw_refs": [
+            "Smoke/test_3.mp4",
+            "Smoke/results/test_3_white_card_raw.txt"
+          ],
+          "artifact_hashes": {
+            "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+            "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+            "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+            "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+          }
+        },
+        "exports": [
+          {
+            "format": "json",
+            "path": "results/test_3_result.json"
+          }
+        ]
+      },
+      "expect_codes": [
+        "E_INCOHERENT_VALUE"
+      ]
+    },
+    {
+      "name": "result_measurement_name_mismatch",
+      "schema": "result",
+      "record": {
+        "schema_version": "result.v1",
+        "status": "success_with_warnings",
+        "measurement_name": "pendulum_gravity",
+        "value": 15.2,
+        "unit": "1/s^2",
+        "interval": null,
+        "interval_method": null,
+        "identifiable_quantity": {
+          "name": "g/L_eff",
+          "value": 15.2,
+          "unit": "1/s^2"
+        },
+        "calibration": {
+          "schema_version": "calibration.v1",
+          "reference_type": "unknown",
+          "reference_dimensions_mm": null,
+          "dimension_source": "not_provided",
+          "observed_corners_px": [
+            [
+              410.5,
+              300.0
+            ],
+            [
+              520.5,
+              302.0
+            ],
+            [
+              518.5,
+              368.0
+            ],
+            [
+              408.5,
+              366.0
+            ]
+          ],
+          "observed_oriented_dimensions_px": {
+            "long_side_px": 110.0,
+            "short_side_px": 66.0
+          },
+          "scale_mm_per_px": 0.78,
+          "plane_transform": null,
+          "scale_uncertainty_mm_per_px": null,
+          "same_plane_assumption": true,
+          "camera_fixed_assumption": true,
+          "valid": true,
+          "warnings": [
+            {
+              "code": "W_ASSUMPTION_UNVERIFIED",
+              "detail": "coplanarity stated, not measured"
+            }
+          ],
+          "provenance": null
+        },
+        "fit": {
+          "schema_version": "fit.v1",
+          "model_id": "M1",
+          "parameter_names": [
+            "g_over_l"
+          ],
+          "parameters": {
+            "g_over_l": 15.2
+          },
+          "parameter_units": {
+            "g_over_l": "1/s^2"
+          },
+          "initial_conditions": {
+            "theta0_rad": 0.31,
+            "omega0_rad_s": 0.0
+          },
+          "solver": "RK45",
+          "optimizer": "least_squares",
+          "converged": true,
+          "residual_summary": {
+            "rmse": 0.012,
+            "max_abs": 0.035,
+            "dof": 228
+          },
+          "observation_count": 230,
+          "rejected_count": 4,
+          "fit_uncertainty_method": "none",
+          "pivot_length_mm": null,
+          "pivot_length_source": "not_provided",
+          "g_over_l_per_s2": 15.2,
+          "gravity_m_s2": null,
+          "warnings": [
+            {
+              "code": "W_UNCERTAINTY_UNAVAILABLE",
+              "detail": "no uncertainty method run"
+            }
+          ],
+          "provenance": null
+        },
+        "quality_metrics": {
+          "frames_total": 234,
+          "frames_usable": 230,
+          "observations_total": 460,
+          "observations_valid": 452,
+          "calibrated_frames": 228
+        },
+        "assumptions": [
+          "camera fixed for the clip",
+          "card near-coplanar with swing plane"
+        ],
+        "warnings": [
+          {
+            "code": "W_SHORT_TRACK",
+            "detail": "usable span 7.6s of 7.9s"
+          }
+        ],
+        "reject_reasons": [],
+        "provenance": {
+          "software_name": "kineticlab-test",
+          "software_version": "0.1.0",
+          "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+          "model_name": "sam-3.1",
+          "model_version": "fixture",
+          "raw_refs": [
+            "Smoke/test_3.mp4",
+            "Smoke/results/test_3_white_card_raw.txt"
+          ],
+          "artifact_hashes": {
+            "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+            "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+            "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+            "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+          }
+        },
+        "exports": [
+          {
+            "format": "json",
+            "path": "results/test_3_result.json"
+          }
+        ]
+      },
+      "expect_codes": [
+        "E_INCOHERENT_VALUE",
+        "E_INCOHERENT_VALUE"
+      ]
+    },
+    {
+      "name": "fit_m2_missing_gamma",
+      "schema": "fit",
+      "record": {
+        "schema_version": "fit.v1",
+        "model_id": "M2",
+        "parameter_names": [
+          "g_over_l"
+        ],
+        "parameters": {
+          "g_over_l": 15.2
+        },
+        "parameter_units": {
+          "g_over_l": "1/s^2"
+        },
+        "initial_conditions": {
+          "theta0_rad": 0.31,
+          "omega0_rad_s": 0.0
+        },
+        "solver": "RK45",
+        "optimizer": "least_squares",
+        "converged": true,
+        "residual_summary": {
+          "rmse": 0.012,
+          "max_abs": 0.035,
+          "dof": 228
+        },
+        "observation_count": 230,
+        "rejected_count": 4,
+        "fit_uncertainty_method": "none",
+        "pivot_length_mm": null,
+        "pivot_length_source": "not_provided",
+        "g_over_l_per_s2": 15.2,
+        "gravity_m_s2": null,
+        "warnings": [
+          {
+            "code": "W_UNCERTAINTY_UNAVAILABLE",
+            "detail": "no uncertainty method run"
+          }
+        ],
+        "provenance": null
+      },
+      "expect_codes": [
+        "E_PARAMETER_MISMATCH"
+      ]
+    }
+  ]
+}

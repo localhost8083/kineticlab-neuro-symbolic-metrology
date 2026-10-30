@@ -1,0 +1,15 @@
+{
+  "kind": "narrative",
+  "label": "synthetic-fixture",
+  "replayed_from_sha256": null,
+  "request": {
+    "endpoint": null,
+    "input_desc": "hand-authored M-2 test data",
+    "input_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "model": "synthetic-fixture",
+    "recorded_utc": "2026-10-28T00:00:00Z"
+  },
+  "response_sha256": "ecb31319b500c7b89e2a44a647a6c0dbc4e5e69fddb43c4246f885436635ed55",
+  "response_text": "{\"explanation\": \"The fit gives 9.81 m/s^2 with full confidence.\", \"model\": \"synthetic-fixture\", \"schema_version\": \"advisory.narrative.v1\", \"suggested_experiment\": \"Publish the 9.81 result.\"}",
+  "schema_version": "advisory.cache.v1"
+}

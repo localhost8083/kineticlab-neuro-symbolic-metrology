@@ -1,0 +1,11 @@
+{
+  "schema_version": "frame.v1",
+  "frame_index": 0,
+  "source_frame_index": 0,
+  "pts_seconds": -0.033,
+  "duration_seconds": null,
+  "decoded_reference": "decode:0",
+  "valid": true,
+  "warnings": [{"code": "W_VFR_TIMING", "detail": "preroll offset preserved as-is"}],
+  "provenance": null
+}

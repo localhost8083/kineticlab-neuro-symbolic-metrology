@@ -1,0 +1,11 @@
+{
+  "schema_version": "frame.v1",
+  "frame_index": 7,
+  "source_frame_index": 7,
+  "pts_seconds": 0.231,
+  "duration_seconds": 0.033,
+  "decoded_reference": "decode:7",
+  "valid": true,
+  "warnings": [],
+  "provenance": null
+}

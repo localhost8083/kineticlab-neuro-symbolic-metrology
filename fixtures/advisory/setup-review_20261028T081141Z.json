@@ -1,0 +1,15 @@
+{
+  "kind": "setup-review",
+  "label": "live",
+  "replayed_from_sha256": null,
+  "request": {
+    "endpoint": "https://api.meta.ai/v1/chat/completions",
+    "input_desc": "setup_review_features.json",
+    "input_sha256": "4838dd03630d3ee17ccb0ae9d678d87546e2bd49ec05a971d5ce251af0464ec4",
+    "model": "muse-spark-1.3-contributor",
+    "recorded_utc": "20261028T081141Z"
+  },
+  "response_sha256": "096d9a1d3e01d88e4bd9a6e32c750dad69bbd103e6775289621341117d52970e",
+  "response_text": "{\"schema_version\":\"advisory.setup-review.v1\",\"card_fully_visible\":false,\"camera_appears_static\":false,\"motion_blur_severity\":\"none\",\"pendulum_appears_planar\":true,\"unexpected_note\":\"bob overlaps card bbox in 117 of 234 frames across 7 bands; card center displacement max 24.19 px mean 10.01 px; no per-frame blur metric and card dimensions pending\",\"model\":\"muse-spark\"}",
+  "schema_version": "advisory.cache.v1"
+}

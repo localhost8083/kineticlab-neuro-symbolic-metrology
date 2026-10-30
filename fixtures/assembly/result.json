@@ -1,0 +1,162 @@
+{
+  "assumptions": [
+    "Angles measured from image +y about the arc-fit pivot; the zero is arbitrary and absorbed by the fit phase (no upright-camera assumption).",
+    "U-3 depth-offset scale bound 1.7% (25.0 mm offset over 1500.0 mm camera distance, tape estimate) stated as an assumption wherever this scale is used",
+    "M-3e hollow-ball/string-mass bias stated, uncorrected (see the geometry report model_limitations).",
+    "Arc-fit radius is descriptive only, not an independent length; gravity stays null (U-2 not provided).",
+    "M1 is the reported model (pre-registered parsimony); the M2 outcome rides the diagnostics as a cross-check."
+  ],
+  "calibration": {
+    "camera_fixed_assumption": true,
+    "dimension_source": "user_confirmed",
+    "observed_corners_px": [
+      [
+        146.9407337860218,
+        304.3348675281235
+      ],
+      [
+        405.9584471757171,
+        297.4990995558641
+      ],
+      [
+        409.74995243020834,
+        462.745757121545
+      ],
+      [
+        150.8587850879572,
+        469.4724564308142
+      ]
+    ],
+    "observed_oriented_dimensions_px": {
+      "long_side_px": 258.7318351096624,
+      "short_side_px": 165.36871084913219
+    },
+    "plane_transform": null,
+    "provenance": {
+      "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+      "model_name": "sam-3.1",
+      "model_version": null,
+      "raw_refs": [
+        "fixtures/live/raw_card_one_bit.txt"
+      ],
+      "software_name": "kineticlab",
+      "software_version": "0.1.0"
+    },
+    "reference_dimensions_mm": {
+      "height_mm": 53.98,
+      "width_mm": 85.6
+    },
+    "reference_type": "iso_id1_confirmed",
+    "same_plane_assumption": false,
+    "scale_mm_per_px": 0.3286332854169991,
+    "scale_uncertainty_mm_per_px": null,
+    "schema_version": "calibration.v1",
+    "valid": true,
+    "warnings": [
+      {
+        "code": "W_UNCERTAINTY_UNAVAILABLE",
+        "detail": "no scale uncertainty estimated; the U-3 bound is a stated assumption, not an uncertainty"
+      },
+      {
+        "code": "W_ASSUMPTION_UNVERIFIED",
+        "detail": "U-3 depth-offset scale bound 1.7% (25.0 mm offset over 1500.0 mm camera distance, tape estimate) stated as an assumption wherever this scale is used"
+      }
+    ]
+  },
+  "exports": [
+    {
+      "format": "result-json",
+      "path": "fixtures/assembly/result.json"
+    },
+    {
+      "format": "diagnostics-json",
+      "path": "fixtures/assembly/diagnostics.json"
+    },
+    {
+      "format": "angles-csv",
+      "path": "fixtures/assembly/angles.csv"
+    }
+  ],
+  "fit": {
+    "converged": true,
+    "fit_uncertainty_method": "none",
+    "g_over_l_per_s2": 30.00563573707589,
+    "gravity_m_s2": null,
+    "initial_conditions": {
+      "omega0_rad_s": -1.1474172412079513,
+      "theta0_rad": 0.2050088765289343
+    },
+    "model_id": "M1",
+    "observation_count": 234,
+    "optimizer": "separable_omega_grid_linear_lsq_golden_refine_v1",
+    "parameter_names": [
+      "g_over_l"
+    ],
+    "parameter_units": {
+      "g_over_l": "1/s^2"
+    },
+    "parameters": {
+      "g_over_l": 30.00563573707589
+    },
+    "pivot_length_mm": null,
+    "pivot_length_source": "not_provided",
+    "provenance": null,
+    "rejected_count": 0,
+    "residual_summary": {
+      "dof": 231,
+      "max_abs": 0.07864719822009777,
+      "rmse": 0.02275752015969389
+    },
+    "schema_version": "fit.v1",
+    "solver": "closed_form_small_angle",
+    "warnings": [
+      {
+        "code": "W_UNCERTAINTY_UNAVAILABLE",
+        "detail": "KL-5.2 estimates no uncertainty; method is none (KL-5.4 owns uncertainty)."
+      }
+    ]
+  },
+  "identifiable_quantity": {
+    "name": "g/L_eff",
+    "unit": "1/s^2",
+    "value": 30.00563573707589
+  },
+  "interval": null,
+  "interval_method": null,
+  "measurement_name": "pendulum_g_over_l",
+  "provenance": {
+    "artifact_hashes": {
+      "calibration_sha256": "09e3e852efe6a7d74f67f642ef9710558c898d65bd6c55a9d67a033bba3fa3aa",
+      "geometry_report_sha256": "39540e565b557fc98d8b507f36a617a2117bb064f0f8b55fcd7352a237a89a41",
+      "raw_bob_sha256": "b216815fd6ca5e15718fed2dd8947a9972e00b1f27f71881e5d39401a4fb3ad7",
+      "raw_card_sha256": "d3fe9a7ecde3f48c6ef2753bd66f7d93f86783613d50bb2ebbf566deb57473d1"
+    },
+    "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+    "model_name": "sam-3.1",
+    "model_version": null,
+    "raw_refs": [
+      "fixtures/live/raw_bob_one_bit.txt",
+      "fixtures/live/raw_card_one_bit.txt"
+    ],
+    "software_name": "kineticlab",
+    "software_version": "0.1.0"
+  },
+  "quality_metrics": {
+    "calibrated_frames": 117,
+    "frames_total": 234,
+    "frames_usable": 234,
+    "observations_total": 468,
+    "observations_valid": 468
+  },
+  "reject_reasons": [],
+  "schema_version": "result.v1",
+  "status": "success_with_warnings",
+  "unit": "1/s^2",
+  "value": 30.00563573707589,
+  "warnings": [
+    {
+      "code": "W_UNCERTAINTY_UNAVAILABLE",
+      "detail": "KL-7.1 estimates no uncertainty; method is none."
+    }
+  ]
+}

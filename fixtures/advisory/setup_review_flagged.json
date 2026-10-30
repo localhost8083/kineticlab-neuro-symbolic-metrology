@@ -1,0 +1,15 @@
+{
+  "kind": "setup-review",
+  "label": "synthetic-fixture",
+  "replayed_from_sha256": null,
+  "request": {
+    "endpoint": null,
+    "input_desc": "hand-authored M-2 test data",
+    "input_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "model": "synthetic-fixture",
+    "recorded_utc": "2026-10-28T00:00:00Z"
+  },
+  "response_sha256": "20709c8e4b5d851d59ded3bd5b904466892a0303344a0c93832c9524c315b9c4",
+  "response_text": "{\"camera_appears_static\": false, \"card_fully_visible\": false, \"model\": \"synthetic-fixture\", \"motion_blur_severity\": \"severe\", \"pendulum_appears_planar\": false, \"schema_version\": \"advisory.setup-review.v1\", \"unexpected_note\": \"Second pendulum visible behind the card.\"}",
+  "schema_version": "advisory.cache.v1"
+}

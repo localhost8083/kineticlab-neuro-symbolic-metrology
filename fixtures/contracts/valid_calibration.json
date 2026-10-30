@@ -1,0 +1,16 @@
+{
+  "schema_version": "calibration.v1",
+  "reference_type": "unknown",
+  "reference_dimensions_mm": null,
+  "dimension_source": "not_provided",
+  "observed_corners_px": [[410.5, 300.0], [520.5, 302.0], [518.5, 368.0], [408.5, 366.0]],
+  "observed_oriented_dimensions_px": {"long_side_px": 110.0, "short_side_px": 66.0},
+  "scale_mm_per_px": 0.78,
+  "plane_transform": null,
+  "scale_uncertainty_mm_per_px": null,
+  "same_plane_assumption": true,
+  "camera_fixed_assumption": true,
+  "valid": true,
+  "warnings": [{"code": "W_ASSUMPTION_UNVERIFIED", "detail": "coplanarity stated, not measured"}],
+  "provenance": null
+}

@@ -1,0 +1,20 @@
+{
+  "name": "gemini_clean",
+  "video": "Smoke/gemini_generated_video_8eaef52c.mp4",
+  "provenance": "codec/geometry/frames/fps/sha256 pinned from Smoke/README.md and Smoke/results/clean_processing.ffprobe.json (ffprobe of the -c:v copy derivative: identical video track). duration_s is first measured by the stdlib probe on 2026-10-27 (10.006s presentation vs 10.000s video-only: audio extends it, matching the README note of ~10.005s audio); re-verify with ffprobe when available.",
+  "expect": {
+    "sha256": "192ae2b5f280e3957952882c73bb9b03d4db7df2229747d86c88f779149647be",
+    "major_brand": "isom",
+    "codec": "h264",
+    "codec_tag": "avc1",
+    "width": 1280,
+    "height": 720,
+    "frames": 240,
+    "duration_s": 10.006,
+    "duration_tol_s": 0.05,
+    "fps": 24,
+    "fps_tol": 0.5,
+    "has_audio": true,
+    "pix_fmt": null
+  }
+}

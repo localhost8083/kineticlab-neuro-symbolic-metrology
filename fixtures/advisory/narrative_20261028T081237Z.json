@@ -1,0 +1,15 @@
+{
+  "kind": "narrative",
+  "label": "live",
+  "replayed_from_sha256": null,
+  "request": {
+    "endpoint": "https://api.meta.ai/v1/chat/completions",
+    "input_desc": "narrative_input_result.json",
+    "input_sha256": "de934e3fd8c7d0cfe3dfb56051996358020c758fa8b8908dd5c4abee6015d920",
+    "model": "muse-spark-1.3-contributor",
+    "recorded_utc": "20261028T081237Z"
+  },
+  "response_sha256": "8eab63b3338425f2b402df7f1cb07a33becde6d08ae77ab7598301a58333e05b",
+  "response_text": "{\"schema_version\": \"advisory.narrative.v1\", \"explanation\": \"The small-angle closed-form fit converged and estimates g over L effective as 30.007170633278655 1/s^2 using all usable frames with no rejections, but calibration is invalid with no scale so gravity and pivot length alone remain unavailable and uncertainty was reported as unavailable.\", \"suggested_experiment\": \"Measure the pivot to bob length in the same plane with a calibrated scale and repeat the swing with fixed camera to separate gravity from length.\", \"model\": \"kineticlab closed-form small-angle pendulum\"}",
+  "schema_version": "advisory.cache.v1"
+}

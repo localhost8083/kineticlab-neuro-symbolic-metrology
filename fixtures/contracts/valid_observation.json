@@ -1,0 +1,24 @@
+{
+  "schema_version": "observation.v1",
+  "frame_index": 7,
+  "pts_seconds": 0.231,
+  "object_role": "reference_card",
+  "object_id": "card-1",
+  "confidence": 0.97,
+  "bbox": [410.5, 300.0, 520.5, 368.0],
+  "centroid_x_px": 465.5,
+  "centroid_y_px": 334.0,
+  "mask_area_px": 7480.0,
+  "mask_reference": "masks/card-1_frame7.bin",
+  "valid": true,
+  "source": "sam_fixture",
+  "warnings": [],
+  "provenance": {
+    "software_name": "kineticlab-test",
+    "software_version": "0.1.0",
+    "input_sha256": null,
+    "model_name": "sam-3.1",
+    "model_version": "fixture",
+    "raw_refs": ["Smoke/results/test_3_white_card_raw.txt"]
+  }
+}

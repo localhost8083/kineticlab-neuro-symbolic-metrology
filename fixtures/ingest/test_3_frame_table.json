@@ -1,0 +1,4226 @@
+{
+  "artifact": "test_3_frame_table",
+  "frames": [
+    {
+      "decoded_reference": "sample:0",
+      "duration_seconds": null,
+      "frame_index": 0,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.0,
+      "schema_version": "frame.v1",
+      "source_frame_index": 0,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:1",
+      "duration_seconds": null,
+      "frame_index": 1,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.10122222222222223,
+      "schema_version": "frame.v1",
+      "source_frame_index": 1,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:2",
+      "duration_seconds": null,
+      "frame_index": 2,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.13454444444444444,
+      "schema_version": "frame.v1",
+      "source_frame_index": 2,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:3",
+      "duration_seconds": null,
+      "frame_index": 3,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.16786666666666666,
+      "schema_version": "frame.v1",
+      "source_frame_index": 3,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:4",
+      "duration_seconds": null,
+      "frame_index": 4,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.2011888888888889,
+      "schema_version": "frame.v1",
+      "source_frame_index": 4,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:5",
+      "duration_seconds": null,
+      "frame_index": 5,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.23451111111111111,
+      "schema_version": "frame.v1",
+      "source_frame_index": 5,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:6",
+      "duration_seconds": null,
+      "frame_index": 6,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.2678333333333333,
+      "schema_version": "frame.v1",
+      "source_frame_index": 6,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:7",
+      "duration_seconds": null,
+      "frame_index": 7,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.30115555555555557,
+      "schema_version": "frame.v1",
+      "source_frame_index": 7,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:8",
+      "duration_seconds": null,
+      "frame_index": 8,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.33447777777777776,
+      "schema_version": "frame.v1",
+      "source_frame_index": 8,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:9",
+      "duration_seconds": null,
+      "frame_index": 9,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.3678,
+      "schema_version": "frame.v1",
+      "source_frame_index": 9,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:10",
+      "duration_seconds": null,
+      "frame_index": 10,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.4011222222222222,
+      "schema_version": "frame.v1",
+      "source_frame_index": 10,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:11",
+      "duration_seconds": null,
+      "frame_index": 11,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.43444444444444447,
+      "schema_version": "frame.v1",
+      "source_frame_index": 11,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:12",
+      "duration_seconds": null,
+      "frame_index": 12,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.46776666666666666,
+      "schema_version": "frame.v1",
+      "source_frame_index": 12,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:13",
+      "duration_seconds": null,
+      "frame_index": 13,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.5010888888888889,
+      "schema_version": "frame.v1",
+      "source_frame_index": 13,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:14",
+      "duration_seconds": null,
+      "frame_index": 14,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.5344111111111111,
+      "schema_version": "frame.v1",
+      "source_frame_index": 14,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:15",
+      "duration_seconds": null,
+      "frame_index": 15,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.5677333333333333,
+      "schema_version": "frame.v1",
+      "source_frame_index": 15,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:16",
+      "duration_seconds": null,
+      "frame_index": 16,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.6010555555555556,
+      "schema_version": "frame.v1",
+      "source_frame_index": 16,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:17",
+      "duration_seconds": null,
+      "frame_index": 17,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.6343777777777778,
+      "schema_version": "frame.v1",
+      "source_frame_index": 17,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:18",
+      "duration_seconds": null,
+      "frame_index": 18,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.6677,
+      "schema_version": "frame.v1",
+      "source_frame_index": 18,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:19",
+      "duration_seconds": null,
+      "frame_index": 19,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.7010222222222222,
+      "schema_version": "frame.v1",
+      "source_frame_index": 19,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:20",
+      "duration_seconds": null,
+      "frame_index": 20,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.7343444444444445,
+      "schema_version": "frame.v1",
+      "source_frame_index": 20,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:21",
+      "duration_seconds": null,
+      "frame_index": 21,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.7676666666666667,
+      "schema_version": "frame.v1",
+      "source_frame_index": 21,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:22",
+      "duration_seconds": null,
+      "frame_index": 22,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.8009888888888889,
+      "schema_version": "frame.v1",
+      "source_frame_index": 22,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:23",
+      "duration_seconds": null,
+      "frame_index": 23,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.8343111111111111,
+      "schema_version": "frame.v1",
+      "source_frame_index": 23,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:24",
+      "duration_seconds": null,
+      "frame_index": 24,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.8676333333333334,
+      "schema_version": "frame.v1",
+      "source_frame_index": 24,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:25",
+      "duration_seconds": null,
+      "frame_index": 25,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.9009555555555555,
+      "schema_version": "frame.v1",
+      "source_frame_index": 25,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:26",
+      "duration_seconds": null,
+      "frame_index": 26,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.9342777777777778,
+      "schema_version": "frame.v1",
+      "source_frame_index": 26,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:27",
+      "duration_seconds": null,
+      "frame_index": 27,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 0.9676,
+      "schema_version": "frame.v1",
+      "source_frame_index": 27,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:28",
+      "duration_seconds": null,
+      "frame_index": 28,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.0009222222222223,
+      "schema_version": "frame.v1",
+      "source_frame_index": 28,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:29",
+      "duration_seconds": null,
+      "frame_index": 29,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.0342444444444445,
+      "schema_version": "frame.v1",
+      "source_frame_index": 29,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:30",
+      "duration_seconds": null,
+      "frame_index": 30,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.0675666666666668,
+      "schema_version": "frame.v1",
+      "source_frame_index": 30,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:31",
+      "duration_seconds": null,
+      "frame_index": 31,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.1008888888888888,
+      "schema_version": "frame.v1",
+      "source_frame_index": 31,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:32",
+      "duration_seconds": null,
+      "frame_index": 32,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.134211111111111,
+      "schema_version": "frame.v1",
+      "source_frame_index": 32,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:33",
+      "duration_seconds": null,
+      "frame_index": 33,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.1675333333333333,
+      "schema_version": "frame.v1",
+      "source_frame_index": 33,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:34",
+      "duration_seconds": null,
+      "frame_index": 34,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.2008555555555556,
+      "schema_version": "frame.v1",
+      "source_frame_index": 34,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:35",
+      "duration_seconds": null,
+      "frame_index": 35,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.2341777777777778,
+      "schema_version": "frame.v1",
+      "source_frame_index": 35,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:36",
+      "duration_seconds": null,
+      "frame_index": 36,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.2675,
+      "schema_version": "frame.v1",
+      "source_frame_index": 36,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:37",
+      "duration_seconds": null,
+      "frame_index": 37,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.3008222222222223,
+      "schema_version": "frame.v1",
+      "source_frame_index": 37,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:38",
+      "duration_seconds": null,
+      "frame_index": 38,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.3341444444444444,
+      "schema_version": "frame.v1",
+      "source_frame_index": 38,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:39",
+      "duration_seconds": null,
+      "frame_index": 39,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.3674666666666666,
+      "schema_version": "frame.v1",
+      "source_frame_index": 39,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:40",
+      "duration_seconds": null,
+      "frame_index": 40,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.4007888888888889,
+      "schema_version": "frame.v1",
+      "source_frame_index": 40,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:41",
+      "duration_seconds": null,
+      "frame_index": 41,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.4341111111111111,
+      "schema_version": "frame.v1",
+      "source_frame_index": 41,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:42",
+      "duration_seconds": null,
+      "frame_index": 42,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.4674333333333334,
+      "schema_version": "frame.v1",
+      "source_frame_index": 42,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:43",
+      "duration_seconds": null,
+      "frame_index": 43,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.5007555555555556,
+      "schema_version": "frame.v1",
+      "source_frame_index": 43,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:44",
+      "duration_seconds": null,
+      "frame_index": 44,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.5340777777777779,
+      "schema_version": "frame.v1",
+      "source_frame_index": 44,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:45",
+      "duration_seconds": null,
+      "frame_index": 45,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.5674,
+      "schema_version": "frame.v1",
+      "source_frame_index": 45,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:46",
+      "duration_seconds": null,
+      "frame_index": 46,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.6007222222222222,
+      "schema_version": "frame.v1",
+      "source_frame_index": 46,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:47",
+      "duration_seconds": null,
+      "frame_index": 47,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.6340444444444444,
+      "schema_version": "frame.v1",
+      "source_frame_index": 47,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:48",
+      "duration_seconds": null,
+      "frame_index": 48,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.6673666666666667,
+      "schema_version": "frame.v1",
+      "source_frame_index": 48,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:49",
+      "duration_seconds": null,
+      "frame_index": 49,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.700688888888889,
+      "schema_version": "frame.v1",
+      "source_frame_index": 49,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:50",
+      "duration_seconds": null,
+      "frame_index": 50,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.7340111111111112,
+      "schema_version": "frame.v1",
+      "source_frame_index": 50,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:51",
+      "duration_seconds": null,
+      "frame_index": 51,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.7673333333333334,
+      "schema_version": "frame.v1",
+      "source_frame_index": 51,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:52",
+      "duration_seconds": null,
+      "frame_index": 52,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.8006555555555555,
+      "schema_version": "frame.v1",
+      "source_frame_index": 52,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:53",
+      "duration_seconds": null,
+      "frame_index": 53,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.8339777777777777,
+      "schema_version": "frame.v1",
+      "source_frame_index": 53,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:54",
+      "duration_seconds": null,
+      "frame_index": 54,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.8673,
+      "schema_version": "frame.v1",
+      "source_frame_index": 54,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:55",
+      "duration_seconds": null,
+      "frame_index": 55,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.9006222222222222,
+      "schema_version": "frame.v1",
+      "source_frame_index": 55,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:56",
+      "duration_seconds": null,
+      "frame_index": 56,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.9339444444444445,
+      "schema_version": "frame.v1",
+      "source_frame_index": 56,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:57",
+      "duration_seconds": null,
+      "frame_index": 57,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 1.9672666666666667,
+      "schema_version": "frame.v1",
+      "source_frame_index": 57,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:58",
+      "duration_seconds": null,
+      "frame_index": 58,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.0005888888888888,
+      "schema_version": "frame.v1",
+      "source_frame_index": 58,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:59",
+      "duration_seconds": null,
+      "frame_index": 59,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.0339111111111112,
+      "schema_version": "frame.v1",
+      "source_frame_index": 59,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:60",
+      "duration_seconds": null,
+      "frame_index": 60,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.0672333333333333,
+      "schema_version": "frame.v1",
+      "source_frame_index": 60,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:61",
+      "duration_seconds": null,
+      "frame_index": 61,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.1005555555555557,
+      "schema_version": "frame.v1",
+      "source_frame_index": 61,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:62",
+      "duration_seconds": null,
+      "frame_index": 62,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.1338777777777778,
+      "schema_version": "frame.v1",
+      "source_frame_index": 62,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:63",
+      "duration_seconds": null,
+      "frame_index": 63,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.1672,
+      "schema_version": "frame.v1",
+      "source_frame_index": 63,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:64",
+      "duration_seconds": null,
+      "frame_index": 64,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.2005222222222223,
+      "schema_version": "frame.v1",
+      "source_frame_index": 64,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:65",
+      "duration_seconds": null,
+      "frame_index": 65,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.2338444444444443,
+      "schema_version": "frame.v1",
+      "source_frame_index": 65,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:66",
+      "duration_seconds": null,
+      "frame_index": 66,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.2671666666666668,
+      "schema_version": "frame.v1",
+      "source_frame_index": 66,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:67",
+      "duration_seconds": null,
+      "frame_index": 67,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.300488888888889,
+      "schema_version": "frame.v1",
+      "source_frame_index": 67,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:68",
+      "duration_seconds": null,
+      "frame_index": 68,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.3338111111111113,
+      "schema_version": "frame.v1",
+      "source_frame_index": 68,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:69",
+      "duration_seconds": null,
+      "frame_index": 69,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.3671333333333333,
+      "schema_version": "frame.v1",
+      "source_frame_index": 69,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:70",
+      "duration_seconds": null,
+      "frame_index": 70,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.4004555555555553,
+      "schema_version": "frame.v1",
+      "source_frame_index": 70,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:71",
+      "duration_seconds": null,
+      "frame_index": 71,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.433777777777778,
+      "schema_version": "frame.v1",
+      "source_frame_index": 71,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:72",
+      "duration_seconds": null,
+      "frame_index": 72,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.4671,
+      "schema_version": "frame.v1",
+      "source_frame_index": 72,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:73",
+      "duration_seconds": null,
+      "frame_index": 73,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.5004222222222223,
+      "schema_version": "frame.v1",
+      "source_frame_index": 73,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:74",
+      "duration_seconds": null,
+      "frame_index": 74,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.5337444444444444,
+      "schema_version": "frame.v1",
+      "source_frame_index": 74,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:75",
+      "duration_seconds": null,
+      "frame_index": 75,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.567066666666667,
+      "schema_version": "frame.v1",
+      "source_frame_index": 75,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:76",
+      "duration_seconds": null,
+      "frame_index": 76,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.600388888888889,
+      "schema_version": "frame.v1",
+      "source_frame_index": 76,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:77",
+      "duration_seconds": null,
+      "frame_index": 77,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.633711111111111,
+      "schema_version": "frame.v1",
+      "source_frame_index": 77,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:78",
+      "duration_seconds": null,
+      "frame_index": 78,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.6670333333333334,
+      "schema_version": "frame.v1",
+      "source_frame_index": 78,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:79",
+      "duration_seconds": null,
+      "frame_index": 79,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.7003555555555554,
+      "schema_version": "frame.v1",
+      "source_frame_index": 79,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:80",
+      "duration_seconds": null,
+      "frame_index": 80,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.733677777777778,
+      "schema_version": "frame.v1",
+      "source_frame_index": 80,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:81",
+      "duration_seconds": null,
+      "frame_index": 81,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.767,
+      "schema_version": "frame.v1",
+      "source_frame_index": 81,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:82",
+      "duration_seconds": null,
+      "frame_index": 82,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.8003222222222224,
+      "schema_version": "frame.v1",
+      "source_frame_index": 82,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:83",
+      "duration_seconds": null,
+      "frame_index": 83,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.8336444444444444,
+      "schema_version": "frame.v1",
+      "source_frame_index": 83,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:84",
+      "duration_seconds": null,
+      "frame_index": 84,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.866966666666667,
+      "schema_version": "frame.v1",
+      "source_frame_index": 84,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:85",
+      "duration_seconds": null,
+      "frame_index": 85,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.900288888888889,
+      "schema_version": "frame.v1",
+      "source_frame_index": 85,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:86",
+      "duration_seconds": null,
+      "frame_index": 86,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.933611111111111,
+      "schema_version": "frame.v1",
+      "source_frame_index": 86,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:87",
+      "duration_seconds": null,
+      "frame_index": 87,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 2.9669333333333334,
+      "schema_version": "frame.v1",
+      "source_frame_index": 87,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:88",
+      "duration_seconds": null,
+      "frame_index": 88,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.0002555555555555,
+      "schema_version": "frame.v1",
+      "source_frame_index": 88,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:89",
+      "duration_seconds": null,
+      "frame_index": 89,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.033577777777778,
+      "schema_version": "frame.v1",
+      "source_frame_index": 89,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:90",
+      "duration_seconds": null,
+      "frame_index": 90,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.0669,
+      "schema_version": "frame.v1",
+      "source_frame_index": 90,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:91",
+      "duration_seconds": null,
+      "frame_index": 91,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.1002222222222224,
+      "schema_version": "frame.v1",
+      "source_frame_index": 91,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:92",
+      "duration_seconds": null,
+      "frame_index": 92,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.1335444444444445,
+      "schema_version": "frame.v1",
+      "source_frame_index": 92,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:93",
+      "duration_seconds": null,
+      "frame_index": 93,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.1668666666666665,
+      "schema_version": "frame.v1",
+      "source_frame_index": 93,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:94",
+      "duration_seconds": null,
+      "frame_index": 94,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.200188888888889,
+      "schema_version": "frame.v1",
+      "source_frame_index": 94,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:95",
+      "duration_seconds": null,
+      "frame_index": 95,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.233511111111111,
+      "schema_version": "frame.v1",
+      "source_frame_index": 95,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:96",
+      "duration_seconds": null,
+      "frame_index": 96,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.2668333333333335,
+      "schema_version": "frame.v1",
+      "source_frame_index": 96,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:97",
+      "duration_seconds": null,
+      "frame_index": 97,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.3001555555555555,
+      "schema_version": "frame.v1",
+      "source_frame_index": 97,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:98",
+      "duration_seconds": null,
+      "frame_index": 98,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.333477777777778,
+      "schema_version": "frame.v1",
+      "source_frame_index": 98,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:99",
+      "duration_seconds": null,
+      "frame_index": 99,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.3668,
+      "schema_version": "frame.v1",
+      "source_frame_index": 99,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:100",
+      "duration_seconds": null,
+      "frame_index": 100,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.400122222222222,
+      "schema_version": "frame.v1",
+      "source_frame_index": 100,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:101",
+      "duration_seconds": null,
+      "frame_index": 101,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.4334444444444445,
+      "schema_version": "frame.v1",
+      "source_frame_index": 101,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:102",
+      "duration_seconds": null,
+      "frame_index": 102,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.4667666666666666,
+      "schema_version": "frame.v1",
+      "source_frame_index": 102,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:103",
+      "duration_seconds": null,
+      "frame_index": 103,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.500088888888889,
+      "schema_version": "frame.v1",
+      "source_frame_index": 103,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:104",
+      "duration_seconds": null,
+      "frame_index": 104,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.533411111111111,
+      "schema_version": "frame.v1",
+      "source_frame_index": 104,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:105",
+      "duration_seconds": null,
+      "frame_index": 105,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.5667333333333335,
+      "schema_version": "frame.v1",
+      "source_frame_index": 105,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:106",
+      "duration_seconds": null,
+      "frame_index": 106,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.6000555555555556,
+      "schema_version": "frame.v1",
+      "source_frame_index": 106,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:107",
+      "duration_seconds": null,
+      "frame_index": 107,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.6333777777777776,
+      "schema_version": "frame.v1",
+      "source_frame_index": 107,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:108",
+      "duration_seconds": null,
+      "frame_index": 108,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.6667,
+      "schema_version": "frame.v1",
+      "source_frame_index": 108,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:109",
+      "duration_seconds": null,
+      "frame_index": 109,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.700022222222222,
+      "schema_version": "frame.v1",
+      "source_frame_index": 109,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:110",
+      "duration_seconds": null,
+      "frame_index": 110,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.7333444444444446,
+      "schema_version": "frame.v1",
+      "source_frame_index": 110,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:111",
+      "duration_seconds": null,
+      "frame_index": 111,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.7666666666666666,
+      "schema_version": "frame.v1",
+      "source_frame_index": 111,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:112",
+      "duration_seconds": null,
+      "frame_index": 112,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.799988888888889,
+      "schema_version": "frame.v1",
+      "source_frame_index": 112,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:113",
+      "duration_seconds": null,
+      "frame_index": 113,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.833311111111111,
+      "schema_version": "frame.v1",
+      "source_frame_index": 113,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:114",
+      "duration_seconds": null,
+      "frame_index": 114,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.866633333333333,
+      "schema_version": "frame.v1",
+      "source_frame_index": 114,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:115",
+      "duration_seconds": null,
+      "frame_index": 115,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.8999555555555556,
+      "schema_version": "frame.v1",
+      "source_frame_index": 115,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:116",
+      "duration_seconds": null,
+      "frame_index": 116,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.9332777777777777,
+      "schema_version": "frame.v1",
+      "source_frame_index": 116,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:117",
+      "duration_seconds": null,
+      "frame_index": 117,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.9666,
+      "schema_version": "frame.v1",
+      "source_frame_index": 117,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:118",
+      "duration_seconds": null,
+      "frame_index": 118,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 3.999922222222222,
+      "schema_version": "frame.v1",
+      "source_frame_index": 118,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:119",
+      "duration_seconds": null,
+      "frame_index": 119,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.033244444444445,
+      "schema_version": "frame.v1",
+      "source_frame_index": 119,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:120",
+      "duration_seconds": null,
+      "frame_index": 120,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.066566666666667,
+      "schema_version": "frame.v1",
+      "source_frame_index": 120,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:121",
+      "duration_seconds": null,
+      "frame_index": 121,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.099888888888889,
+      "schema_version": "frame.v1",
+      "source_frame_index": 121,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:122",
+      "duration_seconds": null,
+      "frame_index": 122,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.133211111111111,
+      "schema_version": "frame.v1",
+      "source_frame_index": 122,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:123",
+      "duration_seconds": null,
+      "frame_index": 123,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.166533333333334,
+      "schema_version": "frame.v1",
+      "source_frame_index": 123,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:124",
+      "duration_seconds": null,
+      "frame_index": 124,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.199855555555556,
+      "schema_version": "frame.v1",
+      "source_frame_index": 124,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:125",
+      "duration_seconds": null,
+      "frame_index": 125,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.233177777777778,
+      "schema_version": "frame.v1",
+      "source_frame_index": 125,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:126",
+      "duration_seconds": null,
+      "frame_index": 126,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.2665,
+      "schema_version": "frame.v1",
+      "source_frame_index": 126,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:127",
+      "duration_seconds": null,
+      "frame_index": 127,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.299822222222223,
+      "schema_version": "frame.v1",
+      "source_frame_index": 127,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:128",
+      "duration_seconds": null,
+      "frame_index": 128,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.333144444444445,
+      "schema_version": "frame.v1",
+      "source_frame_index": 128,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:129",
+      "duration_seconds": null,
+      "frame_index": 129,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.366466666666667,
+      "schema_version": "frame.v1",
+      "source_frame_index": 129,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:130",
+      "duration_seconds": null,
+      "frame_index": 130,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.399788888888889,
+      "schema_version": "frame.v1",
+      "source_frame_index": 130,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:131",
+      "duration_seconds": null,
+      "frame_index": 131,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.433111111111111,
+      "schema_version": "frame.v1",
+      "source_frame_index": 131,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:132",
+      "duration_seconds": null,
+      "frame_index": 132,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.466433333333334,
+      "schema_version": "frame.v1",
+      "source_frame_index": 132,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:133",
+      "duration_seconds": null,
+      "frame_index": 133,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.499755555555556,
+      "schema_version": "frame.v1",
+      "source_frame_index": 133,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:134",
+      "duration_seconds": null,
+      "frame_index": 134,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.533077777777778,
+      "schema_version": "frame.v1",
+      "source_frame_index": 134,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:135",
+      "duration_seconds": null,
+      "frame_index": 135,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.5664,
+      "schema_version": "frame.v1",
+      "source_frame_index": 135,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:136",
+      "duration_seconds": null,
+      "frame_index": 136,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.599722222222222,
+      "schema_version": "frame.v1",
+      "source_frame_index": 136,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:137",
+      "duration_seconds": null,
+      "frame_index": 137,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.633044444444445,
+      "schema_version": "frame.v1",
+      "source_frame_index": 137,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:138",
+      "duration_seconds": null,
+      "frame_index": 138,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.666366666666667,
+      "schema_version": "frame.v1",
+      "source_frame_index": 138,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:139",
+      "duration_seconds": null,
+      "frame_index": 139,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.699688888888889,
+      "schema_version": "frame.v1",
+      "source_frame_index": 139,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:140",
+      "duration_seconds": null,
+      "frame_index": 140,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.733011111111111,
+      "schema_version": "frame.v1",
+      "source_frame_index": 140,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:141",
+      "duration_seconds": null,
+      "frame_index": 141,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.766333333333334,
+      "schema_version": "frame.v1",
+      "source_frame_index": 141,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:142",
+      "duration_seconds": null,
+      "frame_index": 142,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.799655555555556,
+      "schema_version": "frame.v1",
+      "source_frame_index": 142,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:143",
+      "duration_seconds": null,
+      "frame_index": 143,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.832977777777778,
+      "schema_version": "frame.v1",
+      "source_frame_index": 143,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:144",
+      "duration_seconds": null,
+      "frame_index": 144,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.8663,
+      "schema_version": "frame.v1",
+      "source_frame_index": 144,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:145",
+      "duration_seconds": null,
+      "frame_index": 145,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.899622222222222,
+      "schema_version": "frame.v1",
+      "source_frame_index": 145,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:146",
+      "duration_seconds": null,
+      "frame_index": 146,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.932944444444445,
+      "schema_version": "frame.v1",
+      "source_frame_index": 146,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:147",
+      "duration_seconds": null,
+      "frame_index": 147,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.966266666666667,
+      "schema_version": "frame.v1",
+      "source_frame_index": 147,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:148",
+      "duration_seconds": null,
+      "frame_index": 148,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 4.999588888888889,
+      "schema_version": "frame.v1",
+      "source_frame_index": 148,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:149",
+      "duration_seconds": null,
+      "frame_index": 149,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.032911111111111,
+      "schema_version": "frame.v1",
+      "source_frame_index": 149,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:150",
+      "duration_seconds": null,
+      "frame_index": 150,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.066233333333333,
+      "schema_version": "frame.v1",
+      "source_frame_index": 150,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:151",
+      "duration_seconds": null,
+      "frame_index": 151,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.099555555555556,
+      "schema_version": "frame.v1",
+      "source_frame_index": 151,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:152",
+      "duration_seconds": null,
+      "frame_index": 152,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.132877777777778,
+      "schema_version": "frame.v1",
+      "source_frame_index": 152,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:153",
+      "duration_seconds": null,
+      "frame_index": 153,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.1662,
+      "schema_version": "frame.v1",
+      "source_frame_index": 153,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:154",
+      "duration_seconds": null,
+      "frame_index": 154,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.199522222222222,
+      "schema_version": "frame.v1",
+      "source_frame_index": 154,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:155",
+      "duration_seconds": null,
+      "frame_index": 155,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.232844444444445,
+      "schema_version": "frame.v1",
+      "source_frame_index": 155,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:156",
+      "duration_seconds": null,
+      "frame_index": 156,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.266166666666667,
+      "schema_version": "frame.v1",
+      "source_frame_index": 156,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:157",
+      "duration_seconds": null,
+      "frame_index": 157,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.299488888888889,
+      "schema_version": "frame.v1",
+      "source_frame_index": 157,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:158",
+      "duration_seconds": null,
+      "frame_index": 158,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.332811111111111,
+      "schema_version": "frame.v1",
+      "source_frame_index": 158,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:159",
+      "duration_seconds": null,
+      "frame_index": 159,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.366133333333333,
+      "schema_version": "frame.v1",
+      "source_frame_index": 159,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:160",
+      "duration_seconds": null,
+      "frame_index": 160,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.399455555555556,
+      "schema_version": "frame.v1",
+      "source_frame_index": 160,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:161",
+      "duration_seconds": null,
+      "frame_index": 161,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.432777777777778,
+      "schema_version": "frame.v1",
+      "source_frame_index": 161,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:162",
+      "duration_seconds": null,
+      "frame_index": 162,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.4661,
+      "schema_version": "frame.v1",
+      "source_frame_index": 162,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:163",
+      "duration_seconds": null,
+      "frame_index": 163,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.499422222222222,
+      "schema_version": "frame.v1",
+      "source_frame_index": 163,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:164",
+      "duration_seconds": null,
+      "frame_index": 164,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.532744444444444,
+      "schema_version": "frame.v1",
+      "source_frame_index": 164,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:165",
+      "duration_seconds": null,
+      "frame_index": 165,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.566066666666667,
+      "schema_version": "frame.v1",
+      "source_frame_index": 165,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:166",
+      "duration_seconds": null,
+      "frame_index": 166,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.599388888888889,
+      "schema_version": "frame.v1",
+      "source_frame_index": 166,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:167",
+      "duration_seconds": null,
+      "frame_index": 167,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.632711111111111,
+      "schema_version": "frame.v1",
+      "source_frame_index": 167,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:168",
+      "duration_seconds": null,
+      "frame_index": 168,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.666033333333333,
+      "schema_version": "frame.v1",
+      "source_frame_index": 168,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:169",
+      "duration_seconds": null,
+      "frame_index": 169,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.699355555555556,
+      "schema_version": "frame.v1",
+      "source_frame_index": 169,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:170",
+      "duration_seconds": null,
+      "frame_index": 170,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.732677777777778,
+      "schema_version": "frame.v1",
+      "source_frame_index": 170,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:171",
+      "duration_seconds": null,
+      "frame_index": 171,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.766,
+      "schema_version": "frame.v1",
+      "source_frame_index": 171,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:172",
+      "duration_seconds": null,
+      "frame_index": 172,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.799322222222222,
+      "schema_version": "frame.v1",
+      "source_frame_index": 172,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:173",
+      "duration_seconds": null,
+      "frame_index": 173,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.832644444444444,
+      "schema_version": "frame.v1",
+      "source_frame_index": 173,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:174",
+      "duration_seconds": null,
+      "frame_index": 174,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.865966666666667,
+      "schema_version": "frame.v1",
+      "source_frame_index": 174,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:175",
+      "duration_seconds": null,
+      "frame_index": 175,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.899288888888889,
+      "schema_version": "frame.v1",
+      "source_frame_index": 175,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:176",
+      "duration_seconds": null,
+      "frame_index": 176,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.932611111111111,
+      "schema_version": "frame.v1",
+      "source_frame_index": 176,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:177",
+      "duration_seconds": null,
+      "frame_index": 177,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.965933333333333,
+      "schema_version": "frame.v1",
+      "source_frame_index": 177,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:178",
+      "duration_seconds": null,
+      "frame_index": 178,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 5.999255555555555,
+      "schema_version": "frame.v1",
+      "source_frame_index": 178,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:179",
+      "duration_seconds": null,
+      "frame_index": 179,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.032577777777778,
+      "schema_version": "frame.v1",
+      "source_frame_index": 179,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:180",
+      "duration_seconds": null,
+      "frame_index": 180,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.0659,
+      "schema_version": "frame.v1",
+      "source_frame_index": 180,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:181",
+      "duration_seconds": null,
+      "frame_index": 181,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.099222222222222,
+      "schema_version": "frame.v1",
+      "source_frame_index": 181,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:182",
+      "duration_seconds": null,
+      "frame_index": 182,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.132544444444444,
+      "schema_version": "frame.v1",
+      "source_frame_index": 182,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:183",
+      "duration_seconds": null,
+      "frame_index": 183,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.165866666666667,
+      "schema_version": "frame.v1",
+      "source_frame_index": 183,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:184",
+      "duration_seconds": null,
+      "frame_index": 184,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.199188888888889,
+      "schema_version": "frame.v1",
+      "source_frame_index": 184,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:185",
+      "duration_seconds": null,
+      "frame_index": 185,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.232511111111111,
+      "schema_version": "frame.v1",
+      "source_frame_index": 185,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:186",
+      "duration_seconds": null,
+      "frame_index": 186,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.265833333333333,
+      "schema_version": "frame.v1",
+      "source_frame_index": 186,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:187",
+      "duration_seconds": null,
+      "frame_index": 187,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.299155555555555,
+      "schema_version": "frame.v1",
+      "source_frame_index": 187,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:188",
+      "duration_seconds": null,
+      "frame_index": 188,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.332477777777778,
+      "schema_version": "frame.v1",
+      "source_frame_index": 188,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:189",
+      "duration_seconds": null,
+      "frame_index": 189,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.3658,
+      "schema_version": "frame.v1",
+      "source_frame_index": 189,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:190",
+      "duration_seconds": null,
+      "frame_index": 190,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.399122222222222,
+      "schema_version": "frame.v1",
+      "source_frame_index": 190,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:191",
+      "duration_seconds": null,
+      "frame_index": 191,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.432444444444444,
+      "schema_version": "frame.v1",
+      "source_frame_index": 191,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:192",
+      "duration_seconds": null,
+      "frame_index": 192,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.465766666666667,
+      "schema_version": "frame.v1",
+      "source_frame_index": 192,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:193",
+      "duration_seconds": null,
+      "frame_index": 193,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.499088888888889,
+      "schema_version": "frame.v1",
+      "source_frame_index": 193,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:194",
+      "duration_seconds": null,
+      "frame_index": 194,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.532411111111111,
+      "schema_version": "frame.v1",
+      "source_frame_index": 194,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:195",
+      "duration_seconds": null,
+      "frame_index": 195,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.565733333333333,
+      "schema_version": "frame.v1",
+      "source_frame_index": 195,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:196",
+      "duration_seconds": null,
+      "frame_index": 196,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.599055555555555,
+      "schema_version": "frame.v1",
+      "source_frame_index": 196,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:197",
+      "duration_seconds": null,
+      "frame_index": 197,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.632377777777778,
+      "schema_version": "frame.v1",
+      "source_frame_index": 197,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:198",
+      "duration_seconds": null,
+      "frame_index": 198,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.6657,
+      "schema_version": "frame.v1",
+      "source_frame_index": 198,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:199",
+      "duration_seconds": null,
+      "frame_index": 199,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.699022222222222,
+      "schema_version": "frame.v1",
+      "source_frame_index": 199,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:200",
+      "duration_seconds": null,
+      "frame_index": 200,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.732344444444444,
+      "schema_version": "frame.v1",
+      "source_frame_index": 200,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:201",
+      "duration_seconds": null,
+      "frame_index": 201,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.765666666666666,
+      "schema_version": "frame.v1",
+      "source_frame_index": 201,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:202",
+      "duration_seconds": null,
+      "frame_index": 202,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.798988888888889,
+      "schema_version": "frame.v1",
+      "source_frame_index": 202,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:203",
+      "duration_seconds": null,
+      "frame_index": 203,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.832311111111111,
+      "schema_version": "frame.v1",
+      "source_frame_index": 203,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:204",
+      "duration_seconds": null,
+      "frame_index": 204,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.865633333333333,
+      "schema_version": "frame.v1",
+      "source_frame_index": 204,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:205",
+      "duration_seconds": null,
+      "frame_index": 205,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.898955555555555,
+      "schema_version": "frame.v1",
+      "source_frame_index": 205,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:206",
+      "duration_seconds": null,
+      "frame_index": 206,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.932277777777778,
+      "schema_version": "frame.v1",
+      "source_frame_index": 206,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:207",
+      "duration_seconds": null,
+      "frame_index": 207,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.9656,
+      "schema_version": "frame.v1",
+      "source_frame_index": 207,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:208",
+      "duration_seconds": null,
+      "frame_index": 208,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 6.998922222222222,
+      "schema_version": "frame.v1",
+      "source_frame_index": 208,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:209",
+      "duration_seconds": null,
+      "frame_index": 209,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 7.032244444444444,
+      "schema_version": "frame.v1",
+      "source_frame_index": 209,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:210",
+      "duration_seconds": null,
+      "frame_index": 210,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 7.065566666666666,
+      "schema_version": "frame.v1",
+      "source_frame_index": 210,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:211",
+      "duration_seconds": null,
+      "frame_index": 211,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 7.098888888888889,
+      "schema_version": "frame.v1",
+      "source_frame_index": 211,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:212",
+      "duration_seconds": null,
+      "frame_index": 212,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 7.132211111111111,
+      "schema_version": "frame.v1",
+      "source_frame_index": 212,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:213",
+      "duration_seconds": null,
+      "frame_index": 213,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 7.165533333333333,
+      "schema_version": "frame.v1",
+      "source_frame_index": 213,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:214",
+      "duration_seconds": null,
+      "frame_index": 214,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 7.198855555555555,
+      "schema_version": "frame.v1",
+      "source_frame_index": 214,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:215",
+      "duration_seconds": null,
+      "frame_index": 215,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 7.232177777777777,
+      "schema_version": "frame.v1",
+      "source_frame_index": 215,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:216",
+      "duration_seconds": null,
+      "frame_index": 216,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 7.2655,
+      "schema_version": "frame.v1",
+      "source_frame_index": 216,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:217",
+      "duration_seconds": null,
+      "frame_index": 217,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 7.298822222222222,
+      "schema_version": "frame.v1",
+      "source_frame_index": 217,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:218",
+      "duration_seconds": null,
+      "frame_index": 218,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 7.332144444444444,
+      "schema_version": "frame.v1",
+      "source_frame_index": 218,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:219",
+      "duration_seconds": null,
+      "frame_index": 219,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 7.365466666666666,
+      "schema_version": "frame.v1",
+      "source_frame_index": 219,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:220",
+      "duration_seconds": null,
+      "frame_index": 220,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 7.398788888888889,
+      "schema_version": "frame.v1",
+      "source_frame_index": 220,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:221",
+      "duration_seconds": null,
+      "frame_index": 221,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 7.432111111111111,
+      "schema_version": "frame.v1",
+      "source_frame_index": 221,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:222",
+      "duration_seconds": null,
+      "frame_index": 222,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 7.465433333333333,
+      "schema_version": "frame.v1",
+      "source_frame_index": 222,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:223",
+      "duration_seconds": null,
+      "frame_index": 223,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 7.498755555555555,
+      "schema_version": "frame.v1",
+      "source_frame_index": 223,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:224",
+      "duration_seconds": null,
+      "frame_index": 224,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 7.532077777777777,
+      "schema_version": "frame.v1",
+      "source_frame_index": 224,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:225",
+      "duration_seconds": null,
+      "frame_index": 225,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 7.5654,
+      "schema_version": "frame.v1",
+      "source_frame_index": 225,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:226",
+      "duration_seconds": null,
+      "frame_index": 226,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 7.598722222222222,
+      "schema_version": "frame.v1",
+      "source_frame_index": 226,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:227",
+      "duration_seconds": null,
+      "frame_index": 227,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 7.632044444444444,
+      "schema_version": "frame.v1",
+      "source_frame_index": 227,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:228",
+      "duration_seconds": null,
+      "frame_index": 228,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 7.665366666666666,
+      "schema_version": "frame.v1",
+      "source_frame_index": 228,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:229",
+      "duration_seconds": null,
+      "frame_index": 229,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 7.6986888888888885,
+      "schema_version": "frame.v1",
+      "source_frame_index": 229,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:230",
+      "duration_seconds": null,
+      "frame_index": 230,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 7.732011111111111,
+      "schema_version": "frame.v1",
+      "source_frame_index": 230,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:231",
+      "duration_seconds": null,
+      "frame_index": 231,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 7.765333333333333,
+      "schema_version": "frame.v1",
+      "source_frame_index": 231,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:232",
+      "duration_seconds": null,
+      "frame_index": 232,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 7.7986555555555555,
+      "schema_version": "frame.v1",
+      "source_frame_index": 232,
+      "valid": true,
+      "warnings": []
+    },
+    {
+      "decoded_reference": "sample:233",
+      "duration_seconds": null,
+      "frame_index": 233,
+      "provenance": {
+        "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+        "model_name": null,
+        "model_version": null,
+        "raw_refs": [],
+        "software_name": "kineticlab",
+        "software_version": "0.1.0"
+      },
+      "pts_seconds": 7.8319777777777775,
+      "schema_version": "frame.v1",
+      "source_frame_index": 233,
+      "valid": true,
+      "warnings": []
+    }
+  ],
+  "generator": {
+    "function": "extract_frame_records",
+    "name": "kineticlab",
+    "version": "0.1.0"
+  },
+  "measured_utc": "2026-10-27",
+  "provenance_note": "Pinned structural measurement by the kineticlab stdlib MP4 parser on 2026-10-27. NOT ffprobe ground truth; FFprobe re-verification stays a recorded follow-up.",
+  "source": "Smoke/test_3.mp4",
+  "source_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce"
+}

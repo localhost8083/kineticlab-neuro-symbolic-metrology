@@ -1,0 +1,15 @@
+{
+  "kind": "setup-review",
+  "label": "synthetic-fixture",
+  "replayed_from_sha256": null,
+  "request": {
+    "endpoint": null,
+    "input_desc": "hand-authored M-2 test data",
+    "input_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "model": "synthetic-fixture",
+    "recorded_utc": "2026-10-28T00:00:00Z"
+  },
+  "response_sha256": "b7967870a82f47b2721d7c9d7f8e946b0685f7d34b62c5817621e98bf5c9f973",
+  "response_text": "{\"camera_appears_static\": true, \"card_fully_visible\": true, \"model\": \"synthetic-fixture\", \"motion_blur_severity\": \"none\", \"pendulum_appears_planar\": true, \"schema_version\": \"advisory.setup-review.v1\", \"unexpected_note\": null}",
+  "schema_version": "advisory.cache.v1"
+}

@@ -1,0 +1,13 @@
+# KineticLab local configuration (KL-0.2). All paths are relative to the repo root.
+# This file holds non-secret local settings only. API keys live in the
+# environment (MODEL_API_KEY) and must never be written here.
+
+[paths]
+smoke_dir = "Smoke"
+results_dir = "Smoke/results"
+fixtures_dir = "fixtures"
+scripts_dir = "scripts"
+
+[api]
+# Optional live-model use. P-001 runs fully offline with this disabled.
+enabled = false

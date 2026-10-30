@@ -1,0 +1,15 @@
+{
+  "kind": "narrative",
+  "label": "synthetic-fixture",
+  "replayed_from_sha256": null,
+  "request": {
+    "endpoint": null,
+    "input_desc": "hand-authored M-2 test data",
+    "input_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "model": "synthetic-fixture",
+    "recorded_utc": "2026-10-28T00:00:00Z"
+  },
+  "response_sha256": "cfcd96c0afd3470a21005bf073ead37554266db5f1d003573b103eb4c9a7213c",
+  "response_text": "{\"explanation\": \"The bounded M1 fit converged with g/L_eff = 15.0 1/s^2 over 234 frames.\", \"model\": \"synthetic-fixture\", \"schema_version\": \"advisory.narrative.v1\", \"suggested_experiment\": \"Measure the pivot length independently.\"}",
+  "schema_version": "advisory.cache.v1"
+}

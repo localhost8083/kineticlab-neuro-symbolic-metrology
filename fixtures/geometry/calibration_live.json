@@ -1,0 +1,57 @@
+{
+  "camera_fixed_assumption": true,
+  "dimension_source": "user_confirmed",
+  "observed_corners_px": [
+    [
+      146.9407337860218,
+      304.3348675281235
+    ],
+    [
+      405.9584471757171,
+      297.4990995558641
+    ],
+    [
+      409.74995243020834,
+      462.745757121545
+    ],
+    [
+      150.8587850879572,
+      469.4724564308142
+    ]
+  ],
+  "observed_oriented_dimensions_px": {
+    "long_side_px": 258.7318351096624,
+    "short_side_px": 165.36871084913219
+  },
+  "plane_transform": null,
+  "provenance": {
+    "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+    "model_name": "sam-3.1",
+    "model_version": null,
+    "raw_refs": [
+      "fixtures/live/raw_card_one_bit.txt"
+    ],
+    "software_name": "kineticlab",
+    "software_version": "0.1.0"
+  },
+  "reference_dimensions_mm": {
+    "height_mm": 53.98,
+    "width_mm": 85.6
+  },
+  "reference_type": "iso_id1_confirmed",
+  "same_plane_assumption": false,
+  "scale_mm_per_px": 0.3286332854169991,
+  "scale_uncertainty_mm_per_px": null,
+  "schema_version": "calibration.v1",
+  "valid": true,
+  "warnings": [
+    {
+      "code": "W_UNCERTAINTY_UNAVAILABLE",
+      "detail": "no scale uncertainty estimated; the U-3 bound is a stated assumption, not an uncertainty"
+    },
+    {
+      "code": "W_ASSUMPTION_UNVERIFIED",
+      "detail": "U-3 depth-offset scale bound 1.7% (25.0 mm offset over 1500.0 mm camera distance, tape estimate) stated as an assumption wherever this scale is used"
+    }
+  ]
+}

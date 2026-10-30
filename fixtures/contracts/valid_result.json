@@ -1,0 +1,135 @@
+{
+  "schema_version": "result.v1",
+  "status": "success_with_warnings",
+  "measurement_name": "pendulum_g_over_l",
+  "value": 15.2,
+  "unit": "1/s^2",
+  "interval": null,
+  "interval_method": null,
+  "identifiable_quantity": {
+    "name": "g/L_eff",
+    "value": 15.2,
+    "unit": "1/s^2"
+  },
+  "calibration": {
+    "schema_version": "calibration.v1",
+    "reference_type": "unknown",
+    "reference_dimensions_mm": null,
+    "dimension_source": "not_provided",
+    "observed_corners_px": [
+      [
+        410.5,
+        300.0
+      ],
+      [
+        520.5,
+        302.0
+      ],
+      [
+        518.5,
+        368.0
+      ],
+      [
+        408.5,
+        366.0
+      ]
+    ],
+    "observed_oriented_dimensions_px": {
+      "long_side_px": 110.0,
+      "short_side_px": 66.0
+    },
+    "scale_mm_per_px": 0.78,
+    "plane_transform": null,
+    "scale_uncertainty_mm_per_px": null,
+    "same_plane_assumption": true,
+    "camera_fixed_assumption": true,
+    "valid": true,
+    "warnings": [
+      {
+        "code": "W_ASSUMPTION_UNVERIFIED",
+        "detail": "coplanarity stated, not measured"
+      }
+    ],
+    "provenance": null
+  },
+  "fit": {
+    "schema_version": "fit.v1",
+    "model_id": "M1",
+    "parameter_names": [
+      "g_over_l"
+    ],
+    "parameters": {
+      "g_over_l": 15.2
+    },
+    "parameter_units": {
+      "g_over_l": "1/s^2"
+    },
+    "initial_conditions": {
+      "theta0_rad": 0.31,
+      "omega0_rad_s": 0.0
+    },
+    "solver": "RK45",
+    "optimizer": "least_squares",
+    "converged": true,
+    "residual_summary": {
+      "rmse": 0.012,
+      "max_abs": 0.035,
+      "dof": 228
+    },
+    "observation_count": 230,
+    "rejected_count": 4,
+    "fit_uncertainty_method": "none",
+    "pivot_length_mm": null,
+    "pivot_length_source": "not_provided",
+    "g_over_l_per_s2": 15.2,
+    "gravity_m_s2": null,
+    "warnings": [
+      {
+        "code": "W_UNCERTAINTY_UNAVAILABLE",
+        "detail": "no uncertainty method run"
+      }
+    ],
+    "provenance": null
+  },
+  "quality_metrics": {
+    "frames_total": 234,
+    "frames_usable": 230,
+    "observations_total": 460,
+    "observations_valid": 452,
+    "calibrated_frames": 228
+  },
+  "assumptions": [
+    "camera fixed for the clip",
+    "card near-coplanar with swing plane"
+  ],
+  "warnings": [
+    {
+      "code": "W_SHORT_TRACK",
+      "detail": "usable span 7.6s of 7.9s"
+    }
+  ],
+  "reject_reasons": [],
+  "provenance": {
+    "software_name": "kineticlab-test",
+    "software_version": "0.1.0",
+    "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+    "model_name": "sam-3.1",
+    "model_version": "fixture",
+    "raw_refs": [
+      "Smoke/test_3.mp4",
+      "Smoke/results/test_3_white_card_raw.txt"
+    ],
+    "artifact_hashes": {
+      "raw_bob_sha256": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+      "raw_card_sha256": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+      "calibration_sha256": "d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0",
+      "geometry_report_sha256": "e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0"
+    }
+  },
+  "exports": [
+    {
+      "format": "json",
+      "path": "results/test_3_result.json"
+    }
+  ]
+}

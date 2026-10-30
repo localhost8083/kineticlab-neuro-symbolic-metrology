@@ -1,0 +1,35 @@
+{
+  "artifacts": {
+    "raw_bob_one_bit.txt": {
+      "bytes": 51348,
+      "sha256": "b216815fd6ca5e15718fed2dd8947a9972e00b1f27f71881e5d39401a4fb3ad7",
+      "upload_id": "file-1108610508729425"
+    },
+    "raw_card_one_bit.txt": {
+      "bytes": 54635,
+      "sha256": "d3fe9a7ecde3f48c6ef2753bd66f7d93f86783613d50bb2ebbf566deb57473d1",
+      "upload_id": "file-1703049044676928"
+    }
+  },
+  "endpoint": "https://api.meta.ai/v1",
+  "include_confidence": true,
+  "input_clip": {
+    "path": "Smoke/test_3.mp4",
+    "sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce"
+  },
+  "mask_encoding": "one_bit",
+  "model": "sam-3.1",
+  "prompts": [
+    "ball",
+    "card"
+  ],
+  "timestamps": {
+    "note": "transport did not capture call timestamps; values below are saved-artifact mtimes in UTC. Task brief stated 12:45:32Z/12:46:09Z, which is local machine time (UTC+6) mislabeled with Z; UTC values measured here win.",
+    "raw_bob_one_bit.txt_mtime_utc": "2026-10-28T06:45:32Z",
+    "raw_card_one_bit.txt_mtime_utc": "2026-10-28T06:46:09Z"
+  },
+  "transport": "user-run Smoke/sam_smoke_test.py from WSL (option b)",
+  "uploads_deleted_after": true,
+  "usage": null,
+  "usage_note": "transport does not capture usage; not invented"
+}

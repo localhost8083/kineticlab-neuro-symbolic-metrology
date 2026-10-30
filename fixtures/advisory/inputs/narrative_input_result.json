@@ -1,0 +1,93 @@
+{
+  "assumptions": [
+    "camera fixed for the clip",
+    "pivot x fixed at the horizontal midpoint of the bob swing (planar-symmetry assumption); pivot y by deterministic golden-section search minimizing radius variance (mean absolute radial residual 4.627 px, radius 1131.1 px); arc-fit pivot refinement is M-3 work",
+    "omega search bounds [0.5, 25.0] rad/s and amplitude bound [0, pi/2] are fitter configuration, not measurements",
+    "fit.v1 test_convention_note is a fixed module string written for synthetic recovery tests; the input here is real live M-1 observation data"
+  ],
+  "calibration": {
+    "camera_fixed_assumption": true,
+    "dimension_source": "not_provided",
+    "observed_corners_px": null,
+    "observed_oriented_dimensions_px": null,
+    "plane_transform": null,
+    "provenance": null,
+    "reference_dimensions_mm": null,
+    "reference_type": "unknown",
+    "same_plane_assumption": true,
+    "scale_mm_per_px": null,
+    "scale_uncertainty_mm_per_px": null,
+    "schema_version": "calibration.v1",
+    "valid": false,
+    "warnings": []
+  },
+  "exports": [],
+  "fit": {
+    "converged": true,
+    "fit_uncertainty_method": "none",
+    "g_over_l_per_s2": 30.007170633278655,
+    "gravity_m_s2": null,
+    "initial_conditions": {
+      "omega0_rad_s": -0.9183913134427084,
+      "theta0_rad": 0.16428683135949948
+    },
+    "model_id": "M1",
+    "observation_count": 234,
+    "optimizer": "separable_omega_grid_linear_lsq_golden_refine_v1",
+    "parameter_names": [
+      "g_over_l"
+    ],
+    "parameter_units": {
+      "g_over_l": "1/s^2"
+    },
+    "parameters": {
+      "g_over_l": 30.007170633278655
+    },
+    "pivot_length_mm": null,
+    "pivot_length_source": "not_provided",
+    "provenance": null,
+    "rejected_count": 0,
+    "residual_summary": {
+      "dof": 231,
+      "max_abs": 0.06273710315063553,
+      "rmse": 0.018615201052307594
+    },
+    "schema_version": "fit.v1",
+    "solver": "closed_form_small_angle",
+    "warnings": [
+      {
+        "code": "W_UNCERTAINTY_UNAVAILABLE",
+        "detail": "KL-5.2 estimates no uncertainty; method is none (KL-5.4 owns uncertainty)."
+      }
+    ]
+  },
+  "identifiable_quantity": {
+    "name": "g/L_eff",
+    "unit": "1/s^2",
+    "value": 30.007170633278655
+  },
+  "interval": null,
+  "interval_method": null,
+  "measurement_name": "pendulum_g_over_l",
+  "provenance": {
+    "input_sha256": "b216815fd6ca5e15718fed2dd8947a9972e00b1f27f71881e5d39401a4fb3ad7",
+    "model_name": "sam-3.1",
+    "model_version": null,
+    "raw_refs": [],
+    "software_name": "kineticlab",
+    "software_version": "0.1.0"
+  },
+  "quality_metrics": {
+    "calibrated_frames": 0,
+    "frames_total": 234,
+    "frames_usable": 234,
+    "observations_total": 234,
+    "observations_valid": 234
+  },
+  "reject_reasons": [],
+  "schema_version": "result.v1",
+  "status": "success",
+  "unit": "1/s^2",
+  "value": 30.007170633278655,
+  "warnings": []
+}

@@ -1,0 +1,47 @@
+{
+  "bob_track": {
+    "centroid_x_px_range": [
+      161.58,
+      742.06
+    ],
+    "centroid_y_px_range": [
+      333.51,
+      387.78
+    ],
+    "confidence_constant": 0.8865247964859009,
+    "mask_area_px_range": [
+      5327.0,
+      10981.0
+    ],
+    "observations": 234,
+    "valid": 234
+  },
+  "card_track": {
+    "box_center_displacement_from_median_px_max": 24.19,
+    "box_center_displacement_from_median_px_mean": 10.01,
+    "confidence_constant": 0.8012422323226929,
+    "mask_area_px_range": [
+      34637.0,
+      43403.0
+    ],
+    "observations": 234,
+    "valid": 234
+  },
+  "known_gaps": {
+    "card_reference_dimensions_mm": null,
+    "note": "pipeline computes no per-frame blur metric; bob mask area varies within the range above with no blur attribution",
+    "note2": "card real-world dimensions not yet measured (KL-6.1 pending)",
+    "per_frame_motion_blur_metric": null
+  },
+  "occlusion": {
+    "contiguous_bands": 7,
+    "frames_bob_overlaps_card_bbox": 117
+  },
+  "source": {
+    "bob_pts_span_s": 7.832,
+    "clip": "Smoke/test_3.mp4",
+    "clip_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+    "derivation": "frame-derived features computed by kineticlab v0.1.0 from the live M-1 SAM artifacts (fixtures/live/)",
+    "frames_total": 234
+  }
+}

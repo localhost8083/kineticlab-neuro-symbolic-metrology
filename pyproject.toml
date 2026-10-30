@@ -1,0 +1,32 @@
+# KineticLab packaging manifest (KL-0.2; dependencies corrected at the
+# KL-9.3 claims freeze 2026-10-30: the implementation is Python STDLIB-ONLY,
+# so the project declares no third-party runtime dependencies and verifies
+# offline with `python -m unittest`).
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kineticlab"
+version = "0.1.0"
+description = "Offline-first, auditable video metrology for planar pendulum experiments."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8",
+]
+
+[project.scripts]
+kineticlab = "kineticlab.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["kineticlab*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
