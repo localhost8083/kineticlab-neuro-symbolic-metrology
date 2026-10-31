@@ -1,0 +1,107 @@
+# KineticLab CI: runs the README Quickstart verbatim on fresh checkouts.
+#
+# Documented deviations from the Quickstart block (each one is required):
+# (a) `git clone` / `cd` are replaced by the checkout itself: the runner
+#     already starts inside a fresh clone of this repo.
+# (b) `python -m kineticlab serve` is interactive/blocking, so on CI it is
+#     replaced by: start `python -m kineticlab serve --port 8137` as a
+#     background process, poll GET http://127.0.0.1:8137/ until it answers
+#     200 within 30 s, then stop the server. (The server exposes no
+#     dedicated health endpoint; `/` serves the page with 200 — see
+#     kineticlab/ui/server.py `_route_get`.) The literal Quickstart command
+#     is preserved in this comment so tests/test_ci_docs.py can pin it.
+# (c) After the suite, `python -m kineticlab demo --chain success` and
+#     `python -m kineticlab demo --chain rejection` must both exit 0. The
+#     Quickstart does not include these, but a judge-facing CI proving the
+#     demos run offline is the point.
+#
+# No pip installs, no dependency caching: there is nothing to install
+# (pyproject.toml declares dependencies = []). That IS the claim proved.
+# actions/checkout and actions/setup-python are GitHub-hosted runner
+# infrastructure, not runtime dependencies of this project.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  quickstart:
+    name: Quickstart (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            shell: bash
+          - os: windows-latest
+            shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: python --version
+        shell: ${{ matrix.shell }}
+        run: python --version
+
+      - name: python -m kineticlab --help
+        shell: ${{ matrix.shell }}
+        run: python -m kineticlab --help
+
+      - name: python scripts/media_check.py
+        shell: ${{ matrix.shell }}
+        run: python scripts/media_check.py
+
+      - name: python -m unittest
+        shell: ${{ matrix.shell }}
+        run: python -m unittest
+
+      - name: python -m kineticlab demo --chain success
+        shell: ${{ matrix.shell }}
+        run: python -m kineticlab demo --chain success
+
+      - name: python -m kineticlab demo --chain rejection
+        shell: ${{ matrix.shell }}
+        run: python -m kineticlab demo --chain rejection
+
+      - name: serve answers 200, then stops (ubuntu)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          python -m kineticlab serve --port 8137 & SRV=$!
+          cleanup() { kill "$SRV" 2>/dev/null; wait "$SRV" 2>/dev/null; }
+          trap cleanup EXIT
+          for _ in $(seq 1 60); do
+            if curl -fsS -o /dev/null http://127.0.0.1:8137/; then exit 0; fi
+            sleep 0.5
+          done
+          echo 'serve did not answer 200 within 30 s' >&2
+          exit 1
+
+      - name: serve answers 200, then stops (windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $proc = Start-Process python -ArgumentList '-m','kineticlab','serve','--port','8137' -PassThru -NoNewWindow
+          try {
+            $deadline = (Get-Date).AddSeconds(30)
+            while ((Get-Date) -lt $deadline) {
+              try {
+                $resp = Invoke-WebRequest -Uri 'http://127.0.0.1:8137/' -TimeoutSec 2 -UseBasicParsing
+                if ($resp.StatusCode -eq 200) { exit 0 }
+              } catch { Start-Sleep -Milliseconds 500 }
+            }
+            Write-Error 'serve did not answer 200 within 30 s'
+            exit 1
+          } finally {
+            Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
+          }

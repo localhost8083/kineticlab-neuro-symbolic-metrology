@@ -8,7 +8,7 @@ KineticLab turns an ordinary video clip into an auditable measurement: Meta **SA
   <img src="Docs/img/analysis_main.png" width="860" alt="KineticLab — live analysis view: upload, SAM 3.1 detect, confirm, measure" />
 </p>
 
-![Python](https://img.shields.io/badge/python-3.11%2B-306998) ![Runtime](https://img.shields.io/badge/runtime-stdlib--only-success) ![Tests](https://img.shields.io/badge/tests-793%20passing-brightgreen) ![Meta](https://img.shields.io/badge/Meta-SAM%203.1-0668E5) ![License](https://img.shields.io/badge/license-MIT-lightgrey)
+![Python](https://img.shields.io/badge/python-3.11%2B-306998) ![Runtime](https://img.shields.io/badge/runtime-stdlib--only-success) ![Tests](https://img.shields.io/badge/tests-797%20passing-brightgreen) ![CI](https://github.com/localhost8083/kineticlab-neuro-symbolic-metrology/actions/workflows/ci.yml/badge.svg) ![Meta](https://img.shields.io/badge/Meta-SAM%203.1-0668E5) ![License](https://img.shields.io/badge/license-MIT-lightgrey)
 
 **Every chart is the run's own data.** The trajectory below is the measured θ(t) from a real 234-frame clip (blue dots) against the fitted model — rendered from that run's `angles.csv`, never baked, never illustrative:
 
@@ -67,7 +67,7 @@ cd kineticlab-neuro-symbolic-metrology
 python --version
 python -m kineticlab --help
 python scripts/media_check.py
-python -m unittest          # 793 tests
+python -m unittest          # 797 tests
 python -m kineticlab serve  # localhost UI
 ```
 
