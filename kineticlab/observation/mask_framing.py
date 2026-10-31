@@ -136,7 +136,16 @@ def pack_body(data: bytes) -> str:
 
 
 def unpack_body(body: str, *, ref: str) -> bytes:
-    """Decode a base-85 body (after the marker) to bytes, spec checks first."""
+    """Decode a base-85 body (after the marker) to bytes, spec checks first.
+
+    Internal prevalidated helper: ``body`` must already contain only
+    ``MASK_ALPHABET`` characters — the public ``decode_mask_data``
+    validates every character before calling this, and no other caller
+    exists. An out-of-alphabet character here raises a raw ``KeyError``
+    by design; no public path reaches it (KL-10.7 NIT-1: documented,
+    not guarded — the guard would duplicate the canonical alphabet
+    check).
+    """
     if len(body) < _PREFIX_LENGTH:
         _fail("E_NOT_AN_OBJECT", ref,
               "mask payload is too short to hold the length prefix")

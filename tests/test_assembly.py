@@ -549,6 +549,18 @@ SMALL_ANGLE_ASSUMPTION = (
 """Exact KL-10.6 wording (finite-amplitude bias disclosed, uncorrected)."""
 
 
+MODEL_ADEQUACY_ASSUMPTION = (
+    "M1 residuals are structured, not white noise (lag-1 "
+    "autocorrelation ~0.88 on the replay; damping and the DC "
+    "offset are omitted): M1 is a frequency estimator for omega, "
+    "not a complete trajectory model. The reported value is a "
+    "point estimate with fit_uncertainty_method=none (see the "
+    "registered warning); the diagnostic damped fit M2 is a "
+    "cross-check, not an error bar."
+)
+"""Exact KL-10.7 wording (residual adequacy + point-estimate framing)."""
+
+
 class RegenerationTests(unittest.TestCase):
     def test_pins_regenerate(self):
         require_smoke(REQUEST["clip_path"])
@@ -580,11 +592,16 @@ class RegenerationTests(unittest.TestCase):
                     # finite-amplitude sentence (fixture predates it).
                     self.assertIn(SMALL_ANGLE_ASSUMPTION,
                                   fresh["assumptions"])
+                    # KL-10.7: same pattern for the added
+                    # model-adequacy sentence (fixture predates it).
+                    self.assertIn(MODEL_ADEQUACY_ASSUMPTION,
+                                  fresh["assumptions"])
                     fresh = dict(
                         fresh,
                         assumptions=["<zero-blanked>"]
                         + [text for text in fresh["assumptions"][1:]
-                           if text != SMALL_ANGLE_ASSUMPTION])
+                           if text != SMALL_ANGLE_ASSUMPTION
+                           and text != MODEL_ADEQUACY_ASSUMPTION])
                     pinned = dict(
                         pinned,
                         assumptions=["<zero-blanked>"]
@@ -615,10 +632,12 @@ class RegenerationTests(unittest.TestCase):
         # KL-9.6 M2: plus the reworded zero-offset sentence, blanked
         # on both sides (old wording read from the pin itself).
         # KL-10.6: plus the added finite-amplitude sentence, removed
-        # from the fresh side (the pin predates it).
+        # from the fresh side (the pin predates it). KL-10.7: plus
+        # the added model-adequacy sentence, same treatment.
         fresh_summary = summary_bytes.decode("utf-8").replace(
             ZERO_OFFSET_ASSUMPTION, "<zero-blanked>").replace(
-                "- " + SMALL_ANGLE_ASSUMPTION + "\n", "")
+                "- " + SMALL_ANGLE_ASSUMPTION + "\n", "").replace(
+                    "- " + MODEL_ADEQUACY_ASSUMPTION + "\n", "")
         pinned_summary = (
             ASM_DIR / SUMMARY_FILENAME).read_text(
                 encoding="utf-8").replace(

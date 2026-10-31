@@ -1385,8 +1385,10 @@ class LiveServeTests(unittest.TestCase):
              "--port", str(port)],
             cwd=str(REPO_ROOT), stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT, text=True)
-        # Cleanups run LIFO: register wait first so terminate runs
-        # first — a healthy serve_forever never exits on its own.
+        # Cleanups run LIFO: terminate, then wait, then the stdout
+        # pipe closes last (KL-10.7: the unclosed fd-3 TextIOWrapper
+        # raised a ResourceWarning on the full suite under -X dev).
+        self.addCleanup(process.stdout.close)
         self.addCleanup(process.wait, 30)
         self.addCleanup(process.terminate)
         deadline = time.time() + 60

@@ -743,6 +743,13 @@ def assemble_parts(*, bob: Any, card: Any, frame_table: Any,
         "+ O(theta0^4)), so the reported g/L_eff = omega^2 understates "
         "the small-angle g/L by about theta0^2/8 (order 1% at the "
         "observed amplitudes) - stated, uncorrected.",
+        "M1 residuals are structured, not white noise (lag-1 "
+        "autocorrelation ~0.88 on the replay; damping and the DC "
+        "offset are omitted): M1 is a frequency estimator for omega, "
+        "not a complete trajectory model. The reported value is a "
+        "point estimate with fit_uncertainty_method=none (see the "
+        "registered warning); the diagnostic damped fit M2 is a "
+        "cross-check, not an error bar.",
         "M1 is the reported model (pre-registered parsimony); the M2 "
         "outcome rides the diagnostics as a cross-check.",
     ]
