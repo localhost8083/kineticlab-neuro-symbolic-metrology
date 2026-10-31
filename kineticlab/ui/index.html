@@ -261,6 +261,44 @@ select.trail-window{background:var(--surface-2);color:var(--text);border:1px sol
 input[type="range"].scrub{width:100%;accent-color:var(--blue);margin:6px 0 2px}
 .scrubrow{display:flex;gap:12px;align-items:center;font-size:12px;color:var(--muted);padding:8px 6px 2px;flex-wrap:wrap}
 .tabpanel-pad{padding:4px 15px 12px}
+/* KL-10.12 Simulation tab restyle (template look, sim-scoped only):
+   two-column stage + panel, stat tiles, styled sliders, formula
+   panel. Colors resolve from the page theme tokens; the two sim
+   accents alias the palette's blue-2 (cyan-leaning) and green
+   (mint-leaning) so both themes re-theme the tab. */
+#viewSimulation{--sim-accent:var(--blue-2);--sim-mint:var(--green)}
+.sim-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}
+.sim-stage-col{min-width:0}
+.sim-intro{margin:0 0 10px}
+.sim-stage{background:linear-gradient(145deg,var(--surface-2),var(--surface));border-radius:14px}
+.sim-panel{border:1px solid var(--border);border-radius:15px;background:linear-gradient(145deg,var(--surface-2),var(--surface));padding:15px;box-shadow:var(--shadow);min-width:0}
+.sim-kicker{color:var(--sim-accent);font-size:10px;font-weight:800;letter-spacing:.18em;margin-bottom:8px}
+.sim-badge{display:inline-flex;border:1px solid color-mix(in srgb,var(--sim-accent) 45%,var(--border));background:color-mix(in srgb,var(--sim-accent) 12%,var(--surface));color:var(--text);border-radius:999px;padding:3px 9px;font-size:10px;font-weight:700;letter-spacing:.04em;margin:0 0 12px}
+.sim-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.sim-stat{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:9px 10px;min-width:0}
+.sim-stat-label{display:block;color:var(--muted);font-size:9px;font-weight:700;letter-spacing:.09em}
+.sim-stat-value{display:block;font-family:var(--mono);font-size:12px;margin-top:4px;overflow-wrap:anywhere}
+.sim-stat small{display:block;color:var(--muted);font-size:9px;margin-top:2px}
+.sim-control{margin:12px 0}
+.sim-control-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:5px}
+.sim-control-head label{font-size:12px;color:var(--text)}
+.sim-out{color:var(--sim-accent);font-family:var(--mono);font-size:11px;white-space:nowrap}
+.sim-range{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:999px;background:var(--surface-3);cursor:pointer;margin:2px 0;outline-offset:3px}
+.sim-range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:var(--sim-accent);border:2px solid var(--surface);box-shadow:0 0 0 1px var(--border)}
+.sim-range::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--sim-accent);border:2px solid var(--surface)}
+.sim-range::-moz-range-track{height:6px;border-radius:999px;background:var(--surface-3)}
+.sim-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+#simPlayBtn{background:var(--sim-accent);border-color:transparent;color:#fff}
+#simPlayBtn:hover:not(:disabled){background:var(--blue)}
+#simResetBtn{background:color-mix(in srgb,var(--sim-mint) 13%,var(--surface));border-color:color-mix(in srgb,var(--sim-mint) 40%,var(--border));color:var(--text)}
+.sim-select{width:100%}
+.sim-formula{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:10px;color:var(--text);font-family:var(--mono);font-size:12px;overflow-wrap:anywhere;margin-top:14px}
+.sim-formula-sub{color:var(--muted);font-size:10px;margin-top:4px}
+.sim-seed{margin:10px 0 0}
+.sim-note{margin:6px 0 0}
+.sim-caption{margin:6px 0 0}
+.sim-footer{color:var(--muted);font-size:10px;line-height:1.5;margin:10px 0 0;border-top:1px solid var(--border);padding-top:8px}
+@media(max-width:900px){.sim-layout{grid-template-columns:1fr}}
 table.kv{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
 table.kv th,table.kv td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--border);vertical-align:top}
 table.kv th{width:190px;color:var(--muted);font-weight:600}
@@ -662,45 +700,54 @@ h3.sub:first-child{margin-top:0}
               <p class="sub" id="replayCaption"></p>
             </div>
             <div role="tabpanel" id="viewSimulation" aria-labelledby="ctabSimulation" class="hidden">
-              <p class="sub">Simulation playground: a damped-pendulum model integrated live. Dragging g/L_eff away from the seeded value shows the model visibly diverging from the measured trail.</p>
-              <p class="sub" id="simLabel"></p>
-              <div class="chart-wrap" id="simWrap">
-                <svg id="simSvg" class="plot" viewBox="0 0 720 340" role="img" aria-label="Simulation stage: model arm over measured trail"></svg>
+              <div class="sim-layout">
+                <div class="sim-stage-col">
+                  <p class="sub sim-intro">Simulation playground: a damped-pendulum model integrated live. Dragging g/L_eff away from the seeded value shows the model visibly diverging from the measured trail.</p>
+                  <div class="chart-wrap sim-stage" id="simWrap">
+                    <svg id="simSvg" class="plot" viewBox="0 0 720 340" role="img" aria-label="Simulation stage: model arm over measured trail"></svg>
+                  </div>
+                </div>
+                <aside class="sim-panel" aria-label="Simulation controls">
+                  <div class="sim-kicker">SIMULATION PLAYGROUND</div>
+                  <p class="sim-badge" id="simLabel"></p>
+                  <div class="sim-stats">
+                    <div class="sim-stat"><span class="sim-stat-label">SIMULATED θ</span><strong class="sim-stat-value" id="simThetaReadout"></strong><small>model only</small></div>
+                    <div class="sim-stat"><span class="sim-stat-label">SIMULATED T</span><strong class="sim-stat-value" id="simClockReadout"></strong><small>simulated clock</small></div>
+                    <div class="sim-stat"><span class="sim-stat-label">SEED G/L_EFF</span><strong class="sim-stat-value" id="simSeedTile">—</strong><small>1/s² · measured seed</small></div>
+                  </div>
+                  <div class="sim-control">
+                    <div class="sim-control-head"><label for="simG">g/L_eff (1/s²)</label><span id="simGVal" class="sim-out mono"></span></div>
+                    <input type="range" class="sim-range" id="simG" min="15" max="25" value="20" step="0.01" aria-label="Simulated g over L">
+                  </div>
+                  <div class="sim-control">
+                    <div class="sim-control-head"><label for="simGamma">gamma (diagnostic cross-check, not measured)</label><span id="simGammaVal" class="sim-out mono"></span></div>
+                    <input type="range" class="sim-range" id="simGamma" min="0" max="0.5" value="0" step="0.005" aria-label="Simulated damping gamma">
+                  </div>
+                  <div class="sim-control">
+                    <div class="sim-control-head"><label for="simAngle">start angle (rad)</label><span id="simAngleVal" class="sim-out mono"></span></div>
+                    <input type="range" class="sim-range" id="simAngle" min="0" max="0.6" value="0.3" step="0.01" aria-label="Simulated start angle">
+                  </div>
+                  <div class="sim-buttons">
+                    <button id="simPlayBtn" type="button" class="btn small" disabled>Play</button>
+                    <button id="simResetBtn" type="button" class="btn small">Reset</button>
+                  </div>
+                  <div class="sim-control">
+                    <div class="sim-control-head"><label for="simScale" title="Time scale multiplies simulated time only — never the measured timebase">time scale</label></div>
+                    <select class="trail-window sim-select" id="simScale" aria-label="Simulation time scale">
+                      <option value="0.25">0.25×</option>
+                      <option value="0.5">0.5×</option>
+                      <option value="1" selected>1×</option>
+                      <option value="2">2×</option>
+                      <option value="4">4×</option>
+                    </select>
+                  </div>
+                  <div class="sim-formula">θ'' = −(g/L) sin(θ) − γ θ'<div class="sim-formula-sub">model, not fit to your data</div></div>
+                  <p class="sub mono sim-seed" id="simSeedLine"></p>
+                  <p class="sub sim-note" id="simTrailNote"></p>
+                  <p class="sub sim-caption" id="simCaption"></p>
+                  <p class="sim-footer">Simulated clock never touches the measured timebase.</p>
+                </aside>
               </div>
-              <p class="sub" id="simTrailNote"></p>
-              <p class="sub mono" id="simSeedLine"></p>
-              <div class="replay-ctl">
-                <button id="simPlayBtn" type="button" class="btn small" disabled>Play</button>
-                <button id="simResetBtn" type="button" class="btn small">Reset</button>
-                <label class="sub" for="simScale" title="Time scale multiplies simulated time only — never the measured timebase">time scale</label>
-                <select class="trail-window" id="simScale" aria-label="Simulation time scale">
-                  <option value="0.25">0.25×</option>
-                  <option value="0.5">0.5×</option>
-                  <option value="1" selected>1×</option>
-                  <option value="2">2×</option>
-                  <option value="4">4×</option>
-                </select>
-              </div>
-              <div class="scrubrow">
-                <label for="simG">g/L_eff (1/s²)</label>
-                <input type="range" class="scrub" id="simG" min="15" max="25" value="20" step="0.01" aria-label="Simulated g over L">
-                <span id="simGVal" class="mono"></span>
-              </div>
-              <div class="scrubrow">
-                <label for="simGamma">gamma (diagnostic cross-check, not measured)</label>
-                <input type="range" class="scrub" id="simGamma" min="0" max="0.5" value="0" step="0.005" aria-label="Simulated damping gamma">
-                <span id="simGammaVal" class="mono"></span>
-              </div>
-              <div class="scrubrow">
-                <label for="simAngle">start angle (rad)</label>
-                <input type="range" class="scrub" id="simAngle" min="0" max="0.6" value="0.3" step="0.01" aria-label="Simulated start angle">
-                <span id="simAngleVal" class="mono"></span>
-              </div>
-              <div class="scrubrow">
-                <span id="simThetaReadout" class="mono"></span>
-                <span id="simClockReadout" class="mono"></span>
-              </div>
-              <p class="sub" id="simCaption"></p>
             </div>
             <details class="acc" id="sciDiagWrap">
               <summary>Advanced Diagnostics</summary>
@@ -2640,7 +2687,8 @@ let simState = { theta: SIM_DEFAULT_ANGLE, thetaDot: 0, clock: 0,
   playing: false, acc: 0, lastNow: null };
 let simSeed = { g: SIM_DEFAULT_G, gamma: SIM_DEFAULT_GAMMA,
   seeded: false };
-let simUnderlay = { trail: null, pivot: null, geo: null, armLen: 120 };
+let simUnderlay = { trail: null, pivot: null, geo: null, armLen: 120,
+  arc: null, tick: null };
 
 function simAccel(theta, thetaDot, g, gamma) {
   return -g * Math.sin(theta) - gamma * thetaDot;
@@ -2706,6 +2754,8 @@ function seedSimulationFromRun(g, gammaOrNull) {
         : " · gamma default 0 1/s") +
       " (diagnostic cross-check, not measured)"
     : "Seed: none — toy defaults (not measured)";
+  el("simSeedTile").textContent = simSeed.seeded
+    ? String(simSeed.g) : "—";
   simPaintVals();
   simReset();
 }
@@ -2724,6 +2774,26 @@ function simBobPosition(theta) {
   const R = simUnderlay.armLen;
   return [pivot[0] + R * Math.sin(theta),
     pivot[1] + R * Math.cos(theta)];
+}
+
+function simRadial(theta, frac) {
+  const pivot = simUnderlay.pivot || [0, 0];
+  const R = simUnderlay.armLen * frac;
+  return [pivot[0] + R * Math.sin(theta),
+    pivot[1] + R * Math.cos(theta)];
+}
+
+function simArcPath(geo, a) {
+  if (!geo || !(a > 0)) return "";
+  let d = "";
+  const steps = 24;
+  for (let i = 0; i <= steps; i++) {
+    const t = -a + (2 * a * i) / steps;
+    const pos = simBobPosition(t);
+    d += (i === 0 ? "M " : " L ") + geo.X(pos[0]).toFixed(2) +
+      " " + geo.Y(pos[1]).toFixed(2);
+  }
+  return d;
 }
 
 function simBuildStage(hasTrail) {
@@ -2754,9 +2824,20 @@ function simBuildStage(hasTrail) {
   const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
   const X = (x) => pad + ((x - (cx - span / 2)) / span) * (W - 2 * pad);
   const Y = (y) => pad + ((y - (cy - span / 2)) / span) * (H - 2 * pad);
+  const defs = svgEl("defs", {});
+  const grad = svgEl("radialGradient", { id: "simBobGrad",
+    cx: "35%", cy: "30%", r: "80%" });
+  grad.appendChild(svgEl("stop", { offset: "0",
+    "stop-color": "#ffffff", "stop-opacity": "0.9" }));
+  grad.appendChild(svgEl("stop", { offset: "0.45",
+    "stop-color": pal.strip }));
+  grad.appendChild(svgEl("stop", { offset: "1",
+    "stop-color": pal.strip, "stop-opacity": "0.75" }));
+  defs.appendChild(grad);
+  svg.appendChild(defs);
   svg.appendChild(svgEl("rect", { x: "0.5", y: "0.5",
-    width: String(W - 1), height: String(H - 1), fill: "none",
-    stroke: pal.frame }));
+    width: String(W - 1), height: String(H - 1), fill: pal.frame,
+    "fill-opacity": "0.35", stroke: pal.frame }));
   if (hasTrail) {
     for (const pt of simUnderlay.trail) {
       svg.appendChild(svgEl("circle", { cx: String(X(pt[0])),
@@ -2765,6 +2846,31 @@ function simBuildStage(hasTrail) {
     }
   }
   const pivot = simUnderlay.pivot || [0, 0];
+  const geoNow = { X, Y };
+  const plumbEnd = simBobPosition(0);
+  svg.appendChild(svgEl("line", {
+    x1: String(X(pivot[0])), y1: String(Y(pivot[1])),
+    x2: String(X(plumbEnd[0])), y2: String(Y(plumbEnd[1])),
+    stroke: pal.muted, "stroke-width": "1",
+    "stroke-dasharray": "4 5", opacity: "0.55" }));
+  const startA = simReadControls().angle;
+  const arc = svgEl("path", { d: simArcPath(geoNow, startA),
+    fill: "none", stroke: pal.muted, "stroke-width": "1",
+    opacity: "0.4" });
+  svg.appendChild(arc);
+  const tickIn = simRadial(startA, 0.9);
+  const tickOut = simRadial(startA, 1.08);
+  const tick = svgEl("line", {
+    x1: String(X(tickIn[0])), y1: String(Y(tickIn[1])),
+    x2: String(X(tickOut[0])), y2: String(Y(tickOut[1])),
+    stroke: pal.strip, "stroke-width": "2" });
+  svg.appendChild(tick);
+  simUnderlay.arc = arc;
+  simUnderlay.tick = tick;
+  const barY = Math.max(6, Y(pivot[1]) - 20);
+  svg.appendChild(svgEl("rect", { x: String(X(pivot[0]) - 72),
+    y: String(barY), width: "144", height: "7", rx: "3.5",
+    fill: pal.text, opacity: "0.55" }));
   const anchor = svgEl("circle", { cx: String(X(pivot[0])),
     cy: String(Y(pivot[1])), r: "4", fill: "none", stroke: pal.text,
     "stroke-width": "2" });
@@ -2773,13 +2879,17 @@ function simBuildStage(hasTrail) {
     : "model pivot (display origin)";
   anchor.appendChild(anchorLabel);
   svg.appendChild(anchor);
+  svg.appendChild(svgEl("circle", { cx: String(X(pivot[0])),
+    cy: String(Y(pivot[1])), r: "2.2", fill: pal.text }));
   const start = simBobPosition(simState.theta);
   svg.appendChild(svgEl("line", { id: "simArm",
     x1: String(X(pivot[0])), y1: String(Y(pivot[1])),
     x2: String(X(start[0])), y2: String(Y(start[1])),
-    stroke: pal.fitted, "stroke-width": "2.5" }));
+    stroke: pal.strip, "stroke-width": "3.5",
+    "stroke-linecap": "round" }));
   const bob = svgEl("circle", { id: "simBob", cx: String(X(start[0])),
-    cy: String(Y(start[1])), r: "5", fill: pal.fitted });
+    cy: String(Y(start[1])), r: "7", fill: "url(#simBobGrad)",
+    stroke: pal.text, "stroke-width": "1" });
   const bobLabel = svgEl("title", {});
   bobLabel.textContent = "simulated bob";
   bob.appendChild(bobLabel);
@@ -2833,6 +2943,18 @@ function simPose(theta) {
   const geo = simUnderlay.geo;
   const arm = document.getElementById("simArm");
   const bob = document.getElementById("simBob");
+  if (geo && simUnderlay.arc) {
+    const a = simReadControls().angle;
+    simUnderlay.arc.setAttribute("d", simArcPath(geo, a));
+    if (simUnderlay.tick) {
+      const inner = simRadial(a, 0.9);
+      const outer = simRadial(a, 1.08);
+      simUnderlay.tick.setAttribute("x1", String(geo.X(inner[0])));
+      simUnderlay.tick.setAttribute("y1", String(geo.Y(inner[1])));
+      simUnderlay.tick.setAttribute("x2", String(geo.X(outer[0])));
+      simUnderlay.tick.setAttribute("y2", String(geo.Y(outer[1])));
+    }
+  }
   if (geo && arm && bob) {
     const pos = simBobPosition(theta);
     arm.setAttribute("x2", String(geo.X(pos[0])));
@@ -2905,6 +3027,7 @@ function simOnClear() {
   el("simGamma").value = String(SIM_DEFAULT_GAMMA);
   el("simSeedLine").textContent =
     "Seed: none — toy defaults (not measured)";
+  el("simSeedTile").textContent = "—";
   refreshSimUnderlay();
 }
 

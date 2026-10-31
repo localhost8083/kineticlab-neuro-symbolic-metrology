@@ -962,6 +962,7 @@ class FunctionalIdPreservationTests(unittest.TestCase):
         "replaySpeed", "replayReadout",
         # Simulation playground (KL-10.9-B)
         "ctabSimulation", "viewSimulation", "simSvg", "simLabel",
+        "simWrap", "simSeedTile",
         "simTrailNote", "simSeedLine", "simPlayBtn", "simResetBtn",
         "simScale", "simG", "simGamma", "simAngle", "simGVal",
         "simGammaVal", "simAngleVal", "simThetaReadout",
@@ -2934,7 +2935,7 @@ class SimulationTests(unittest.TestCase):
         "simPlayBtn", "simResetBtn", "simScale", "simG", "simGamma",
         "simAngle", "simGVal", "simGammaVal", "simAngleVal",
         "simThetaReadout", "simClockReadout", "simCaption",
-        "simArm", "simBob",
+        "simArm", "simBob", "simSeedTile",
     ])
 
     @classmethod
@@ -3313,6 +3314,57 @@ class SimulationTests(unittest.TestCase):
             self.assertIn('class="btn small"', tag)
             self.assertNotIn("good", tag)
             self.assertNotIn("primary", tag)
+
+    def test_sim_layout_two_column_structure(self):
+        # KL-10.12: stage column + 320px panel, collapsing narrow.
+        block = self.page.split('id="viewSimulation"', 1)[1].split(
+            'id="sciDiagWrap"', 1)[0]
+        self.assertIn('class="sim-layout"', block)
+        self.assertIn('class="sim-stage-col"', block)
+        self.assertIn('class="sim-panel"', block)
+        self.assertIn(
+            ".sim-layout{display:grid;"
+            "grid-template-columns:minmax(0,1fr) 320px",
+            self.page)
+        self.assertIn(
+            "@media(max-width:900px)"
+            "{.sim-layout{grid-template-columns:1fr}}",
+            self.page)
+
+    def test_sim_panel_stat_tiles_and_formula(self):
+        # KL-10.12: kicker, badge chip, stat tiles, formula panel,
+        # footer note — all present with the frozen node IDs.
+        block = self.page.split('id="viewSimulation"', 1)[1].split(
+            'id="sciDiagWrap"', 1)[0]
+        self.assertIn("SIMULATION PLAYGROUND", block)
+        self.assertIn('class="sim-badge" id="simLabel"', block)
+        self.assertIn('class="sim-stats"', block)
+        for ident in ("simThetaReadout", "simClockReadout",
+                      "simSeedTile", "simGVal", "simGammaVal",
+                      "simAngleVal"):
+            with self.subTest(ident=ident):
+                self.assertIn(f'id="{ident}"', block)
+        self.assertIn('class="sim-formula"', block)
+        self.assertIn("model, not fit to your data", block)
+        self.assertIn(
+            "Simulated clock never touches the measured timebase.",
+            block)
+        self.assertIn('class="sim-range" id="simG"', block)
+        self.assertIn("#viewSimulation{--sim-accent:var(--blue-2)",
+                      self.page)
+
+    def test_sim_stage_scene_dressing(self):
+        # KL-10.12: mount bar, plumb line, swing arc, gradient bob
+        # are built inside the sentinel module (cosmetic JS only).
+        begin = "/* __KL_SIM_MODULE_BEGIN__ */"
+        end = "/* __KL_SIM_MODULE_END__ */"
+        region = self.script.split(begin)[1].split(end)[0]
+        for token in ("radialGradient", "simBobGrad",
+                      "stroke-dasharray", "simArcPath",
+                      "simRadial", "simSeedTile"):
+            with self.subTest(token=token):
+                self.assertIn(token, region)
+        self.assertIn('id="simSeedTile"', self.page)
 
 
 if __name__ == "__main__":
