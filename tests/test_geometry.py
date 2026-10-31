@@ -225,7 +225,15 @@ class MasksTests(unittest.TestCase):
         self.assertIn("E_MALFORMED_JSON", raised.exception.codes)
 
 
+# KL-10.10: see tests/test_fit_m1.py — same-platform byte pins.
+PIN_SAME_PLATFORM = unittest.skipIf(
+    os.environ.get("KL_CROSS_PLATFORM") == "1",
+    "byte pins are same-platform determinism; cross-platform "
+    "libm drifts in the last ulp (KL-10.10)")
+
+
 class OrientedTests(unittest.TestCase):
+    @PIN_SAME_PLATFORM
     def test_fused_pca_matches_classic_on_live_masks(self):
         # KL-9.2 item 4: the fused raster PCA must return
         # bit-identical dicts (exact float equality, not isclose)

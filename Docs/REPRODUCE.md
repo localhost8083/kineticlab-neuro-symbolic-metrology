@@ -34,6 +34,12 @@ python -m unittest
 Expected: `797 tests, OK`, exit 0. One environment-dependent live-bind skip
 is possible on some machines.
 
+Byte pins are same-platform determinism: on a different OS C library
+(glibc vs UCRT) floats drift in the last ulp, so CI runs the suite with
+`KL_CROSS_PLATFORM=1` (byte-pin tests skip, everything else strict) and
+`PYTHONUTF8=1` (PEP 686 text mode). Run twice on one machine and every
+pin hash matches.
+
 Structural media check (fast):
 
 ```powershell

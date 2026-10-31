@@ -14,6 +14,7 @@ pass means genuine recovery. The byte pin is platform-caveated
 import copy
 import hashlib
 import math
+import os
 import unittest
 
 from kineticlab.contracts import ContractError, FitRecord
@@ -384,7 +385,20 @@ class M1NonConvergence(unittest.TestCase):
         FitRecord.from_dict(fit)
 
 
+# KL-10.10: byte pins prove SAME-platform determinism. libm last-ulp
+# drift across OS C libraries (glibc / UCRT) moves fit floats in the
+# 8th+ decimal (CI run 41175740062: gamma 0.029794543491189113 local
+# vs 0.029794544246787853 on ubuntu), so cross-platform CI runs with
+# KL_CROSS_PLATFORM=1 and skips them. They stay strict locally —
+# rerun determinism is the property they actually pin.
+PIN_SAME_PLATFORM = unittest.skipIf(
+    os.environ.get("KL_CROSS_PLATFORM") == "1",
+    "byte pins are same-platform determinism; cross-platform "
+    "libm drifts in the last ulp (KL-10.10)")
+
+
 class M1Determinism(unittest.TestCase):
+    @PIN_SAME_PLATFORM
     def test_fit_byte_pin(self):
         result = fit_m1(make_request(pin_trajectory()))
         diag = result["diagnostics"]

@@ -20,6 +20,7 @@ platform: one shared build at import plus one determinism rerun).
 import copy
 import hashlib
 import math
+import os
 import unittest
 
 from kineticlab.contracts import ContractError
@@ -546,7 +547,15 @@ class MatrixAudits(unittest.TestCase):
             self.assertNotIn(phrase, FULL_BYTES, phrase)
 
 
+# KL-10.10: see tests/test_fit_m1.py — same-platform byte pins.
+PIN_SAME_PLATFORM = unittest.skipIf(
+    os.environ.get("KL_CROSS_PLATFORM") == "1",
+    "byte pins are same-platform determinism; cross-platform "
+    "libm drifts in the last ulp (KL-10.10)")
+
+
 class MatrixDeterminism(unittest.TestCase):
+    @PIN_SAME_PLATFORM
     def test_byte_pin(self):
         self.assertEqual(hashlib.sha256(FULL_BYTES).hexdigest(),
                          MATRIX_JSON_SHA)

@@ -561,7 +561,15 @@ MODEL_ADEQUACY_ASSUMPTION = (
 """Exact KL-10.7 wording (residual adequacy + point-estimate framing)."""
 
 
+# KL-10.10: see tests/test_fit_m1.py — same-platform byte pins.
+PIN_SAME_PLATFORM = unittest.skipIf(
+    os.environ.get("KL_CROSS_PLATFORM") == "1",
+    "byte pins are same-platform determinism; cross-platform "
+    "libm drifts in the last ulp (KL-10.10)")
+
+
 class RegenerationTests(unittest.TestCase):
+    @PIN_SAME_PLATFORM
     def test_pins_regenerate(self):
         require_smoke(REQUEST["clip_path"])
         with tempfile.TemporaryDirectory() as tmp:

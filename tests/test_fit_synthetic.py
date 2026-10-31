@@ -11,6 +11,7 @@ physical claim.
 import copy
 import hashlib
 import math
+import os
 import unittest
 
 from kineticlab.contracts import ContractError
@@ -210,6 +211,13 @@ class SyntheticHandCases(unittest.TestCase):
                                    omega_sample["theta_rad"], places=12)
 
 
+# KL-10.10: see tests/test_fit_m1.py — same-platform byte pins.
+PIN_SAME_PLATFORM = unittest.skipIf(
+    os.environ.get("KL_CROSS_PLATFORM") == "1",
+    "byte pins are same-platform determinism; cross-platform "
+    "libm drifts in the last ulp (KL-10.10)")
+
+
 class SyntheticDeterminism(unittest.TestCase):
     def test_same_seed_identical_bytes(self):
         first = export_trajectory_json(generate_trajectory(full_spec()))
@@ -219,6 +227,7 @@ class SyntheticDeterminism(unittest.TestCase):
         second_csv = export_synthetic_csv(generate_trajectory(full_spec()))
         self.assertEqual(first_csv, second_csv)
 
+    @PIN_SAME_PLATFORM
     def test_full_spec_byte_pins(self):
         traj = generate_trajectory(full_spec())
         self.assertEqual(len(traj["samples"]), 214)  # 234 grid - 20 gapped

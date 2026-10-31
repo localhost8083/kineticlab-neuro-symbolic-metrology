@@ -63,6 +63,14 @@ jobs:
         run: python scripts/media_check.py
 
       - name: python -m unittest
+        env:
+          # KL-10.10: byte pins prove same-platform determinism; OS C
+          # libraries drift in the last ulp, so CI skips them (documented
+          # in README "Cross-platform note"). PYTHONUTF8 aligns text
+          # encoding with the modern default (PEP 686) instead of the
+          # runner locale (cp1252 mojibake on windows without it).
+          KL_CROSS_PLATFORM: "1"
+          PYTHONUTF8: "1"
         run: python -m unittest
 
       - name: python -m kineticlab demo --chain success
