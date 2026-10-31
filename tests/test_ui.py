@@ -282,11 +282,21 @@ class PageTests(unittest.TestCase):
         # evaluation of any kind may exist, even in comments.
         # Illustrative draft charts (Math.sin/cos in a template
         # stub) are not allowed — real charts derive from angles.csv.
+        # KL-10.9-B amends the trig ban for ONE sentinel-delimited
+        # sim module only: zero trig outside the sentinels.
         script = self.page.split("<script>", 1)[1]
+        begin = "/* __KL_SIM_MODULE_BEGIN__ */"
+        end = "/* __KL_SIM_MODULE_END__ */"
+        self.assertEqual(script.count(begin), 1)
+        self.assertEqual(script.count(end), 1)
+        outside = script.split(begin)[0] + script.split(end)[1]
         for token in ("Math.cos", "Math.sin", "Math.exp",
-                      "amplitude"):
+                      "Math.tan"):
             with self.subTest(token=token):
-                self.assertNotIn(token, script)
+                self.assertNotIn(token, outside)
+        # "amplitude" stays banned page-wide (the sim module
+        # never needed the word).
+        self.assertNotIn("amplitude", script)
 
     def test_chart_reads_csv_columns(self):
         script = self.page.split("<script>", 1)[1]
@@ -950,6 +960,12 @@ class FunctionalIdPreservationTests(unittest.TestCase):
         # Measured-arm replay (KL-10.9-A)
         "replayLabel", "replayEmpty", "replayWrap", "replaySvg",
         "replaySpeed", "replayReadout",
+        # Simulation playground (KL-10.9-B)
+        "ctabSimulation", "viewSimulation", "simSvg", "simLabel",
+        "simTrailNote", "simSeedLine", "simPlayBtn", "simResetBtn",
+        "simScale", "simG", "simGamma", "simAngle", "simGVal",
+        "simGammaVal", "simAngleVal", "simThetaReadout",
+        "simClockReadout", "simCaption",
         "warnList", "assumeList", "reasonList", "advisoryBox",
         "provRows", "artifactRows", "exportLinks", "summaryPre",
         "reportsCard", "reportLinks",
@@ -2832,9 +2848,17 @@ class ReplayAnimationTests(unittest.TestCase):
 
     def test_page_invariants_hold(self):
         # (f) the KL-10.5 bans survive this task: no trig, no
-        # timers, textContent-only DOM writes.
+        # timers, textContent-only DOM writes. KL-10.9-B scopes
+        # the trig ban to outside the sim sentinels (updated
+        # per the KL-10.9-B brief, which owns this invariant).
+        begin = "/* __KL_SIM_MODULE_BEGIN__ */"
+        end = "/* __KL_SIM_MODULE_END__ */"
+        outside = (self.script.split(begin)[0]
+                   + self.script.split(end)[1])
         for token in ("Math.sin", "Math.cos", "Math.tan",
-                      "Math.exp", "innerHTML", "outerHTML",
+                      "Math.exp"):
+            self.assertNotIn(token, outside)
+        for token in ("innerHTML", "outerHTML",
                       "insertAdjacentHTML", "document.write",
                       "setTimeout", "setInterval"):
             self.assertNotIn(token, self.script)
@@ -2894,6 +2918,401 @@ class UncertaintyRowTests(unittest.TestCase):
         self.assertIn("Uncertainty interval (g/L_eff)not recorded",
                       rows)
         self.assertIn("Resamplingnot recorded", rows)
+
+
+@unittest.skipUnless(shutil.which("node"),
+                     "node is required for page-execution proofs")
+class SimulationTests(unittest.TestCase):
+    """KL-10.9-B: the simulation playground proven by EXECUTING the
+    shipped page script under node — real fixture payloads, DOM stub,
+    driven rAF. The model toy must label itself honestly, integrate
+    sanely, and never touch pipeline-owned state."""
+
+    LABEL = "MODEL RECONSTRUCTION \u2014 not measured data."
+    SIM_IDS = frozenset([
+        "simSvg", "simLabel", "simTrailNote", "simSeedLine",
+        "simPlayBtn", "simResetBtn", "simScale", "simG", "simGamma",
+        "simAngle", "simGVal", "simGammaVal", "simAngleVal",
+        "simThetaReadout", "simClockReadout", "simCaption",
+        "simArm", "simBob",
+    ])
+
+    @classmethod
+    def setUpClass(cls):
+        cls.page = (UI_DIR / "index.html").read_text(encoding="utf-8")
+        script = cls.page.split("<script>", 1)[1].split(
+            "</script>", 1)[0]
+        assert "__KL_LIVE_AVAILABLE__" in script
+        cls.script = script.replace("__KL_LIVE_AVAILABLE__", "true")
+        asm = REPO_ROOT / "fixtures" / "assembly"
+        cls.result = json.loads(
+            (asm / "result.json").read_text(encoding="utf-8"))
+        cls.diagnostics_text = (
+            asm / "diagnostics.json").read_text(encoding="utf-8")
+        cls.angles_text = (
+            asm / "angles.csv").read_text(encoding="utf-8")
+
+    def paint_run(self, preamble="", post=""):
+        return (
+            "(async () => {\n" + preamble +
+            "  const doc = await paintChart({ \"angles.csv\": \"u_csv\",\n"
+            "    \"diagnostics.json\": \"u_diag\" }, " + json.dumps(
+                self.result) + ", null, \"demo success\");\n" +
+            post +
+            "})().catch((e) => {\n"
+            "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
+            "  process.exit(1);\n"
+            "});\n")
+
+    def fetch_map(self):
+        return {"u_csv": self.angles_text,
+                "u_diag": self.diagnostics_text}
+
+    def test_label_seed_and_underlay_from_measured_run(self):
+        post = (
+            "  const kids =\n"
+            "    document.getElementById(\"simSvg\").children;\n"
+            "  const dots = kids.filter((k) => k.tag === \"circle\"\n"
+            "    && k.attrs.r === \"1.2\");\n"
+            "  const arm = kids.find((k) => k.tag === \"line\"\n"
+            "    && k.attrs.id === \"simArm\");\n"
+            "  const bob = kids.find((k) => k.tag === \"circle\"\n"
+            "    && k.attrs.id === \"simBob\");\n"
+            "  __emit({ label: document.getElementById(\"simLabel\")\n"
+            "      .textContent,\n"
+            "    seed: document.getElementById(\"simSeedLine\")\n"
+            "      .textContent,\n"
+            "    note: document.getElementById(\"simTrailNote\")\n"
+            "      .textContent,\n"
+            "    g: document.getElementById(\"simG\").value,\n"
+            "    gmin: document.getElementById(\"simG\").min,\n"
+            "    gmax: document.getElementById(\"simG\").max,\n"
+            "    gamma: document.getElementById(\"simGamma\").value,\n"
+            "    dots: dots.length,\n"
+            "    dim: dots.length > 0 ? dots[0].attrs.opacity : null,\n"
+            "    x2: arm.attrs.x2, cx: bob.attrs.cx });\n")
+        out = run_page_driver(
+            self.script, self.paint_run(post=post), self.fetch_map())
+        self.assertEqual(out["label"], self.LABEL)
+        self.assertIn("30.00563573707589", out["seed"])
+        self.assertIn("diagnostic cross-check, not measured",
+                      out["seed"])
+        self.assertEqual(out["g"], "30.00563573707589")
+        self.assertEqual(out["gamma"], "0.029794544246787853")
+        gmin, gmax = float(out["gmin"]), float(out["gmax"])
+        self.assertLess(gmin, 30.00563573707589)
+        self.assertGreater(gmax, 30.00563573707589)
+        self.assertAlmostEqual((gmax - gmin) / 30.00563573707589,
+                               0.5, places=9)
+        self.assertEqual(
+            out["note"],
+            "Measured trail underlay: 234 frames (dimmed).")
+        self.assertEqual(out["dots"], 234)
+        self.assertEqual(out["dim"], "0.35")
+        self.assertTrue(float(out["x2"]) == float(out["x2"]))
+        self.assertTrue(float(out["cx"]) == float(out["cx"]))
+
+    def test_integration_decay_and_conservation(self):
+        check = (
+            "  const roll = (gamma) => {\n"
+            "    let th = 0.3, w = 0;\n"
+            "    let early = 0, late = 0, max = 0;\n"
+            "    for (let i = 0; i < 2400; i++) {\n"
+            "      const next = simStepTheta(th, w, 30, gamma,\n"
+            "        1 / 240);\n"
+            "      th = next[0]; w = next[1];\n"
+            "      const a = Math.abs(th);\n"
+            "      if (a > max) max = a;\n"
+            "      if (i < 240 && a > early) early = a;\n"
+            "      if (i >= 2160 && a > late) late = a;\n"
+            "    }\n"
+            "    return { early, late, max };\n"
+            "  };\n"
+            "  __emit({ damped: roll(0.05), free: roll(0) });\n")
+        out = run_page_driver(self.script, check, {})
+        damped, free = out["damped"], out["free"]
+        # Damping bleeds swing size; the undamped run holds it.
+        self.assertLess(damped["late"], 0.9 * damped["early"])
+        self.assertLessEqual(damped["max"], 0.3001)
+        self.assertLess(abs(free["late"] - free["early"]), 1e-3)
+        self.assertLessEqual(free["max"], 0.3001)
+
+    def test_play_runs_five_simulated_seconds(self):
+        preamble = (
+            "  window.matchMedia = () => ({ matches: false });\n"
+            "  let rafCb = null;\n"
+            "  globalThis.requestAnimationFrame = (cb) => {\n"
+            "    rafCb = cb; return 1;\n"
+            "  };\n")
+        post = (
+            "  document.getElementById(\"simScale\").value = \"1\";\n"
+            "  document.getElementById(\"simAngle\").value = \"0.3\";\n"
+            "  simReset();\n"
+            "  toggleSimPlay();\n"
+            "  const btn = () =>\n"
+            "    document.getElementById(\"simPlayBtn\").textContent;\n"
+            "  const clock = () =>\n"
+            "    document.getElementById(\"simClockReadout\")\n"
+            "      .textContent;\n"
+            "  const theta = () =>\n"
+            "    document.getElementById(\"simThetaReadout\")\n"
+            "      .textContent;\n"
+            "  const armX = () =>\n"
+            "    document.getElementById(\"simArm\")\n"
+            "      .getAttribute(\"x2\");\n"
+            "  rafCb(0);\n"
+            "  const firstTheta = theta();\n"
+            "  for (let t = 250; t <= 5000; t += 250) rafCb(t);\n"
+            "  const mid = { btn: btn(), clock: clock(),\n"
+            "    theta: theta(), x: armX() };\n"
+            "  toggleSimPlay();\n"
+            "  const pausedCaption = document.getElementById(\n"
+            "    \"simCaption\").textContent;\n"
+            "  rafCb(20000);\n"
+            "  __emit({ firstTheta, mid, btn: btn(),\n"
+            "    pausedCaption, frozen: clock() });\n")
+        out = run_page_driver(
+            self.script,
+            self.paint_run(preamble=preamble, post=post),
+            self.fetch_map())
+        self.assertEqual(out["mid"]["btn"], "Pause")
+        shown = re.findall(r"[-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?",
+                           out["mid"]["clock"])
+        self.assertAlmostEqual(float(shown[0]), 5.0, places=2)
+        self.assertTrue(out["mid"]["clock"].startswith(
+            "simulated t = "))
+        self.assertTrue(out["mid"]["theta"].startswith(
+            "simulated \u03b8 = "))
+        self.assertNotEqual(out["mid"]["theta"], out["firstTheta"])
+        self.assertTrue(float(out["mid"]["x"]) ==
+                        float(out["mid"]["x"]))
+        self.assertEqual(out["btn"], "Play")
+        self.assertEqual(out["pausedCaption"], "Simulation paused.")
+        self.assertEqual(out["frozen"], out["mid"]["clock"])
+
+    def test_isolation_result_untouched(self):
+        preamble = (
+            "  window.matchMedia = () => ({ matches: false });\n"
+            "  let rafCb = null;\n"
+            "  globalThis.requestAnimationFrame = (cb) => {\n"
+            "    rafCb = cb; return 1;\n"
+            "  };\n")
+        post = (
+            "  const resObj = " + json.dumps(self.result) + ";\n"
+            "  const snap = () => JSON.stringify({\n"
+            "    res: JSON.stringify(resObj),\n"
+            "    sci: document.getElementById(\"sciState\").textContent,\n"
+            "    meta: document.getElementById(\"chartMeta\")\n"
+            "      .textContent,\n"
+            "    fc: document.getElementById(\"frameCounter\")\n"
+            "      .textContent,\n"
+            "    rl: document.getElementById(\"replayLabel\")\n"
+            "      .textContent,\n"
+            "    rc: document.getElementById(\"replayCaption\")\n"
+            "      .textContent,\n"
+            "    rr: document.getElementById(\"replayReadout\")\n"
+            "      .textContent,\n"
+            "    rms: document.getElementById(\"rmsChip\").textContent,\n"
+            "    pc: document.getElementById(\"periodChip\")\n"
+            "      .textContent,\n"
+            "    rows: document.getElementById(\"sciDiagRows\").children\n"
+            "      .map((tr) => tr.textContent),\n"
+            "    scrub: document.getElementById(\"scrub\").value,\n"
+            "    scrubMax: document.getElementById(\"scrub\").max,\n"
+            "    ph: document.getElementById(\"playheadReadout\")\n"
+            "      .textContent,\n"
+            "    chartN: document.getElementById(\"chartSvg\").children\n"
+            "      .length,\n"
+            "    trailN: document.getElementById(\"trailSvg\").children\n"
+            "      .length,\n"
+            "    stripN: document.getElementById(\"stripSvg\").children\n"
+            "      .length,\n"
+            "    replayN: document.getElementById(\"replaySvg\").children\n"
+            "      .length,\n"
+            "    sdPts: seriesData.points.length,\n"
+            "    sdTrail: seriesData.trail.length,\n"
+            "    sdPivot: JSON.stringify(seriesData.pivot) });\n"
+            "  const doc2 = await paintChart(\n"
+            "    { \"angles.csv\": \"u_csv\",\n"
+            "      \"diagnostics.json\": \"u_diag\" },\n"
+            "    resObj, null, \"demo success\");\n"
+            "  const before = snap();\n"
+            "  document.getElementById(\"simG\").value = \"22.5\";\n"
+            "  document.getElementById(\"simGamma\").value = \"0.1\";\n"
+            "  document.getElementById(\"simAngle\").value = \"0.5\";\n"
+            "  document.getElementById(\"simScale\").value = \"2\";\n"
+            "  toggleSimPlay();\n"
+            "  for (let t = 0; t <= 2500; t += 250) rafCb(t);\n"
+            "  const midClock = document.getElementById(\n"
+            "    \"simClockReadout\").textContent;\n"
+            "  const simKids = document.getElementById(\"simSvg\")\n"
+            "    .children.length;\n"
+            "  toggleSimPlay();\n"
+            "  simReset();\n"
+            "  const after = snap();\n"
+            "  __emit({ before, after, midClock, simKids,\n"
+            "    theta: document.getElementById(\"simThetaReadout\")\n"
+            "      .textContent,\n"
+            "    clock: document.getElementById(\"simClockReadout\")\n"
+            "      .textContent });\n")
+        driver = (
+            "(async () => {\n" + preamble + post +
+            "})().catch((e) => {\n"
+            "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
+            "  process.exit(1);\n"
+            "});\n")
+        out = run_page_driver(self.script, driver, self.fetch_map())
+        # The sim ran (5 simulated s at 2x) and reset ...
+        shown = re.findall(r"[-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?",
+                           out["midClock"])
+        self.assertAlmostEqual(float(shown[0]), 5.0, places=2)
+        self.assertGreater(out["simKids"], 200)
+        self.assertEqual(out["theta"], "simulated \u03b8 = 0.50000 rad")
+        self.assertEqual(out["clock"], "simulated t = 0.000 s")
+        # ... while every result-owned byte stayed identical.
+        self.assertEqual(out["before"], out["after"])
+
+    def test_no_run_honest_note_and_static_pose(self):
+        post = (
+            "  wireSimulation();\n"
+            "  const kids =\n"
+            "    document.getElementById(\"simSvg\").children;\n"
+            "  const dots = kids.filter((k) => k.tag === \"circle\"\n"
+            "    && k.attrs.r === \"1.2\").length;\n"
+            "  const arm = kids.find((k) => k.tag === \"line\"\n"
+            "    && k.attrs.id === \"simArm\");\n"
+            "  const bob = kids.find((k) => k.tag === \"circle\"\n"
+            "    && k.attrs.id === \"simBob\");\n"
+            "  __emit({ label: document.getElementById(\"simLabel\")\n"
+            "      .textContent,\n"
+            "    note: document.getElementById(\"simTrailNote\")\n"
+            "      .textContent,\n"
+            "    seed: document.getElementById(\"simSeedLine\")\n"
+            "      .textContent,\n"
+            "    dots,\n"
+            "    x2: arm.attrs.x2, cx: bob.attrs.cx,\n"
+            "    theta: document.getElementById(\"simThetaReadout\")\n"
+            "      .textContent,\n"
+            "    clock: document.getElementById(\"simClockReadout\")\n"
+            "      .textContent });\n")
+        out = run_page_driver(self.script, post, {})
+        self.assertEqual(out["label"], self.LABEL)
+        self.assertEqual(out["note"], "no measured trail loaded")
+        self.assertIn("Seed: none", out["seed"])
+        self.assertEqual(out["dots"], 0)
+        self.assertTrue(float(out["x2"]) == float(out["x2"]))
+        self.assertTrue(float(out["cx"]) == float(out["cx"]))
+        self.assertEqual(out["theta"], "simulated \u03b8 = 0.30000 rad")
+        self.assertEqual(out["clock"], "simulated t = 0.000 s")
+
+    def test_reduced_motion_parks_with_live_sliders(self):
+        post = (
+            "  wireSimulation();\n"
+            "  const btn = document.getElementById(\"simPlayBtn\");\n"
+            "  const btnBefore = btn.textContent;\n"
+            "  toggleSimPlay();\n"
+            "  const btnAfter = btn.textContent;\n"
+            "  const caption = document.getElementById(\"simCaption\")\n"
+            "    .textContent;\n"
+            "  document.getElementById(\"simAngle\").value = \"0.5\";\n"
+            "  simReset();\n"
+            "  __emit({ disabled: btn.disabled,\n"
+            "    btnBefore, btnAfter,\n"
+            "    caption,\n"
+            "    theta: document.getElementById(\"simThetaReadout\")\n"
+            "      .textContent,\n"
+            "    clock: document.getElementById(\"simClockReadout\")\n"
+            "      .textContent });\n")
+        out = run_page_driver(self.script, post, {})
+        # The stub reports reduced motion: parked Play, static
+        # pose, controls still usable.
+        self.assertTrue(out["disabled"])
+        self.assertEqual(out["btnBefore"], out["btnAfter"])
+        self.assertIn("reduced-motion", out["caption"])
+        self.assertEqual(out["theta"], "simulated \u03b8 = 0.50000 rad")
+        self.assertEqual(out["clock"], "simulated t = 0.000 s")
+
+    def test_rejection_note_keeps_sim_usable(self):
+        check = (
+            "(async () => {\n"
+            "  await paintChart({}, { status: \"unsupported_input\" },\n"
+            "    null, \"demo rejection\");\n"
+            "  const kids = document.getElementById(\"simSvg\")\n"
+            "    .children;\n"
+            "  const dots = kids.filter((k) => k.tag === \"circle\"\n"
+            "    && k.attrs.r === \"1.2\").length;\n"
+            "  const label = document.getElementById(\"simLabel\")\n"
+            "    .textContent;\n"
+            "  const g = document.getElementById(\"simG\").value;\n"
+            "  simNoteRejection(\"success\");\n"
+            "  const cleared = document.getElementById(\n"
+            "    \"simTrailNote\").textContent;\n"
+            "  document.getElementById(\"simAngle\").value = \"0.3\";\n"
+            "  simReset();\n"
+            "  __emit({ label, dots, cleared, g,\n"
+            "    theta: document.getElementById(\"simThetaReadout\")\n"
+            "      .textContent });\n"
+            "})().catch((e) => {\n"
+            "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
+            "  process.exit(1);\n"
+            "});\n")
+        out = run_page_driver(self.script, check, {})
+        self.assertEqual(out["cleared"], "no measured trail loaded")
+        self.assertEqual(out["label"], self.LABEL)
+        self.assertEqual(out["dots"], 0)
+        self.assertEqual(out["g"], "20")
+        self.assertEqual(out["theta"], "simulated \u03b8 = 0.30000 rad")
+
+    def test_rejection_reason_shown(self):
+        check = (
+            "(async () => {\n"
+            "  await paintChart({}, { status: \"unsupported_input\" },\n"
+            "    null, \"demo rejection\");\n"
+            "  __emit({ note: document.getElementById(\"simTrailNote\")\n"
+            "    .textContent });\n"
+            "})().catch((e) => {\n"
+            "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
+            "  process.exit(1);\n"
+            "});\n")
+        out = run_page_driver(self.script, check, {})
+        self.assertIn("run rejected (unsupported_input)", out["note"])
+        self.assertIn("simulation still available", out["note"])
+
+    def test_sim_region_static_contracts(self):
+        begin = "/* __KL_SIM_MODULE_BEGIN__ */"
+        end = "/* __KL_SIM_MODULE_END__ */"
+        self.assertEqual(self.script.count(begin), 1)
+        self.assertEqual(self.script.count(end), 1)
+        region = self.script.split(begin)[1].split(end)[0]
+        # Isolation, statically: only sim* element IDs referenced.
+        ids = set(re.findall(r'el\("([^"]+)"', region))
+        ids |= set(re.findall(r'getElementById\("([^"]+)"',
+                              region))
+        self.assertTrue(ids <= self.SIM_IDS,
+                        f"non-sim IDs in module: {ids - self.SIM_IDS}")
+        # No writes into pipeline-owned state, no masquerading
+        # readouts, no success styling, no DOM-write escapes.
+        for token in ("seriesData =", "result.", "exports",
+                      "verdict", "syncPlayheads", "clearVisuals",
+                      "paintChart", "paintMotion", "runDemo", "files[",
+                      "period", "uncertainty", "interval",
+                      "innerHTML", '"good"', '"live"'):
+            with self.subTest(token=token):
+                self.assertNotIn(token, region)
+        # Trig lives here (the amended allowance), timers do not.
+        self.assertIn("Math.sin", region)
+        self.assertIn("Math.cos", region)
+        self.assertNotIn("setTimeout", region)
+        self.assertNotIn("setInterval", region)
+        # The honest label is owned in exactly one place.
+        self.assertEqual(self.script.count(self.LABEL), 1)
+        # Sim controls are neutral buttons, never green.
+        for btn_id in ("simPlayBtn", "simResetBtn"):
+            tag = re.search(r"<button[^>]*id=\"" + btn_id +
+                            r"\"[^>]*>", self.page).group(0)
+            self.assertIn('class="btn small"', tag)
+            self.assertNotIn("good", tag)
+            self.assertNotIn("primary", tag)
 
 
 if __name__ == "__main__":

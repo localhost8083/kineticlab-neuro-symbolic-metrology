@@ -598,6 +598,7 @@ h3.sub:first-child{margin-top:0}
               <button class="tab" role="tab" id="ctabResiduals" aria-controls="viewResiduals" aria-selected="false" tabindex="-1">Residuals</button>
               <button class="tab" role="tab" id="ctabTrail" aria-controls="viewTrail" aria-selected="false" tabindex="-1">Motion Trail</button>
               <button class="tab" role="tab" id="ctabReplay" aria-controls="viewReplay" aria-selected="false" tabindex="-1">Replay</button>
+              <button class="tab" role="tab" id="ctabSimulation" aria-controls="viewSimulation" aria-selected="false" tabindex="-1">Simulation</button>
             </div>
             <div role="tabpanel" id="viewTrajectory" aria-labelledby="ctabTrajectory">
               <div class="chart-empty" id="chartEmpty"><span class="empty-icon" aria-hidden="true">◷</span><strong>No trajectory yet</strong><p>Observed angles plot here after a demo or measurement. Nothing is drawn from guesses.</p></div>
@@ -659,6 +660,47 @@ h3.sub:first-child{margin-top:0}
                 <span id="replayReadout" class="mono"></span>
               </div>
               <p class="sub" id="replayCaption"></p>
+            </div>
+            <div role="tabpanel" id="viewSimulation" aria-labelledby="ctabSimulation" class="hidden">
+              <p class="sub">Simulation playground: a damped-pendulum model integrated live. Dragging g/L_eff away from the seeded value shows the model visibly diverging from the measured trail.</p>
+              <p class="sub" id="simLabel"></p>
+              <div class="chart-wrap" id="simWrap">
+                <svg id="simSvg" class="plot" viewBox="0 0 720 340" role="img" aria-label="Simulation stage: model arm over measured trail"></svg>
+              </div>
+              <p class="sub" id="simTrailNote"></p>
+              <p class="sub mono" id="simSeedLine"></p>
+              <div class="replay-ctl">
+                <button id="simPlayBtn" type="button" class="btn small" disabled>Play</button>
+                <button id="simResetBtn" type="button" class="btn small">Reset</button>
+                <label class="sub" for="simScale" title="Time scale multiplies simulated time only — never the measured timebase">time scale</label>
+                <select class="trail-window" id="simScale" aria-label="Simulation time scale">
+                  <option value="0.25">0.25×</option>
+                  <option value="0.5">0.5×</option>
+                  <option value="1" selected>1×</option>
+                  <option value="2">2×</option>
+                  <option value="4">4×</option>
+                </select>
+              </div>
+              <div class="scrubrow">
+                <label for="simG">g/L_eff (1/s²)</label>
+                <input type="range" class="scrub" id="simG" min="15" max="25" value="20" step="0.01" aria-label="Simulated g over L">
+                <span id="simGVal" class="mono"></span>
+              </div>
+              <div class="scrubrow">
+                <label for="simGamma">gamma (diagnostic cross-check, not measured)</label>
+                <input type="range" class="scrub" id="simGamma" min="0" max="0.5" value="0" step="0.005" aria-label="Simulated damping gamma">
+                <span id="simGammaVal" class="mono"></span>
+              </div>
+              <div class="scrubrow">
+                <label for="simAngle">start angle (rad)</label>
+                <input type="range" class="scrub" id="simAngle" min="0" max="0.6" value="0.3" step="0.01" aria-label="Simulated start angle">
+                <span id="simAngleVal" class="mono"></span>
+              </div>
+              <div class="scrubrow">
+                <span id="simThetaReadout" class="mono"></span>
+                <span id="simClockReadout" class="mono"></span>
+              </div>
+              <p class="sub" id="simCaption"></p>
             </div>
             <details class="acc" id="sciDiagWrap">
               <summary>Advanced Diagnostics</summary>
@@ -1094,7 +1136,8 @@ function updateActionStates() {
 /* Tab groups with roving arrow-key navigation (main result views and
    chart views share one implementation). */
 const TAB_IDS = ["tabTrajectory", "tabEvidence", "tabProvenance"];
-const CTAB_IDS = ["ctabTrajectory", "ctabResiduals", "ctabTrail", "ctabReplay"];
+const CTAB_IDS = ["ctabTrajectory", "ctabResiduals", "ctabTrail",
+  "ctabReplay", "ctabSimulation"];
 function selectTabIn(ids, activeId) {
   for (const id of ids) {
     const tab = el(id);
@@ -1970,6 +2013,9 @@ function clearVisuals(message) {
   el("scrub").max = "0";
   el("scrub").value = "0";
   seriesData = null;
+  /* KL-10.9-B: the sim parks its seed + underlay with the cleared
+     run (after the null above, so it reads the cleared state). */
+  simOnClear();
   rmsNotComputed();
   /* KL-10.5 Scientific Analysis idle state: honest chip, empty
      badges, parked replay, one caption row in diagnostics. */
@@ -2568,6 +2614,331 @@ function toggleReplay() {
    Reduced motion never animates — static mid-frame, Play parked,
    caption explains, scrubber stays live (seeking is user-driven,
    not animation). */
+/* __KL_SIM_MODULE_BEGIN__ */
+/* KL-10.9-B simulation playground: a damped-pendulum MODEL toy.
+   Trig (Math.sin/cos) and Math.sqrt live ONLY in this
+   sentinel-delimited module — the page-wide ban still holds
+   everywhere else (see the invariant tests). Nothing here is a
+   measurement: every readout says "simulated", and the stage
+   carries the SIM_LABEL honesty line (see the const below).
+   Physics: theta'' = -g*sin(theta) - gamma*thetaDot, classical
+   fixed-step RK4 at dt = 1/240 s, accumulated from rAF elapsed
+   time times the time scale. Angle convention matches the
+   pipeline (theta = atan2(x - px, y - py)): theta 0 hangs
+   straight down, bob at (px + R sin, py + R cos).
+   ISOLATION: this module owns only sim* element IDs plus its own
+   state objects below. It reads the shared series (trail/pivot)
+   for the underlay and NEVER writes into pipeline-owned state. */
+const SIM_DT = 1 / 240;
+const SIM_LABEL = "MODEL RECONSTRUCTION — not measured data.";
+const SIM_DEFAULT_G = 20;
+const SIM_DEFAULT_GAMMA = 0;
+const SIM_DEFAULT_ANGLE = 0.3;
+const SIM_MAX_STEPS_PER_FRAME = 2000;
+
+let simState = { theta: SIM_DEFAULT_ANGLE, thetaDot: 0, clock: 0,
+  playing: false, acc: 0, lastNow: null };
+let simSeed = { g: SIM_DEFAULT_G, gamma: SIM_DEFAULT_GAMMA,
+  seeded: false };
+let simUnderlay = { trail: null, pivot: null, geo: null, armLen: 120 };
+
+function simAccel(theta, thetaDot, g, gamma) {
+  return -g * Math.sin(theta) - gamma * thetaDot;
+}
+
+function simStepTheta(theta, thetaDot, g, gamma, dt) {
+  const a1 = thetaDot;
+  const b1 = simAccel(theta, thetaDot, g, gamma);
+  const a2 = thetaDot + b1 * dt / 2;
+  const b2 = simAccel(theta + a1 * dt / 2, thetaDot + b1 * dt / 2,
+    g, gamma);
+  const a3 = thetaDot + b2 * dt / 2;
+  const b3 = simAccel(theta + a2 * dt / 2, thetaDot + b2 * dt / 2,
+    g, gamma);
+  const a4 = thetaDot + b3 * dt;
+  const b4 = simAccel(theta + a3 * dt, thetaDot + b3 * dt, g, gamma);
+  return [theta + dt * (a1 + 2 * a2 + 2 * a3 + a4) / 6,
+    thetaDot + dt * (b1 + 2 * b2 + 2 * b3 + b4) / 6];
+}
+
+function simNum(id, fallback, lo, hi) {
+  const raw = Number(el(id).value);
+  if (!isFinite(raw)) return fallback;
+  if (raw < lo) return lo;
+  if (raw > hi) return hi;
+  return raw;
+}
+
+function simReadControls() {
+  const scaleRaw = el("simScale").value;
+  const scale = (scaleRaw === "0.25" || scaleRaw === "0.5" ||
+    scaleRaw === "1" || scaleRaw === "2" ||
+    scaleRaw === "4") ? Number(scaleRaw) : 1;
+  return { g: simNum("simG", simSeed.g, 0.01, 1e6),
+    gamma: simNum("simGamma", simSeed.gamma, 0, 0.5),
+    angle: simNum("simAngle", SIM_DEFAULT_ANGLE, 0, 0.6),
+    scale };
+}
+
+function simPaintVals() {
+  const ctl = simReadControls();
+  el("simGVal").textContent = ctl.g + " 1/s²";
+  el("simGammaVal").textContent = ctl.gamma + " 1/s";
+  el("simAngleVal").textContent = ctl.angle + " rad";
+}
+
+function seedSimulationFromRun(g, gammaOrNull) {
+  const goodG = typeof g === "number" && isFinite(g) && g > 0;
+  const goodGamma = typeof gammaOrNull === "number" &&
+    isFinite(gammaOrNull) && gammaOrNull >= 0;
+  simSeed.g = goodG ? g : SIM_DEFAULT_G;
+  simSeed.gamma = goodGamma
+    ? Math.min(gammaOrNull, 0.5) : SIM_DEFAULT_GAMMA;
+  simSeed.seeded = goodG;
+  const slider = el("simG");
+  slider.min = String(simSeed.g * 0.75);
+  slider.max = String(simSeed.g * 1.25);
+  slider.value = String(simSeed.g);
+  el("simGamma").value = String(simSeed.gamma);
+  el("simSeedLine").textContent = simSeed.seeded
+    ? "Seed: measured g/L_eff = " + simSeed.g + " 1/s²" +
+      (goodGamma ? " · gamma " + simSeed.gamma + " 1/s"
+        : " · gamma default 0 1/s") +
+      " (diagnostic cross-check, not measured)"
+    : "Seed: none — toy defaults (not measured)";
+  simPaintVals();
+  simReset();
+}
+
+function simMeanRadius(trail, pivot) {
+  let sum = 0;
+  for (const pt of trail) {
+    const dx = pt[0] - pivot[0], dy = pt[1] - pivot[1];
+    sum += Math.sqrt(dx * dx + dy * dy);
+  }
+  return sum / trail.length;
+}
+
+function simBobPosition(theta) {
+  const pivot = simUnderlay.pivot || [0, 0];
+  const R = simUnderlay.armLen;
+  return [pivot[0] + R * Math.sin(theta),
+    pivot[1] + R * Math.cos(theta)];
+}
+
+function simBuildStage(hasTrail) {
+  const svg = el("simSvg");
+  const pal = chartPalette();
+  svg.replaceChildren();
+  svgTitle(svg, "Simulation stage: model arm" +
+    (hasTrail ? " over the dimmed measured trail."
+      : ", no measured trail."));
+  const W = 720, H = 340, pad = 30;
+  let minX, maxX, minY, maxY;
+  if (hasTrail) {
+    const pivot = simUnderlay.pivot;
+    minX = pivot[0]; maxX = pivot[0];
+    minY = pivot[1]; maxY = pivot[1];
+    for (const pt of simUnderlay.trail) {
+      if (pt[0] < minX) minX = pt[0];
+      if (pt[0] > maxX) maxX = pt[0];
+      if (pt[1] < minY) minY = pt[1];
+      if (pt[1] > maxY) maxY = pt[1];
+    }
+  } else {
+    minX = -160; maxX = 160; minY = -40; maxY = 200;
+  }
+  if (!(maxX > minX)) maxX = minX + 1;
+  if (!(maxY > minY)) maxY = minY + 1;
+  const span = Math.max(maxX - minX, maxY - minY) * 1.15;
+  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+  const X = (x) => pad + ((x - (cx - span / 2)) / span) * (W - 2 * pad);
+  const Y = (y) => pad + ((y - (cy - span / 2)) / span) * (H - 2 * pad);
+  svg.appendChild(svgEl("rect", { x: "0.5", y: "0.5",
+    width: String(W - 1), height: String(H - 1), fill: "none",
+    stroke: pal.frame }));
+  if (hasTrail) {
+    for (const pt of simUnderlay.trail) {
+      svg.appendChild(svgEl("circle", { cx: String(X(pt[0])),
+        cy: String(Y(pt[1])), r: "1.2", fill: pal.trail,
+        opacity: "0.35" }));
+    }
+  }
+  const pivot = simUnderlay.pivot || [0, 0];
+  const anchor = svgEl("circle", { cx: String(X(pivot[0])),
+    cy: String(Y(pivot[1])), r: "4", fill: "none", stroke: pal.text,
+    "stroke-width": "2" });
+  const anchorLabel = svgEl("title", {});
+  anchorLabel.textContent = hasTrail ? "pivot (pipeline pivot_px)"
+    : "model pivot (display origin)";
+  anchor.appendChild(anchorLabel);
+  svg.appendChild(anchor);
+  const start = simBobPosition(simState.theta);
+  svg.appendChild(svgEl("line", { id: "simArm",
+    x1: String(X(pivot[0])), y1: String(Y(pivot[1])),
+    x2: String(X(start[0])), y2: String(Y(start[1])),
+    stroke: pal.fitted, "stroke-width": "2.5" }));
+  const bob = svgEl("circle", { id: "simBob", cx: String(X(start[0])),
+    cy: String(Y(start[1])), r: "5", fill: pal.fitted });
+  const bobLabel = svgEl("title", {});
+  bobLabel.textContent = "simulated bob";
+  bob.appendChild(bobLabel);
+  svg.appendChild(bob);
+  const cap = svgEl("text", { x: String(W - 12), y: String(H - 10),
+    "text-anchor": "end", fill: pal.muted, "font-size": "11" });
+  cap.textContent = hasTrail
+    ? "model arm over measured trail (dimmed)"
+    : "model arm only — no measured trail";
+  svg.appendChild(cap);
+  return { X, Y };
+}
+
+function refreshSimUnderlay() {
+  el("simLabel").textContent = SIM_LABEL;
+  const data = seriesData;
+  const trail = data && Array.isArray(data.trail) &&
+    data.trail.length > 0 ? data.trail : null;
+  const pivot = data && Array.isArray(data.pivot) &&
+    isFinite(data.pivot[0]) && isFinite(data.pivot[1])
+    ? data.pivot : null;
+  if (trail && pivot) {
+    simUnderlay.trail = trail;
+    simUnderlay.pivot = pivot;
+    simUnderlay.armLen = simMeanRadius(trail, pivot);
+    simUnderlay.geo = simBuildStage(true);
+    el("simTrailNote").textContent =
+      "Measured trail underlay: " + trail.length + " frames (dimmed).";
+  } else {
+    simUnderlay.trail = null;
+    simUnderlay.pivot = null;
+    simUnderlay.armLen = 120;
+    simUnderlay.geo = simBuildStage(false);
+    el("simTrailNote").textContent = "no measured trail loaded";
+  }
+  simPose(simState.theta);
+}
+
+function simNoteRejection(status) {
+  if (status === "success" || status === "success_with_warnings" ||
+      !status) {
+    el("simTrailNote").textContent = "no measured trail loaded";
+    return;
+  }
+  el("simTrailNote").textContent =
+    "No measured trail: run rejected (" + status +
+    ") — simulation still available.";
+}
+
+function simPose(theta) {
+  const geo = simUnderlay.geo;
+  const arm = document.getElementById("simArm");
+  const bob = document.getElementById("simBob");
+  if (geo && arm && bob) {
+    const pos = simBobPosition(theta);
+    arm.setAttribute("x2", String(geo.X(pos[0])));
+    arm.setAttribute("y2", String(geo.Y(pos[1])));
+    bob.setAttribute("cx", String(geo.X(pos[0])));
+    bob.setAttribute("cy", String(geo.Y(pos[1])));
+  }
+  el("simThetaReadout").textContent =
+    "simulated θ = " + theta.toPrecision(5) + " rad";
+  el("simClockReadout").textContent =
+    "simulated t = " + simState.clock.toFixed(3) + " s";
+}
+
+function simTick(now) {
+  if (!simState.playing) return;
+  if (simState.lastNow === null) simState.lastNow = now;
+  const ctl = simReadControls();
+  simState.acc += ((now - simState.lastNow) / 1000) * ctl.scale;
+  simState.lastNow = now;
+  let steps = 0;
+  while (simState.acc >= SIM_DT &&
+      steps < SIM_MAX_STEPS_PER_FRAME) {
+    const next = simStepTheta(simState.theta, simState.thetaDot,
+      ctl.g, ctl.gamma, SIM_DT);
+    simState.theta = next[0];
+    simState.thetaDot = next[1];
+    simState.clock += SIM_DT;
+    simState.acc -= SIM_DT;
+    steps++;
+  }
+  if (steps >= SIM_MAX_STEPS_PER_FRAME) simState.acc = 0;
+  simPose(simState.theta);
+  requestAnimationFrame(simTick);
+}
+
+function simSetPlaying(playing) {
+  simState.playing = playing;
+  simState.lastNow = null;
+  if (!playing) simState.acc = 0;
+  el("simPlayBtn").textContent = playing ? "Pause" : "Play";
+  if (playing) requestAnimationFrame(simTick);
+}
+
+function toggleSimPlay() {
+  if (reducedMotion()) return;
+  simSetPlaying(!simState.playing);
+  el("simCaption").textContent = simState.playing
+    ? "Simulating: damped-pendulum model (not measured data)."
+    : "Simulation paused.";
+}
+
+function simReset() {
+  const ctl = simReadControls();
+  simState.theta = ctl.angle;
+  simState.thetaDot = 0;
+  simState.clock = 0;
+  simState.acc = 0;
+  simPose(simState.theta);
+  el("simCaption").textContent = "Simulation reset to start angle.";
+}
+
+function simOnClear() {
+  simSeed.g = SIM_DEFAULT_G;
+  simSeed.gamma = SIM_DEFAULT_GAMMA;
+  simSeed.seeded = false;
+  const slider = el("simG");
+  slider.min = String(SIM_DEFAULT_G * 0.75);
+  slider.max = String(SIM_DEFAULT_G * 1.25);
+  slider.value = String(SIM_DEFAULT_G);
+  el("simGamma").value = String(SIM_DEFAULT_GAMMA);
+  el("simSeedLine").textContent =
+    "Seed: none — toy defaults (not measured)";
+  refreshSimUnderlay();
+}
+
+function wireSimulation() {
+  el("simPlayBtn").addEventListener("click", toggleSimPlay);
+  el("simResetBtn").addEventListener("click", simReset);
+  for (const id of ["simG", "simGamma"]) {
+    el(id).addEventListener("input", simPaintVals);
+  }
+  el("simAngle").addEventListener("input", () => {
+    simPaintVals();
+    simState.theta = simReadControls().angle;
+    simState.thetaDot = 0;
+    simState.clock = 0;
+    simPose(simState.theta);
+  });
+  el("simScale").addEventListener("change", () => {
+    el("simCaption").textContent = simState.playing
+      ? "Simulating: damped-pendulum model (not measured data)."
+      : "Time scale applies to simulated time only.";
+  });
+  if (reducedMotion()) {
+    el("simPlayBtn").disabled = true;
+    el("simCaption").textContent =
+      "Animation off (reduced-motion preference): arm posed at " +
+      "the start angle. Sliders stay live.";
+  } else {
+    el("simPlayBtn").disabled = false;
+  }
+  simPaintVals();
+  simOnClear();
+}
+/* __KL_SIM_MODULE_END__ */
+
 function playReveal() {
   if (!seriesData) return;
   const order = seriesData.order;
@@ -2622,6 +2993,7 @@ async function paintChart(files, result, report, modeLabel) {
   if (!files["angles.csv"]) {
     clearVisuals("No angles.csv in this payload — nothing plotted, nothing guessed.");
     el("replayCaption").textContent = rejectionCaption(result);
+    simNoteRejection(result ? result.status : null);
     return null;
   }
   let csvText;
@@ -2643,6 +3015,7 @@ async function paintChart(files, result, report, modeLabel) {
       paintSciState(modeLabel + " · " + result.status, false);
     }
     el("replayCaption").textContent = rejectionCaption(result);
+    simNoteRejection(result ? result.status : null);
     return null;
   }
   let diagnostics = { residuals: [], period: null, doc: null };
@@ -2677,6 +3050,13 @@ async function paintChart(files, result, report, modeLabel) {
       diagnostics.doc) };
   renderTrailWindow();
   paintReplayArm(pivotFromPayload(diagnostics.doc));
+  /* KL-10.9-B: seed the model toy from this run (numbers only,
+     never written back). */
+  seedSimulationFromRun(
+    result && result.fit ? result.fit.g_over_l_per_s2 : null,
+    diagnostics.doc && diagnostics.doc.m2 && diagnostics.doc.m2.fitted
+      ? diagnostics.doc.m2.fitted.gamma_per_s : null);
+  refreshSimUnderlay();
   const scrubber = el("scrub");
   scrubber.max = String(order.length - 1);
   scrubber.value = String(order.length - 1);
@@ -3473,6 +3853,9 @@ async function paintMotionChart(files, report, modeLabel) {
       diagnostics.doc) };
   renderTrailWindow();
   paintReplayArm(pivotFromPayload(report));
+  /* KL-10.9-B: motion runs seed g/L only (no M2 gamma exists). */
+  seedSimulationFromRun(report ? report.g_over_l_per_s2 : null, null);
+  refreshSimUnderlay();
   const scrubber = el("scrub");
   scrubber.max = String(order.length - 1);
   scrubber.value = String(order.length - 1);
@@ -3823,6 +4206,7 @@ document.addEventListener("DOMContentLoaded", () => {
   wireIdleAction();
   wireTabs(TAB_IDS);
   wireTabs(CTAB_IDS);
+  wireSimulation();
   selectChartTab("ctabTrajectory");
   resetWorkflow();
   setAppStatus("Ready for analysis",

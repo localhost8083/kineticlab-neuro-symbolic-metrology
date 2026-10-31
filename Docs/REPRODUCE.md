@@ -31,7 +31,7 @@ Full test suite (~17-20 minutes, blocking):
 python -m unittest
 ```
 
-Expected: `820 tests, OK`, exit 0. One environment-dependent live-bind skip
+Expected: `829 tests, OK`, exit 0. One environment-dependent live-bind skip
 is possible on some machines.
 
 Byte pins are same-platform determinism: on a different OS C library
