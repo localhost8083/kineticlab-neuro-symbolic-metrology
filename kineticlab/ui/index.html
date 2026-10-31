@@ -66,11 +66,12 @@ input:disabled,select:disabled,textarea:disabled{opacity:.55;cursor:not-allowed}
 .icon-btn:hover{background:var(--surface-2)}
 /* ---- shell + rails (KL-10.14 3-column instrument dashboard:
    left rail 310px, dominant center, persistent 320px sim column) ---- */
-.shell{display:grid;grid-template-columns:310px minmax(0,1fr) 320px;gap:var(--space-4);padding:var(--space-4);max-width:1920px;width:100%;margin:0 auto;min-height:0;align-items:start}
+.shell{display:grid;grid-template-columns:minmax(300px,.9fr) minmax(0,2.1fr) minmax(320px,1fr);gap:var(--space-4);padding:var(--space-4);max-width:1920px;width:100%;margin:0 auto;min-height:0;align-items:start}
 .sidebar{border:0;background:transparent;padding:0;display:flex;flex-direction:column;gap:var(--space-4);min-width:0;transition:background .22s}
 .rail-util{display:flex;flex-direction:column;gap:var(--space-2)}
 .rail-navrow{display:flex;gap:var(--space-2)}
-.nav-btn{display:flex;align-items:center;gap:8px;flex:1;border:1px solid var(--border);background:var(--surface);color:var(--muted);padding:8px 10px;border-radius:var(--radius-sm);text-align:left;font-size:12px;font-weight:600;transition:background .18s,color .18s;justify-content:center}
+.nav-btn{display:flex;align-items:center;gap:7px;flex:1;border:1px solid var(--border);background:var(--surface);color:var(--muted);padding:6px 8px;border-radius:var(--radius-sm);text-align:left;font-size:11px;font-weight:600;transition:background .18s,color .18s;justify-content:center;min-width:0}
+.nav-btn .nav-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .nav-btn:hover{background:var(--surface-2);color:var(--text)}
 .nav-btn.active{background:linear-gradient(110deg,var(--blue),var(--blue-2));color:#fff;border-color:transparent}
 .nav-icon{width:17px;text-align:center;font-size:15px;flex:none}
@@ -82,10 +83,10 @@ details.rail-fold .stepper{margin:0 8px 8px}
 .trust-card p{font-size:11px;color:var(--muted);margin:0}
 .demo-card{border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;background:var(--surface)}
 .demo-card h2{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:0 0 8px}
-.chainpanel{padding:8px 0;border-top:1px solid var(--border)}
+.chainpanel{padding:6px 0;border-top:1px solid var(--border)}
 .chainpanel:first-of-type{border-top:0}
-.chainpanel h3{font-size:12px;margin:0 0 2px}
-.chainpanel p{font-size:12px;color:var(--muted);margin:0 0 8px}
+.chainpanel h3{font-size:11px;margin:0 0 1px}
+.chainpanel p{font-size:11px;color:var(--muted);margin:0 0 6px}
 details.demo-card summary{cursor:pointer;font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:750;list-style-position:inside;padding:2px 0}
 details.demo-card summary::-webkit-details-marker{color:var(--muted)}
 /* ---- main + stepper ---- */
@@ -118,7 +119,9 @@ details.rail-fold .step:not(:last-child):after{display:none}
 .workspace{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr) minmax(300px,1fr);gap:var(--space-4);align-items:start}
 .panel{background:linear-gradient(155deg,var(--surface-2),var(--surface));border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow);min-width:0;overflow:hidden;transition:background .22s,border-color .22s,box-shadow .22s}
 .panel-head{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--border);flex-wrap:wrap}
-.panel-title{font-weight:750;font-size:13px;letter-spacing:-.15px}
+.panel-title{font-weight:760;font-size:16px;letter-spacing:-.025em;color:var(--cyan);display:flex;align-items:center;gap:12px;min-width:0;overflow-wrap:anywhere}
+.panel-title::before{content:"";width:12px;height:12px;flex:none;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px color-mix(in srgb,var(--cyan) 25%,transparent)}
+.panel[aria-label="Video analysis"] .panel-title{color:var(--text)}
 .subtle{color:var(--muted);font-size:12px}
 .sub{color:var(--muted);font-size:12px;line-height:1.55}
 .tag{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border-radius:8px;background:var(--surface-2);color:var(--muted);font-size:11px;font-weight:650;white-space:nowrap}
@@ -220,8 +223,8 @@ details.uploadwrap summary{font-size:12px;font-weight:700;cursor:pointer}
 .metric{display:flex;flex-direction:column;gap:var(--space-1);border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface-2);padding:var(--space-3);min-width:0}
 .metric:last-child{border-bottom:1px solid var(--border)}
 .interval-line{margin:var(--space-3) var(--space-4) 0;font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.5}
-.metric-name{font-size:11px;font-weight:600;color:var(--muted)}
-.metric-value{font-family:var(--mono);font-weight:750;font-size:19px;letter-spacing:-.02em;overflow-wrap:anywhere;min-width:0}
+.metric-name{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.metric-value{font-family:var(--mono);font-weight:760;font-size:22px;line-height:1.35;letter-spacing:-.05em;color:var(--green);overflow-wrap:anywhere;min-width:0}
 .metric-value small{font-size:11px;color:var(--muted);font-weight:500}
 .metric-value.na{color:var(--muted);font-weight:500;font-size:12px}
 .metric-why{font-size:11px;color:var(--muted);line-height:1.5}
@@ -250,12 +253,14 @@ details.uploadwrap summary{font-size:12px;font-weight:700;cursor:pointer}
 .stepper-list li.failed{border-top-color:var(--red)}
 .stepper-list li.failed::before{border-color:var(--red);background:var(--red)}
 .tabs{display:flex;gap:5px;padding:10px 15px 8px;overflow:auto;border-bottom:1px solid var(--border)}
-.tab{border:0;background:transparent;color:var(--muted);font-size:12px;font-weight:700;padding:7px 12px;border-radius:8px;white-space:nowrap}
-.tab:hover{background:var(--surface-2);color:var(--text)}
-.tab[aria-selected="true"]{background:color-mix(in srgb,var(--blue) 10%,var(--surface));color:var(--blue);box-shadow:inset 0 -2px var(--blue)}
+.tab{position:relative;border:0;background:transparent;color:var(--muted);font-size:13px;font-weight:700;padding:9px 12px;border-radius:8px 8px 0 0;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:9px}
+.tab svg{width:18px;height:18px;flex:none}
+.tab:hover{background:color-mix(in srgb,var(--cyan) 6%,transparent);color:var(--text)}
+.tab[aria-selected="true"]{background:transparent;color:var(--cyan);font-weight:750}
+.tab[aria-selected="true"]::after{content:"";position:absolute;left:9%;right:9%;bottom:0;height:3px;border-radius:4px 4px 0 0;background:var(--cyan);box-shadow:0 0 12px color-mix(in srgb,var(--cyan) 30%,transparent)}
 [role="tabpanel"]{animation:fadein 180ms ease}
 @keyframes fadein{from{opacity:.25}to{opacity:1}}
-.chart-tabs{display:flex;gap:5px;padding:11px 0 9px;overflow:auto}
+.chart-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;padding:0;overflow:visible;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--cyan) 3%,transparent)}
 .chart-wrap{background:var(--surface-2);border:1px solid var(--border);border-radius:11px;padding:12px;min-width:0}
 .chart-wrap svg.plot{width:100%;height:auto;display:block}
 /* Bounded visualization heights: the SVGs keep their aspect ratio
@@ -275,7 +280,8 @@ details.uploadwrap summary{font-size:12px;font-weight:700;cursor:pointer}
    diagnostics disclosure. All values arrive from run payloads. */
 .sci-card{margin:0 0 12px}
 .sci-head{display:flex;align-items:center;gap:12px;padding:2px 2px 8px}
-.sci-head h3{margin:0;font-size:15px}
+.sci-head h3{margin:0;font-size:16px;font-weight:760;letter-spacing:-.025em;color:var(--cyan);text-transform:uppercase;display:flex;align-items:center;gap:12px}
+.sci-head h3::before{content:"";width:12px;height:12px;flex:none;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px color-mix(in srgb,var(--cyan) 25%,transparent)}
 .state-chip{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:2px 10px;white-space:nowrap}
 .state-chip.live{color:var(--text);border-color:color-mix(in srgb,var(--blue) 45%,var(--border))}
 .t-chip{font-family:var(--mono);font-size:11px;color:var(--text);border:1px solid var(--border);border-radius:999px;padding:2px 10px}
@@ -285,10 +291,11 @@ details.uploadwrap summary{font-size:12px;font-weight:700;cursor:pointer}
 .frame-counter{font-family:var(--mono);font-size:12px;color:var(--text);white-space:nowrap}
 .trail-ctl{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--muted)}
 select.trail-window{background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:4px 8px;font-size:12px}
-.replay-ctl{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:4px 6px 8px;font-size:12px;color:var(--muted)}
+.replay-bar{border:1px solid var(--border);border-radius:9px;background:var(--surface-2);padding:5px 10px;margin-top:8px;display:flex;flex-direction:column;gap:0}
+.replay-ctl{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:2px 0;font-size:12px;color:var(--muted)}
 #sciDiagWrap{margin:6px 2px 0}
 input[type="range"].scrub{width:100%;accent-color:var(--blue);margin:6px 0 2px}
-.scrubrow{display:flex;gap:12px;align-items:center;font-size:12px;color:var(--muted);padding:8px 6px 2px;flex-wrap:wrap}
+.scrubrow{display:flex;gap:12px;align-items:center;font-size:12px;color:var(--muted);padding:2px 0;flex-wrap:wrap}
 .tabpanel-pad{padding:4px 15px 12px}
 /* KL-10.14 persistent sim column (was the KL-10.12 two-column
    tab interior): the whole playground lives in the right rail, stage
@@ -303,9 +310,11 @@ input[type="range"].scrub{width:100%;accent-color:var(--blue);margin:6px 0 2px}
 .sim-kicker{color:var(--sim-accent);font-size:10px;font-weight:800;letter-spacing:.18em;margin-bottom:8px}
 .sim-badge{display:inline-flex;border:1px solid color-mix(in srgb,var(--sim-accent) 45%,var(--border));background:color-mix(in srgb,var(--sim-accent) 12%,var(--surface));color:var(--text);border-radius:999px;padding:3px 9px;font-size:10px;font-weight:700;letter-spacing:.04em;margin:0 0 12px}
 .sim-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.sim-stat{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:9px 10px;min-width:0}
-.sim-stat-label{display:block;color:var(--muted);font-size:9px;font-weight:700;letter-spacing:.09em}
-.sim-stat-value{display:block;font-family:var(--mono);font-size:12px;margin-top:4px;overflow-wrap:anywhere}
+.sim-stat{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:10px 10px 9px;min-width:0;min-height:88px}
+.sim-stat-label{display:block;color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sim-stat-value{display:block;font-family:var(--mono);font-weight:760;font-size:20px;line-height:1.3;letter-spacing:-.04em;margin-top:6px;white-space:nowrap}
+.sim-stat small{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+.sim-stat:first-child .sim-stat-value{color:#d7f978}
 .sim-stat small{display:block;color:var(--muted);font-size:9px;margin-top:2px}
 .sim-control{margin:12px 0}
 .sim-control-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:5px}
@@ -315,9 +324,15 @@ input[type="range"].scrub{width:100%;accent-color:var(--blue);margin:6px 0 2px}
 .sim-range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:var(--sim-accent);border:2px solid var(--surface);box-shadow:0 0 0 1px var(--border)}
 .sim-range::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--sim-accent);border:2px solid var(--surface)}
 .sim-range::-moz-range-track{height:6px;border-radius:999px;background:var(--surface-3)}
-.sim-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.sim-buttons{display:grid;grid-template-columns:1.1fr .9fr;gap:11px;margin:27px 0 15px}
+#simPlayBtn{background:linear-gradient(110deg,#b6ff82,#72ed9c);border:1px solid #92ff8b;color:#082319;font-size:15px;font-weight:760;min-height:50px;border-radius:9px}
+#simPlayBtn:hover:not(:disabled){background:linear-gradient(110deg,#c4ff97,#82f4a8);filter:brightness(1.05)}
+#simResetBtn{background:transparent;border:1px solid var(--green);color:var(--green);font-size:15px;font-weight:760;min-height:50px;border-radius:9px}
+#simResetBtn:hover:not(:disabled){background:color-mix(in srgb,var(--green) 10%,transparent)}
 #simPlayBtn{background:var(--sim-accent);border-color:transparent;color:#fff}
-#simPlayBtn:hover:not(:disabled){background:var(--blue)}
+#simPlayBtn:disabled{opacity:.45}
+html[data-theme="light"] .sim-stat:first-child .sim-stat-value{color:#15803d}
+html[data-theme="light"] #simPlayBtn{background:linear-gradient(110deg,#86efac,#4ade80);border-color:#22c55e;color:#052e16}
 #simResetBtn{background:color-mix(in srgb,var(--sim-mint) 13%,var(--surface));border-color:color-mix(in srgb,var(--sim-mint) 40%,var(--border));color:var(--text)}
 .sim-select{width:100%}
 .sim-formula{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:10px;color:var(--text);font-family:var(--mono);font-size:12px;overflow-wrap:anywhere;margin-top:14px}
@@ -349,7 +364,7 @@ h3.sub:first-child{margin-top:0}
 .empty{text-align:center;padding:28px 20px;color:var(--muted)}
 .empty strong{display:block;color:var(--text);font-size:16px;margin-bottom:6px}
 /* ---- footer / toast / modal / skeleton ---- */
-.footer{display:flex;align-items:center;justify-content:space-between;padding:0 22px;border-top:1px solid var(--border);background:var(--surface);font-size:12px;color:var(--muted)}
+.footer{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 var(--space-4) var(--space-4);padding:12px 18px;border:1px solid var(--border);border-radius:11px;background:var(--surface);font-size:12px;color:var(--muted)}
 .footer strong{color:var(--text)}
 .toast-wrap{position:fixed;top:78px;right:var(--space-5);z-index:50;display:flex;flex-direction:column;gap:var(--space-2);max-width:340px;width:calc(100vw - var(--space-6))}
 .toast{padding:var(--space-3) var(--space-4);border:1px solid var(--border);border-left:3px solid var(--border);border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow);opacity:0;transform:translateY(-4px);transition:opacity .18s,transform .18s}
@@ -412,10 +427,10 @@ details.acc summary,details.uploadwrap summary{transition:color .16s}
 details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
 /* Deliberate upload state: the viewer is a drop panel until a clip stages. */
 #playerWrap{position:absolute;inset:0}
-.upload-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:24px;color:#c8d4e4}
+.upload-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:16px;color:#c8d4e4;max-width:100%;overflow-wrap:anywhere}
 .upload-empty .drop-icon{width:52px;height:52px;border-radius:16px;border:2px dashed #4d5f7c;display:grid;place-items:center;font-size:24px;color:#8fa2c0}
 .video-stage.dragover .drop-icon{border-color:var(--blue);color:#fff}
-.upload-empty strong{color:#fff;font-size:15px}
+.upload-empty strong{color:#fff;font-size:15px;max-width:100%;overflow-wrap:anywhere}
 .upload-empty .format-list{list-style:none;margin:2px 0 0;padding:0;font-size:12px;color:#8fa2c0;line-height:1.7}
 .upload-empty .btnrow{justify-content:center}
 .upload-empty .empty-error{color:#fda4b5;font-size:12px;max-width:44ch}
@@ -435,9 +450,11 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
 .idle-compact .btn{margin-left:auto;flex:none}
 #statusArc{transition:stroke .22s,stroke-dashoffset .3s}
 /* ---- responsive ---- */
-@media(min-width:1500px){.shell{grid-template-columns:320px minmax(0,1fr) 340px}}
-@media(max-width:1250px){.shell{grid-template-columns:300px minmax(0,1fr)}.simcol{grid-column:1/-1}.brand-sub{display:none}.result-list{grid-template-columns:1fr 1fr}}
-@media(max-width:760px){.app{grid-template-rows:60px minmax(0,1fr) auto 34px}.topbar{height:60px;padding:0 12px;gap:10px}.brand-name{font-size:17px}.topbar .pill{display:none}.brand-kicker{font-size:9px}.shell{grid-template-columns:1fr;padding:var(--space-3)}.rail-navrow{flex-wrap:wrap}.underbar{padding:0 var(--space-3)}.underbar .pipeline-strip .pipeline{flex-wrap:wrap}.result-list{grid-template-columns:1fr 1fr}.footer{padding:8px 12px;flex-wrap:wrap;gap:6px}.footer .footer-host{display:none}}
+@media(min-width:1600px){.shell{grid-template-columns:minmax(300px,.82fr) minmax(0,2.05fr) minmax(340px,1.05fr)}}
+@media(max-width:1250px){.shell{grid-template-columns:minmax(300px,.9fr) minmax(0,1.8fr)}.simcol{grid-column:1/-1}.brand-sub{display:none}.result-list{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){.topbar{padding:0 16px}.brand-kicker{font-size:10px}.brand-tagline{font-size:11px}}
+@media(max-width:760px){.app{grid-template-rows:60px minmax(0,1fr) auto auto}.topbar{height:60px;padding:0 12px;gap:10px}.brand-name{font-size:17px}.topbar .pill{display:none}.brand-kicker{font-size:9px}.shell{grid-template-columns:1fr;padding:var(--space-3)}.rail-navrow{flex-wrap:wrap}.underbar{padding:0 var(--space-3)}.underbar .pipeline-strip .pipeline{flex-wrap:wrap}.result-list{grid-template-columns:1fr 1fr}.footer{padding:8px 12px;flex-wrap:wrap;gap:6px;margin:0 var(--space-3) var(--space-3)}.footer .footer-host{display:none}}
+@media(max-width:560px){.chart-tabs .tab{flex-direction:column;gap:3px;font-size:10px;padding:8px 4px}.tab svg{width:16px;height:16px}.sim-stats{gap:6px}.sim-stat-value{font-size:16px}.metric-value{font-size:18px}.footer{font-size:10px}.verdict-badge{font-size:10px;padding:4px 9px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}.spinner{animation:none;border-top-color:var(--border)}[role="tabpanel"]{animation:none}}
 </style>
 </head>
@@ -652,11 +669,11 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
         <h3>Scientific Analysis</h3>
         <span class="state-chip" id="sciState">No measurement loaded</span>
       </div>
-      <div class="chart-tabs tabs" role="tablist" aria-label="Chart views" style="border-bottom:0;padding:4px 0 9px">
-        <button class="tab" role="tab" id="ctabTrajectory" aria-controls="viewTrajectory" aria-selected="true">Trajectory</button>
-        <button class="tab" role="tab" id="ctabResiduals" aria-controls="viewResiduals" aria-selected="false" tabindex="-1">Residuals</button>
-        <button class="tab" role="tab" id="ctabTrail" aria-controls="viewTrail" aria-selected="false" tabindex="-1">Motion Trail</button>
-        <button class="tab" role="tab" id="ctabReplay" aria-controls="viewReplay" aria-selected="false" tabindex="-1">Replay</button>
+      <div class="chart-tabs tabs" role="tablist" aria-label="Chart views">
+        <button class="tab" role="tab" id="ctabTrajectory" aria-controls="viewTrajectory" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="m5 17 4-5 3 3 3-5 4 7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Trajectory</button>
+        <button class="tab" role="tab" id="ctabTrail" aria-controls="viewTrail" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 5c-2 1-3 3-3 5m16 0c0-2-1-4-3-5M4 14c0 3 2 5 5 5m11-5c0 3-2 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>Trail</button>
+        <button class="tab" role="tab" id="ctabResiduals" aria-controls="viewResiduals" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5v14M20 5v14M4 12h16M8 8v8m4-11v14m4-9v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>Residuals</button>
+        <button class="tab" role="tab" id="ctabReplay" aria-controls="viewReplay" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8L7 4Z"/></svg>Replay</button>
       </div>
       <div role="tabpanel" id="viewTrajectory" aria-labelledby="ctabTrajectory">
         <div class="chart-empty" id="chartEmpty"><span class="empty-icon" aria-hidden="true">◷</span><strong>No trajectory yet</strong><p>Observed angles plot here after a demo or measurement. Nothing is drawn from guesses.</p></div>
@@ -699,6 +716,7 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
         <div class="chart-wrap hidden" id="replayWrap">
           <svg id="replaySvg" class="plot" viewBox="0 0 720 340" role="img" aria-label="Measured pendulum arm replay"></svg>
         </div>
+        <div class="replay-bar">
         <div class="replay-ctl">
           <button id="replayBtn" type="button" class="btn small" disabled>Play</button>
           <label class="sub" for="replaySpeed" title="Speed multiplies source-PTS deltas only — frames are never synthesized">speed</label>
@@ -716,6 +734,7 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
           <input type="range" class="scrub" id="scrub" min="0" max="0" value="0" step="1" aria-label="Scrub the time playhead">
           <span id="playheadReadout" class="mono"></span>
           <span id="replayReadout" class="mono"></span>
+        </div>
         </div>
         <p class="sub" id="replayCaption"></p>
       </div>
@@ -803,19 +822,13 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
     <button class="tab hidden" role="tab" id="ctabSimulation" aria-controls="viewSimulation" aria-selected="false" tabindex="-1" hidden>Simulation</button>
     <div role="tabpanel" id="viewSimulation" aria-labelledby="ctabSimulation">
       <div class="sim-layout">
-        <div class="sim-stage-col">
-          <p class="sub sim-intro">Simulation playground: a damped-pendulum model integrated live. Dragging g/L_eff away from the seeded value shows the model visibly diverging from the measured trail.</p>
-          <div class="chart-wrap sim-stage" id="simWrap">
-            <svg id="simSvg" class="plot" viewBox="0 0 720 340" role="img" aria-label="Simulation stage: model arm over measured trail"></svg>
-          </div>
-        </div>
         <aside class="sim-panel" aria-label="Simulation controls">
           <div class="sim-kicker">SIMULATION PLAYGROUND</div>
           <p class="sim-badge" id="simLabel"></p>
           <div class="sim-stats">
-            <div class="sim-stat"><span class="sim-stat-label">SIMULATED θ</span><strong class="sim-stat-value" id="simThetaReadout"></strong><small>model only</small></div>
-            <div class="sim-stat"><span class="sim-stat-label">SIMULATED T</span><strong class="sim-stat-value" id="simClockReadout"></strong><small>simulated clock</small></div>
-            <div class="sim-stat"><span class="sim-stat-label">SEED G/L_EFF</span><strong class="sim-stat-value" id="simSeedTile">—</strong><small>1/s² · measured seed</small></div>
+            <div class="sim-stat"><span class="sim-stat-label">Simulated θ</span><strong class="sim-stat-value" id="simThetaReadout">—</strong><small>model only</small></div>
+            <div class="sim-stat"><span class="sim-stat-label">Simulated t</span><strong class="sim-stat-value" id="simClockReadout">—</strong><small>simulated clock</small></div>
+            <div class="sim-stat"><span class="sim-stat-label">Seed g/L_eff</span><strong class="sim-stat-value" id="simSeedTile">—</strong><small>1/s² · measured seed</small></div>
           </div>
           <div class="sim-control">
             <div class="sim-control-head"><label for="simG">g/L_eff (1/s²)</label><span id="simGVal" class="sim-out mono"></span></div>
@@ -849,6 +862,12 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
           <p class="sub sim-caption" id="simCaption"></p>
           <p class="sim-footer">Simulated clock never touches the measured timebase.</p>
         </aside>
+        <div class="sim-stage-col">
+          <p class="sub sim-intro">Model arm over the measured trail. Dragging g/L_eff from the seed shows the divergence.</p>
+          <div class="chart-wrap sim-stage" id="simWrap">
+            <svg id="simSvg" class="plot" viewBox="0 0 720 340" role="img" aria-label="Simulation stage: model arm over measured trail"></svg>
+          </div>
+        </div>
       </div>
     </div>
   </aside>
@@ -1393,7 +1412,7 @@ const TAB_IDS = ["tabTrajectory", "tabEvidence", "tabProvenance"];
 /* KL-10.14: four measurement tabs. The simulation playground left
    the strip for its own persistent column; its content stays visible
    no matter which chart tab is active. */
-const CTAB_IDS = ["ctabTrajectory", "ctabResiduals", "ctabTrail",
+const CTAB_IDS = ["ctabTrajectory", "ctabTrail", "ctabResiduals",
   "ctabReplay"];
 function selectTabIn(ids, activeId) {
   for (const id of ids) {
@@ -2263,12 +2282,12 @@ const SVG_NS = "http://www.w3.org/2000/svg";
 function chartPalette() {
   if (document.documentElement.dataset.theme === "light") {
     return { text: "#17243A", muted: "#64748B", grid: "#e7edf6",
-      observed: "#3468F5", fitted: "#7957F5", trail: "#3468F5",
-      strip: "#10B981", frame: "#E2E8F0", flag: "#F59E0B" };
+      observed: "#0E9F6E", fitted: "#65A30D", trail: "#0E9F6E",
+      strip: "#0E7C86", frame: "#E2E8F0", flag: "#F59E0B" };
   }
   return { text: "#F1F5F9", muted: "#94A3B8", grid: "#26354B",
-    observed: "#4F7DFF", fitted: "#8B6BFF", trail: "#4F7DFF",
-    strip: "#34D399", frame: "#26354B", flag: "#FBBF24" };
+    observed: "#65ED88", fitted: "#B4F45D", trail: "#65ED88",
+    strip: "#33DFF0", frame: "#26354B", flag: "#FBBF24" };
 }
 
 function svgEl(tag, attrs) {
@@ -2315,6 +2334,7 @@ function clearVisuals(message) {
   /* KL-10.9-B: the sim parks its seed + underlay with the cleared
      run (after the null above, so it reads the cleared state). */
   simOnClear();
+  el("simPlayBtn").disabled = true;
   rmsNotComputed();
   /* KL-10.5 Scientific Analysis idle state: honest chip, empty
      badges, parked replay, one caption row in diagnostics. */
@@ -2389,7 +2409,7 @@ function buildTheta(svg, points, fitted, period_s) {
   };
   for (let i = 0; i <= 4; i++) {
     const value = minY + ((maxY - minY) * i) / 4;
-    grid(value, true, (value * 57.29578).toFixed(0));
+    grid(value, true, value.toFixed(2));
   }
   for (let i = 0; i <= 8; i++) {
     const value = minT + ((maxT - minT) * i) / 8;
@@ -2398,7 +2418,7 @@ function buildTheta(svg, points, fitted, period_s) {
   const yLabel = svgEl("text", { x: "16", y: String(H / 2),
     "text-anchor": "middle", fill: pal.muted, "font-size": "12",
     transform: "rotate(-90 16 " + H / 2 + ")" });
-  yLabel.textContent = "Angle (°)";
+  yLabel.textContent = "Angle (rad)";
   svg.appendChild(yLabel);
   const xLabel = svgEl("text", { x: String((W + padL) / 2), y: String(H - 6),
     "text-anchor": "middle", fill: pal.muted, "font-size": "12" });
@@ -2409,8 +2429,8 @@ function buildTheta(svg, points, fitted, period_s) {
       x2: String(X(minT + period_s)), y2: String(padT + 6),
       stroke: pal.fitted, "stroke-dasharray": "4 3", "stroke-width": "1.5" });
     svg.appendChild(bracket);
-    const bracketLabel = svgEl("text", { x: String(X(minT + period_s / 2)),
-      y: String(padT + 2), "text-anchor": "middle", fill: pal.fitted,
+    const bracketLabel = svgEl("text", { x: String(X(minT) + 6),
+      y: String(padT + 20), "text-anchor": "start", fill: pal.fitted,
       "font-size": "10" });
     bracketLabel.textContent = "T = " + period_s.toPrecision(4) + " s (pipeline)";
     svg.appendChild(bracketLabel);
@@ -3007,7 +3027,7 @@ function seedSimulationFromRun(g, gammaOrNull) {
       " (diagnostic cross-check, not measured)"
     : "Seed: none — toy defaults (not measured)";
   el("simSeedTile").textContent = simSeed.seeded
-    ? String(simSeed.g) : "—";
+    ? simSeed.g.toPrecision(4) : "—";
   simPaintVals();
   simReset();
 }
@@ -3214,10 +3234,9 @@ function simPose(theta) {
     bob.setAttribute("cx", String(geo.X(pos[0])));
     bob.setAttribute("cy", String(geo.Y(pos[1])));
   }
-  el("simThetaReadout").textContent =
-    "simulated θ = " + theta.toPrecision(5) + " rad";
+  el("simThetaReadout").textContent = theta.toFixed(3) + " rad";
   el("simClockReadout").textContent =
-    "simulated t = " + simState.clock.toFixed(3) + " s";
+    simState.clock.toFixed(3) + " s";
 }
 
 function simTick(now) {
@@ -3351,6 +3370,11 @@ function paintSciState(text, live) {
   else chip.classList.remove("live");
 }
 
+/* KL-10.16: a seeded toy may animate; the reduced-motion
+   preference always wins and keeps Play parked. */
+function unlockSimPlay() {
+  if (!reducedMotion()) el("simPlayBtn").disabled = false;
+}
 function paintPeriodChip(period) {
   const chip = el("periodChip");
   if (period === null || period === undefined || !isFinite(period)) {
@@ -3432,6 +3456,7 @@ async function paintChart(files, result, report, modeLabel) {
     diagnostics.doc && diagnostics.doc.m2 && diagnostics.doc.m2.fitted
       ? diagnostics.doc.m2.fitted.gamma_per_s : null);
   refreshSimUnderlay();
+  unlockSimPlay();
   const scrubber = el("scrub");
   scrubber.max = String(order.length - 1);
   scrubber.value = String(order.length - 1);
@@ -4248,6 +4273,7 @@ async function paintMotionChart(files, report, modeLabel) {
   /* KL-10.9-B: motion runs seed g/L only (no M2 gamma exists). */
   seedSimulationFromRun(report ? report.g_over_l_per_s2 : null, null);
   refreshSimUnderlay();
+  unlockSimPlay();
   const scrubber = el("scrub");
   scrubber.max = String(order.length - 1);
   scrubber.value = String(order.length - 1);
@@ -4626,6 +4652,9 @@ document.addEventListener("DOMContentLoaded", () => {
   wireTabs(TAB_IDS);
   wireTabs(CTAB_IDS);
   wireSimulation();
+  /* KL-10.16: the toy stays parked until a run seeds it from
+     measured data — no animation on defaults, ever. */
+  el("simPlayBtn").disabled = true;
   selectChartTab("ctabTrajectory");
   resetWorkflow();
   setAppStatus("Ready for analysis",

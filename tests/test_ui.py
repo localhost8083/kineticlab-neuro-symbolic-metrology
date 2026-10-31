@@ -779,7 +779,7 @@ class WorkstationRegionTests(unittest.TestCase):
             "gravity caveat must remain visible near the cards")
 
     def test_chart_tabs(self):
-        for tab in ("Trajectory", "Residuals", "Motion Trail", "Replay"):
+        for tab in ("Trajectory", "Trail", "Residuals", "Replay"):
             with self.subTest(tab=tab):
                 self.assertIn(tab, self.page)
         # Tabs must be wired via data-tab or role=tab.
@@ -824,13 +824,13 @@ class RefinementTests(unittest.TestCase):
             cls.style = ""
 
     def test_sidebar_width_in_range(self):
-        # KL-10.14: the sidebar is the left rail at 300–320px, and the
-        # shell carries three tracks (rail, center, persistent sim).
+        # KL-10.16: fractional 3-track shell (rail min 300px,
+        # dominant center, sim rail min 320px).
         self.assertRegex(
             self.style,
-            r"\.shell\{[^}]*grid-template-columns:3[012]\dpx",
+            r"\.shell\{[^}]*grid-template-columns:minmax\(300px",
             "left rail width must be 300–329px")
-        self.assertIn("minmax(0,1fr) 320px", self.style)
+        self.assertIn("minmax(0,2.1fr) minmax(320px,1fr)", self.style)
 
     def test_advanced_diagnostics_collapsed(self):
         # Collapsed by default (no open attribute) and owning the
@@ -3090,10 +3090,8 @@ class SimulationTests(unittest.TestCase):
         shown = re.findall(r"[-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?",
                            out["mid"]["clock"])
         self.assertAlmostEqual(float(shown[0]), 5.0, places=2)
-        self.assertTrue(out["mid"]["clock"].startswith(
-            "simulated t = "))
-        self.assertTrue(out["mid"]["theta"].startswith(
-            "simulated \u03b8 = "))
+        self.assertTrue(out["mid"]["clock"].endswith(" s"))
+        self.assertTrue(out["mid"]["theta"].endswith(" rad"))
         self.assertNotEqual(out["mid"]["theta"], out["firstTheta"])
         self.assertTrue(float(out["mid"]["x"]) ==
                         float(out["mid"]["x"]))
@@ -3178,8 +3176,8 @@ class SimulationTests(unittest.TestCase):
                            out["midClock"])
         self.assertAlmostEqual(float(shown[0]), 5.0, places=2)
         self.assertGreater(out["simKids"], 200)
-        self.assertEqual(out["theta"], "simulated \u03b8 = 0.50000 rad")
-        self.assertEqual(out["clock"], "simulated t = 0.000 s")
+        self.assertEqual(out["theta"], "0.500 rad")
+        self.assertEqual(out["clock"], "0.000 s")
         # ... while every result-owned byte stayed identical.
         self.assertEqual(out["before"], out["after"])
 
@@ -3213,8 +3211,8 @@ class SimulationTests(unittest.TestCase):
         self.assertEqual(out["dots"], 0)
         self.assertTrue(float(out["x2"]) == float(out["x2"]))
         self.assertTrue(float(out["cx"]) == float(out["cx"]))
-        self.assertEqual(out["theta"], "simulated \u03b8 = 0.30000 rad")
-        self.assertEqual(out["clock"], "simulated t = 0.000 s")
+        self.assertEqual(out["theta"], "0.300 rad")
+        self.assertEqual(out["clock"], "0.000 s")
 
     def test_reduced_motion_parks_with_live_sliders(self):
         post = (
@@ -3240,8 +3238,8 @@ class SimulationTests(unittest.TestCase):
         self.assertTrue(out["disabled"])
         self.assertEqual(out["btnBefore"], out["btnAfter"])
         self.assertIn("reduced-motion", out["caption"])
-        self.assertEqual(out["theta"], "simulated \u03b8 = 0.50000 rad")
-        self.assertEqual(out["clock"], "simulated t = 0.000 s")
+        self.assertEqual(out["theta"], "0.500 rad")
+        self.assertEqual(out["clock"], "0.000 s")
 
     def test_rejection_note_keeps_sim_usable(self):
         check = (
@@ -3272,7 +3270,7 @@ class SimulationTests(unittest.TestCase):
         self.assertEqual(out["label"], self.LABEL)
         self.assertEqual(out["dots"], 0)
         self.assertEqual(out["g"], "20")
-        self.assertEqual(out["theta"], "simulated \u03b8 = 0.30000 rad")
+        self.assertEqual(out["theta"], "0.300 rad")
 
     def test_rejection_reason_shown(self):
         check = (
@@ -3899,6 +3897,129 @@ class Gravity1015Tests(unittest.TestCase):
         self.assertIn("overflow-wrap:anywhere", value.group(0))
         self.assertNotIn("white-space:nowrap", value.group(0))
 
+
+@unittest.skipUnless(shutil.which("node"),
+                     "node is required for page-execution proofs")
+class Fidelity1016Tests(unittest.TestCase):
+    """KL-10.16: approved-mock fidelity — radians axis, bracket
+    placement, template palette, compact seed tile, sim Play
+    gating, and the retitled/reordered tab strip."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.page = (UI_DIR / "index.html").read_text(encoding="utf-8")
+        script = cls.page.split("<script>", 1)[1].split("</script>", 1)[0]
+        assert "__KL_LIVE_AVAILABLE__" in script
+        cls.script = script.replace("__KL_LIVE_AVAILABLE__", "true")
+
+    def test_radians_axis_labels(self):
+        check = (
+            "try {\n"
+            "  const svg = document.getElementById(\"chartSvg\");\n"
+            "  buildTheta(svg, [[0, 0.3], [1, -0.3], [2, 0.1]],\n"
+            "    [[0, 0.29], [1, -0.29], [2, 0.09]], 1.0);\n"
+            "  const texts = svg.children\n"
+            "    .filter((k) => k.tag === \"text\")\n"
+            "    .map((k) => k.textContent);\n"
+            "  const ticks = texts.filter((t) =>\n"
+            "    /^-?[0-9]+\\.[0-9]{2}$/.test(t));\n"
+            "  __emit({ texts, ticks: ticks.length });\n"
+            "} catch (e) {\n"
+            "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
+            "  process.exit(1);\n"
+            "}\n")
+        out = run_page_driver(self.script, check, {})
+        self.assertIn("Angle (rad)", out["texts"])
+        self.assertNotIn("Angle (°)", out["texts"])
+        self.assertGreaterEqual(out["ticks"], 3)
+
+    def test_bracket_label_below_line(self):
+        check = (
+            "try {\n"
+            "  const svg = document.getElementById(\"chartSvg\");\n"
+            "  buildTheta(svg, [[0, 0.3], [1, -0.3], [2, 0.1]],\n"
+            "    [[0, 0.29], [1, -0.29], [2, 0.09]], 1.0);\n"
+            "  const label = svg.children.find((k) => k.tag === \"text\"\n"
+            "    && k.textContent.indexOf(\"T = \") === 0);\n"
+            "  __emit({ text: label.textContent,\n"
+            "    anchor: label.attrs[\"text-anchor\"],\n"
+            "    y: Number(label.attrs.y) });\n"
+            "} catch (e) {\n"
+            "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
+            "  process.exit(1);\n"
+            "}\n")
+        out = run_page_driver(self.script, check, {})
+        self.assertTrue(out["text"].startswith("T = "))
+        self.assertEqual(out["anchor"], "start")
+        self.assertGreater(out["y"], 22)
+
+    def test_template_palette(self):
+        check = (
+            "try {\n"
+            "  const pal = chartPalette();\n"
+            "  __emit({ observed: pal.observed, fitted: pal.fitted,\n"
+            "    trail: pal.trail, strip: pal.strip });\n"
+            "} catch (e) {\n"
+            "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
+            "  process.exit(1);\n"
+            "}\n")
+        out = run_page_driver(self.script, check, {})
+        self.assertEqual(out, {"observed": "#65ED88",
+                               "fitted": "#B4F45D",
+                               "trail": "#65ED88",
+                               "strip": "#33DFF0"})
+
+    def test_seed_tile_compact(self):
+        check = (
+            "try {\n"
+            "  seedSimulationFromRun(30.00563573707589, 0.02);\n"
+            "  __emit({ tile:\n"
+            "    document.getElementById(\"simSeedTile\").textContent,\n"
+            "    line:\n"
+            "    document.getElementById(\"simSeedLine\").textContent });\n"
+            "} catch (e) {\n"
+            "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
+            "  process.exit(1);\n"
+            "}\n")
+        out = run_page_driver(self.script, check, {})
+        self.assertEqual(out["tile"], "30.01")
+        self.assertIn("30.00563573707589", out["line"])
+
+    def test_sim_play_gated_until_seeded(self):
+        self.assertEqual(self.script.count("unlockSimPlay();"), 2)
+        check = (
+            "try {\n"
+            "  const btn = document.getElementById(\"simPlayBtn\");\n"
+            "  btn.disabled = false;\n"
+            "  clearVisuals();\n"
+            "  const parked = btn.disabled;\n"
+            "  unlockSimPlay();\n"
+            "  const reduced = btn.disabled;\n"
+            "  const realMM = window.matchMedia;\n"
+            "  window.matchMedia = () => ({ matches: false,\n"
+            "    addEventListener() {} });\n"
+            "  unlockSimPlay();\n"
+            "  const open = btn.disabled;\n"
+            "  window.matchMedia = realMM;\n"
+            "  __emit({ parked, reduced, open });\n"
+            "} catch (e) {\n"
+            "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
+            "  process.exit(1);\n"
+            "}\n")
+        out = run_page_driver(self.script, check, {})
+        self.assertTrue(out["parked"])
+        self.assertTrue(out["reduced"])
+        self.assertFalse(out["open"])
+
+    def test_tab_strip_order_and_icons(self):
+        strip = self.page.split('id="sciCard"', 1)[1].split(
+            'id="viewTrajectory"', 1)[0]
+        order = ["ctabTrajectory", "ctabTrail", "ctabResiduals",
+                 "ctabReplay"]
+        idx = [strip.index(ident) for ident in order]
+        self.assertEqual(idx, sorted(idx))
+        self.assertEqual(strip.count("<svg"), 4)
+        self.assertNotIn("Motion Trail", self.page)
 
 if __name__ == "__main__":
     unittest.main()

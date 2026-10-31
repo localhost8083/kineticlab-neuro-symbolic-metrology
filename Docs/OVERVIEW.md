@@ -30,7 +30,7 @@ Two modes: **Full** (bob + reference card) and **Motion** (bob only — scale-fr
 
 - **Backend: Python standard library only** — zero third-party runtime dependencies.
 - **UI: one self-contained HTML file** (vanilla JS/CSS, no frameworks, no external references, no timers) served by a stdlib HTTP server on `127.0.0.1:8137`.
-- Verified by a 854-test suite (`python -m unittest`), including key hygiene (the model API key is env-only, never logged or stored). Automated tests are mock-transport; real-API evidence is the recorded fixture run.
+- Verified by a 860-test suite (`python -m unittest`), including key hygiene (the model API key is env-only, never logged or stored). Automated tests are mock-transport; real-API evidence is the recorded fixture run.
 - Windows-first; live-verified end-to-end on real hardware.
 
 ## Honest status
