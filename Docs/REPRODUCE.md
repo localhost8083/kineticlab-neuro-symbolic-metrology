@@ -31,7 +31,7 @@ Full test suite (~17-20 minutes, blocking):
 python -m unittest
 ```
 
-Expected: `790 tests, OK`, exit 0. One environment-dependent live-bind skip
+Expected: `793 tests, OK`, exit 0. One environment-dependent live-bind skip
 is possible on some machines.
 
 Structural media check (fast):
