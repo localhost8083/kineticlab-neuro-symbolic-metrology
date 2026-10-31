@@ -36,14 +36,14 @@ html[data-theme="light"]{
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--text);font:13px/1.5 var(--sans);letter-spacing:-.012em;transition:background .22s,color .22s}
+body{margin:0;background:var(--bg);color:var(--text);font:13px/1.5 var(--sans);letter-spacing:-.012em;transition:background .22s,color .22s;overflow-x:clip}
 button,input{font:inherit}
 button{cursor:pointer}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible,[role="tab"]:focus-visible,[role="button"]:focus-visible,summary:focus-visible{outline:3px solid var(--blue-2);outline-offset:2px;border-radius:6px}
 button:disabled{opacity:.48;cursor:not-allowed}
 input:disabled,select:disabled,textarea:disabled{opacity:.55;cursor:not-allowed}
 .btn:active:not(:disabled),.icon-btn:active:not(:disabled),.tab:active,.thumb:active:not(:disabled){filter:brightness(1.08)}
-.app{min-height:100vh;display:grid;grid-template-rows:66px minmax(0,1fr) auto auto}
+.app{min-height:100vh;display:grid;grid-template-rows:66px auto minmax(0,1fr) auto}
 /* ---- header ---- */
 .topbar{height:66px;display:flex;align-items:center;gap:12px;padding:0 24px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:10;transition:background .22s,border-color .22s}
 .brand{display:flex;align-items:center;gap:11px;min-width:0}
@@ -77,7 +77,7 @@ input:disabled,select:disabled,textarea:disabled{opacity:.55;cursor:not-allowed}
 .nav-icon{width:17px;text-align:center;font-size:15px;flex:none}
 details.rail-fold{border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface)}
 details.rail-fold summary{cursor:pointer;font-size:12px;color:var(--muted);font-weight:700;padding:8px 12px;list-style-position:inside}
-details.rail-fold .stepper{margin:0 8px 8px}
+details.rail-fold 
 .trust-card{margin-top:auto;border:1px solid var(--border);background:linear-gradient(145deg,var(--surface),var(--surface-2));border-radius:14px;padding:14px}
 .trust-card strong{display:block;font-size:12px;margin:0 0 7px}
 .trust-card p{font-size:11px;color:var(--muted);margin:0}
@@ -91,9 +91,8 @@ details.demo-card summary{cursor:pointer;font-size:12px;text-transform:uppercase
 details.demo-card summary::-webkit-details-marker{color:var(--muted)}
 /* ---- main + stepper ---- */
 .main{padding:0;min-width:0;width:100%;margin:0;display:flex;flex-direction:column;gap:var(--space-4)}
-.simcol{display:flex;flex-direction:column;gap:var(--space-4);min-width:0}
-.underbar{max-width:1920px;width:100%;margin:0 auto;padding:0 var(--space-4);display:flex;flex-direction:column;gap:var(--space-3)}
-.stepper{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));column-gap:var(--space-4);background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:var(--radius-lg);padding:var(--space-4);margin-bottom:var(--space-4)}
+.rightcol{display:flex;flex-direction:column;gap:var(--space-4);min-width:0}
+.stepper{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));column-gap:var(--space-4);background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:var(--radius-lg);padding:var(--space-4);margin-bottom:var(--space-4)}
 .step{position:relative;display:grid;grid-template-columns:30px minmax(0,1fr);gap:9px;align-items:start;min-width:0}
 .step:not(:last-child):after{content:"";position:absolute;top:14px;left:calc(100% + 3px);right:-13px;height:2px;background:var(--border)}
 .step.done:not(:last-child):after{background:var(--blue)}
@@ -107,9 +106,9 @@ details.demo-card summary::-webkit-details-marker{color:var(--muted)}
 .step.failed .step-number{background:var(--red);color:#fff;border-color:var(--red)}
 .step-title{font-size:13px;font-weight:750;margin:2px 0 3px}
 .step-desc{font-size:12px;color:var(--muted)}
-details.rail-fold .stepper{display:flex;flex-direction:column;gap:var(--space-2);padding:var(--space-3)}
+details.rail-fold 
 details.rail-fold .step:not(:last-child):after{display:none}
-.pipeline-strip{background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);margin-bottom:var(--space-4)}
+.pipeline-strip{background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);max-width:1920px;width:100%;margin:0 auto var(--space-4)}
 .pipeline-strip .explainer{font-size:13px;font-weight:600;margin:0 0 6px}
 .pipeline{display:flex;flex-wrap:wrap;border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .pstage{flex:1 1 0;min-width:200px;padding:8px 14px;font-size:12px;font-weight:600}
@@ -147,7 +146,7 @@ button.copybtn{font-size:12px;font-weight:600;padding:2px 9px;margin-left:8px;bo
 @keyframes spin{to{transform:rotate(360deg)}}
 /* ---- viewer ---- */
 .viewer-wrap{padding:var(--space-3)}
-.video-stage{position:relative;aspect-ratio:16/9;min-height:240px;background:#05080e;border-radius:10px;overflow:hidden;display:grid;place-items:center;color:#fff;border:1px dashed transparent}
+.video-stage{position:relative;width:100%;aspect-ratio:16/9;min-height:240px;background:#05080e;border-radius:10px;overflow:hidden;display:grid;place-items:center;color:#fff;border:1px dashed transparent}
 /* KL-8.11 G8 feedback: the viewer column stretches to the row height instead of leaving dead space under shorter columns; the video stage absorbs it. */
 .workspace>.panel:first-child{align-self:stretch;display:flex;flex-direction:column}
 .workspace>.panel:first-child .viewer-wrap{flex:1;display:flex;flex-direction:column;min-height:0}
@@ -177,10 +176,13 @@ details.uploadwrap{border:0;margin:10px 0 0;background:transparent}
 details.uploadwrap summary{font-size:12px;font-weight:700;cursor:pointer}
 /* ---- live flow blocks ---- */
 .liveblock{padding:var(--space-3) var(--space-4);border-top:1px solid var(--border)}
-#livePanel,#noKeyPanel{border:0;border-top:1px solid var(--border);border-radius:0;box-shadow:none;background:transparent}
+#livePanel,#liveResultsPanel,#noKeyPanel{border:0;border-top:1px solid var(--border);border-radius:0;box-shadow:none;background:transparent}
 .liveblock:first-child{border-top:0}
 .liveblock h3{font-size:12px;margin:0 0 8px;font-weight:750}
 .moderow{display:flex;flex-direction:column;gap:8px;margin:0 0 10px}
+.detect-row .btn{flex:1}
+.btn.primary:hover:not(:disabled){background:linear-gradient(105deg,var(--blue-2),var(--blue));filter:brightness(1.07)}
+.detect-row{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid var(--border)}
 .moderow label{display:flex;gap:8px;align-items:center;cursor:pointer;border:1px solid var(--border);border-radius:9px;padding:8px 10px;font-size:12px;font-weight:700;flex:1;justify-content:center}
 .moderow input[type="radio"]{accent-color:var(--blue)}
 .moderow label:has(input:checked){background:var(--blue);border-color:var(--blue);color:#fff}
@@ -279,7 +281,7 @@ details.uploadwrap summary{font-size:12px;font-weight:700;cursor:pointer}
    honest state chip, per-tab captions, replay controls, and a
    diagnostics disclosure. All values arrive from run payloads. */
 .sci-card{margin:0 0 12px}
-.sci-head{display:flex;align-items:center;gap:12px;padding:2px 2px 8px}
+.sci-head{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:2px 2px 8px}
 .sci-head h3{margin:0;font-size:16px;font-weight:760;letter-spacing:-.025em;color:var(--cyan);text-transform:uppercase;display:flex;align-items:center;gap:12px}
 .sci-head h3::before{content:"";width:12px;height:12px;flex:none;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px color-mix(in srgb,var(--cyan) 25%,transparent)}
 .state-chip{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:2px 10px;white-space:nowrap}
@@ -302,7 +304,7 @@ input[type="range"].scrub{width:100%;accent-color:var(--blue);margin:6px 0 2px}
    stacked over controls. Sim-scoped only; colors resolve from the
    page theme tokens, accents alias blue-2 and green. */
 #viewSimulation{--sim-accent:var(--blue-2);--sim-mint:var(--green)}
-.sim-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-4);align-items:start}
+.sim-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:var(--space-4);align-items:start}
 .sim-stage-col{min-width:0}
 .sim-intro{margin:0 0 10px}
 .sim-stage{background:linear-gradient(145deg,var(--surface-2),var(--surface));border-radius:14px}
@@ -439,10 +441,9 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
 .chart-empty .empty-icon{font-size:22px;display:block;margin-bottom:6px;color:var(--muted)}
 .chart-empty strong{display:block;color:var(--text);font-size:14px;margin-bottom:4px}
 .chart-empty p{font-size:12px;margin:0 auto;max-width:52ch}
-.idle-compact{display:flex;align-items:center;gap:12px;padding:14px 18px;color:var(--muted);font-size:13px}
-.underbar .pipeline-strip,.underbar .opsbar{margin-bottom:0}
-.underbar .pipeline-strip .explainer{font-size:12px}
-.underbar .pipeline-strip .pipeline{flex-wrap:wrap}
+.idle-compact{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:14px 18px;color:var(--muted);font-size:13px}
+.pipeline-strip .explainer{font-size:12px}
+.pipeline-strip .pipeline{flex-wrap:wrap}
 .footer-honest{display:inline-flex;align-items:center;gap:8px}
 .footer-honest svg{width:15px;height:15px;flex:none;color:var(--cyan)}
 .idle-compact .idle-dot{width:10px;height:10px;border-radius:50%;background:var(--muted);flex:none}
@@ -450,11 +451,11 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
 .idle-compact .btn{margin-left:auto;flex:none}
 #statusArc{transition:stroke .22s,stroke-dashoffset .3s}
 /* ---- responsive ---- */
-@media(min-width:1600px){.shell{grid-template-columns:minmax(300px,.82fr) minmax(0,2.05fr) minmax(340px,1.05fr)}}
-@media(max-width:1250px){.shell{grid-template-columns:minmax(300px,.9fr) minmax(0,1.8fr)}.simcol{grid-column:1/-1}.brand-sub{display:none}.result-list{grid-template-columns:1fr 1fr}}
+@media(min-width:1600px){.shell{grid-template-columns:minmax(300px,.82fr) minmax(0,2.05fr) minmax(340px,1.05fr)}} @media(max-width:640px){.step{grid-template-columns:minmax(0,1fr);gap:5px}.step-number{width:24px;height:24px;font-size:11px}}
+@media(max-width:1250px){.shell{grid-template-columns:minmax(0,.9fr) minmax(0,1.8fr)}.rightcol{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}.brand-sub{display:none}.result-list{grid-template-columns:1fr 1fr}}
 @media(max-width:1200px){.topbar .pill{display:none}.brand-kicker{display:none}.brand-tagline{display:none}}
 @media(max-width:900px){.topbar{padding:0 16px}.brand-kicker{font-size:10px}.brand-tagline{font-size:11px}}
-@media(max-width:760px){.app{grid-template-rows:60px minmax(0,1fr) auto auto}.topbar{height:60px;padding:0 12px;gap:10px}.brand-name{font-size:17px}.topbar .pill{display:none}.brand-kicker{font-size:9px}.shell{grid-template-columns:minmax(0,1fr);padding:var(--space-3)}.rail-navrow{flex-wrap:wrap}.underbar{padding:0 var(--space-3)}.underbar .pipeline-strip .pipeline{flex-wrap:wrap}.result-list{grid-template-columns:1fr 1fr}.footer{padding:8px 12px;flex-wrap:wrap;gap:6px;margin:0 var(--space-3) var(--space-3)}.footer .footer-host{display:none}.sim-layout{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:760px){.app{grid-template-rows:60px auto minmax(0,1fr) auto}.topbar{height:60px;padding:0 12px;gap:10px}.brand-name{font-size:17px}.topbar .pill{display:none}.brand-kicker{font-size:9px}.shell{grid-template-columns:minmax(0,1fr);padding:var(--space-3)}.rail-navrow{flex-wrap:wrap}.sim-layout{grid-template-columns:minmax(0,1fr)}.rightcol{display:flex;flex-direction:column}.underbar .pipeline-strip .pipeline{flex-wrap:wrap}.result-list{grid-template-columns:1fr 1fr}.footer{padding:8px 12px;flex-wrap:wrap;gap:6px;margin:0 var(--space-3) var(--space-3)}.footer .footer-host{display:none}.sim-layout{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:560px){.chart-tabs .tab{flex-direction:column;gap:3px;font-size:10px;padding:8px 4px}.tab svg{width:16px;height:16px}.sim-stats{gap:6px}.sim-stat-value{font-size:16px}.metric-value{font-size:18px}.footer{font-size:10px}.verdict-badge{font-size:10px;padding:4px 9px}.brand-name{display:none}.brand-divider{display:none}.topbar{gap:8px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}.spinner{animation:none;border-top-color:var(--border)}[role="tabpanel"]{animation:none}}
 </style>
@@ -467,17 +468,48 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
     <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M2 13h4l3-8 5 14 3-8h5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <div class="brand-name">KineticLab</div>
     <div class="brand-divider" aria-hidden="true"></div>
-    <div><div class="brand-kicker">KINETICLAB · OFFLINE PENDULUM METROLOGY</div><div class="brand-tagline">Measure. Verify. Reproduce.</div></div>
+    <div><div class="brand-kicker">KINETICLAB · PENDULUM METROLOGY</div><div class="brand-tagline">Measure. Verify. Reproduce.</div></div>
   </div>
   <div class="top-spacer"></div>
   <span class="verdict-badge is-neutral" id="verdictBadge">No run yet</span>
   <span class="pill" id="serverPill"><span class="dot" id="serverDot"></span><span id="serverPillText">Local server</span></span>
-  <span class="pill">Offline Build</span>
+  
   <span class="pill" id="versionChip">v__KL_VERSION__</span>
   <button class="icon-btn" id="themeToggle" type="button" aria-label="Toggle theme">Light mode</button>
 </header>
+<section class="pipeline-strip" aria-label="Pipeline stages">
+      <p class="explainer">Phone video in, auditable physics out. SAM 3.1 sees, deterministic math computes.</p>
+      <div class="pipeline">
+        <div class="pstage">SAM 3.1 masks<span class="tag">live capture & replay</span></div>
+        <div class="pstage">Deterministic calibration + fit<span class="tag">live capture & replay</span></div>
+        <div class="pstage">Muse Spark advisory<span class="tag">live capture & replay</span></div>
+      </div>
+    </section>
 <div class="shell">
   <aside class="sidebar" aria-label="Primary navigation">
+    <div class="rail-util">
+      <details class="demo-card" open aria-label="Demo scenarios">
+        <summary>Demo scenarios</summary>
+        <div class="chainpanel" id="panelSuccess">
+          <h3>Success chain</h3>
+          <p>Pinned masks → fit. Reports g/L.</p>
+          <button id="demoSuccessBtn" class="btn primary full" type="button">Run success chain</button>
+        </div>
+        <div class="chainpanel" id="panelReject">
+          <h3>Rejection chain</h3>
+          <p>Corrupt geometry. Fails honestly.</p>
+          <button id="demoRejectBtn" class="btn danger-ghost full" type="button">Run rejection chain</button>
+        </div>
+        <div class="btnrow" style="margin-top:10px">
+          <span id="demoSpin" class="spinner hidden" role="status" aria-label="assembling"></span>
+        </div>
+      </details>
+      <div class="rail-navrow">
+        <button class="nav-btn active" type="button" data-nav="analysis" id="navAnalysis" title="New Analysis"><span class="nav-icon" aria-hidden="true">◈</span><span class="nav-label">New Analysis</span></button>
+        <button class="nav-btn" type="button" data-nav="charts" id="navCharts" title="Charts"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-label">Charts</span></button>
+        <button class="nav-btn" type="button" data-nav="evidence" id="navEvidence" title="Evidence"><span class="nav-icon" aria-hidden="true">▤</span><span class="nav-label">Evidence</span></button>
+      </div>
+    </div>
     <section class="panel" aria-label="Video analysis">
         <div class="panel-head"><div><div class="panel-title">Video Analysis</div><div class="subtle" id="fileMeta">No clip loaded — use the upload panel below.</div></div><div class="btnrow"><button class="btn small hidden" id="browseBtn" type="button">Choose MP4</button><button class="btn small hidden" id="liveRecordBtn" type="button">Record</button></div></div>
         <div class="viewer-wrap">
@@ -517,49 +549,34 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
           <div><span class="filechip hidden" id="fileChip"></span></div>
           <div class="filmstrip" id="filmstrip" aria-label="Clip segments"><span class="subtle">Load a clip to enable the filmstrip.</span></div>
           <div class="subtle" id="liveRecordNote" style="margin-top:8px">Or record in-browser (MP4 requested); the recording waits here until you press Detect.</div>
-          <details class="uploadwrap" id="uploadDetails">
-            <summary>Structure validation (offline check)</summary>
-            <div class="btnrow" style="margin:8px 0">
-              <button id="uploadBtn" class="btn small" type="button">Validate clip</button>
-              <span id="uploadSpin" class="spinner hidden" role="status" aria-label="validating"></span>
-            </div>
-            <div id="uploadErr" class="errorbox hidden"></div>
-            <div id="uploadOut" class="hidden">
-              <h3 class="sub">Media structure (measured)</h3>
-              <table class="kv"><tbody id="mediaRows"></tbody></table>
-              <h3 class="sub">Timing health</h3>
-              <table class="kv"><tbody id="ptsRows"></tbody></table>
-              <div class="notice" id="measureNote"></div>
-              <h3 class="sub">Stored upload</h3>
-              <table class="kv"><tbody id="uploadRows"></tbody></table>
-            </div>
-          </details>
         </div>
         <section class="panel hidden" id="livePanel" aria-label="Live capture and measure">
           <div class="liveblock" aria-label="Detection setup">
             <h3>Setup &amp; Detect</h3>
-            <div class="btnrow" style="margin-bottom:10px">
-              <span class="subtle">Source clip (staged in the viewer):</span>
-              <span class="filechip hidden" id="liveFileChip"></span>
-            </div>
-            <div class="moderow" role="radiogroup" aria-label="Measurement mode">
-              <label><input type="radio" name="liveMode" id="liveModeFull" value="full" checked> Full (bob + card)</label>
-              <label><input type="radio" name="liveMode" id="liveModeMotion" value="motion"> Motion only (bob, scale-free)</label>
-            </div>
-            <details class="acc">
+            <details class="acc" open style="margin:0 0 10px">
               <summary>Prompts (defaults usually fine)</summary>
               <div class="accbody fieldgrid">
                 <label>Bob prompt <input type="text" id="livePromptBob" value="red ball" autocomplete="off" aria-describedby="livePromptBobError"><span class="field-error hidden" id="livePromptBobError" role="alert"></span></label>
                 <label id="livePromptCardWrap">Card prompt <input type="text" id="livePromptCard" value="white paper card" autocomplete="off" aria-describedby="livePromptCardError"><span class="field-error hidden" id="livePromptCardError" role="alert"></span></label>
               </div>
             </details>
-            <div class="btnrow">
+            <div class="btnrow" style="margin-bottom:10px">
+              <span class="subtle">Source clip (staged in the viewer above):</span>
+              <span class="filechip hidden" id="liveFileChip"></span>
+            </div>
+            <div class="btnrow detect-row">
               <button id="liveDetectBtn" class="btn primary" type="button">Detect</button>
               <span id="liveSpin" class="spinner hidden" role="status" aria-label="detecting"></span>
+            </div>
+            <div class="moderow" role="radiogroup" aria-label="Measurement mode">
+              <label><input type="radio" name="liveMode" id="liveModeFull" value="full" checked> Full (bob + card)</label>
+              <label><input type="radio" name="liveMode" id="liveModeMotion" value="motion"> Motion only (bob, scale-free)</label>
             </div>
             <p class="sub" id="liveDetectHint" style="margin:8px 0 0">Typical for a 237-frame clip: ~2 min vision model, then ~5 min local encoding with no progress bar — keep this tab open.</p>
             <div id="liveErr" class="errorbox hidden"></div>
           </div>
+        </section>
+        <section class="panel hidden" id="liveResultsPanel" aria-label="Detected objects and measure">
           <div class="liveblock" aria-label="Detected objects">
             <h3>Detected objects</h3>
             <div id="objectsList"><div class="object-row"><span class="object-detail">No detection yet — run Detect.</span></div></div>
@@ -592,79 +609,51 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
             </div>
           </div>
         </section>
+        <details class="uploadwrap" id="uploadDetails">
+          <summary>Structure validation</summary>
+          <div class="btnrow" style="margin:8px 0">
+            <button id="uploadBtn" class="btn small" type="button">Validate clip</button>
+            <span id="uploadSpin" class="spinner hidden" role="status" aria-label="validating"></span>
+          </div>
+          <div id="uploadErr" class="errorbox hidden"></div>
+          <div id="uploadOut" class="hidden">
+            <h3 class="sub">Media structure (measured)</h3>
+            <table class="kv"><tbody id="mediaRows"></tbody></table>
+            <h3 class="sub">Timing health</h3>
+            <table class="kv"><tbody id="ptsRows"></tbody></table>
+            <div class="notice" id="measureNote"></div>
+            <h3 class="sub">Stored upload</h3>
+            <table class="kv"><tbody id="uploadRows"></tbody></table>
+          </div>
+        </details>
         <section class="panel" id="noKeyPanel" aria-label="Live capture unavailable">
           <div class="liveblock">
             <h3>Live capture unavailable</h3>
-            <p class="sub">Live SAM detection needs MODEL_API_KEY in the server environment. Pinned demos and offline validation work without it.</p>
+            <p class="sub">Live SAM detection needs MODEL_API_KEY in the server environment. Pinned demos and structure validation work without it.</p>
           </div>
         </section>
     </section>
-    <div class="rail-util">
-      <div class="rail-navrow">
-        <button class="nav-btn active" type="button" data-nav="analysis" id="navAnalysis" title="New Analysis"><span class="nav-icon" aria-hidden="true">◈</span><span class="nav-label">New Analysis</span></button>
-        <button class="nav-btn" type="button" data-nav="charts" id="navCharts" title="Charts"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-label">Charts</span></button>
-        <button class="nav-btn" type="button" data-nav="evidence" id="navEvidence" title="Evidence"><span class="nav-icon" aria-hidden="true">▤</span><span class="nav-label">Evidence</span></button>
-      </div>
-      <details class="demo-card" open aria-label="Demo scenarios">
-        <summary>Demo scenarios</summary>
-        <div class="chainpanel" id="panelSuccess">
-          <h3>Success chain</h3>
-          <p>Pinned masks → fit. Reports g/L.</p>
-          <button id="demoSuccessBtn" class="btn primary full" type="button">Run success chain</button>
-        </div>
-        <div class="chainpanel" id="panelReject">
-          <h3>Rejection chain</h3>
-          <p>Corrupt geometry. Fails honestly.</p>
-          <button id="demoRejectBtn" class="btn danger-ghost full" type="button">Run rejection chain</button>
-        </div>
-        <div class="btnrow" style="margin-top:10px">
-          <span id="demoSpin" class="spinner hidden" role="status" aria-label="assembling"></span>
-        </div>
-      </details>
-      <details class="rail-fold" aria-label="Workflow stages">
-        <summary>Workflow stages</summary>
-    <section class="stepper" aria-label="Analysis workflow" title="Stages reflect the most recent run - a demo run genuinely completes every stage offline.">
+  </aside>
+  <main class="main" id="main">
+    <section class="stepper" aria-label="Analysis workflow" title="Stages reflect the most recent run - a demo run genuinely completes every stage on your machine.">
       <div class="step" id="stepUpload" data-stage="upload"><div class="step-number">1</div><div><div class="step-title">Upload</div><div class="step-desc">Load your video</div></div></div>
       <div class="step" id="stepDetect" data-stage="detect"><div class="step-number">2</div><div><div class="step-title">Detect</div><div class="step-desc">AI finds objects (SAM 3.1)</div></div></div>
       <div class="step" id="stepConfirm" data-stage="confirm"><div class="step-number">3</div><div><div class="step-title">Confirm</div><div class="step-desc">Review and approve</div></div></div>
       <div class="step" id="stepMeasure" data-stage="measure"><div class="step-number">4</div><div><div class="step-title">Measure</div><div class="step-desc">Compute physics</div></div></div>
       <div class="step" id="stepResults" data-stage="results"><div class="step-number">5</div><div><div class="step-title">Results</div><div class="step-desc">View &amp; export</div></div></div>
     </section>
-      </details>
+    <section class="opsbar" id="opsBar" aria-label="Operations" data-state="Ready for analysis">
+      <span class="ops-state" id="opState" data-state="Ready for analysis"><span class="ops-dot" aria-hidden="true"></span><span id="opStateText">Ready for analysis</span></span>
+      <div class="ops-activity"><strong id="opActivity">Idle — no operation running.</strong><span id="opDetail">Indeterminate progress: the backend reports completion, never percentages.</span></div>
+      <div class="progress-track hidden" id="opTrack" role="status" aria-label="Operation in progress"></div>
+      <span class="ops-elapsed" id="opElapsed"></span>
+      <div class="ops-last hidden" id="opLast"></div>
+    </section>
+<div class="tabs view-tabs" role="tablist" aria-label="Dashboard views">
+      <button class="tab" role="tab" id="vtabAnalysis" aria-controls="analysisViews" aria-selected="true">Analysis</button>
+      <button class="tab" role="tab" id="vtabPlayground" aria-controls="viewSimulation" aria-selected="false" tabindex="-1">Playground</button>
     </div>
-    <section class="panel" aria-label="Measurement status">
-          <div class="panel-head"><div class="panel-title">Measurement Status</div><span class="tag" id="modeTag">No run</span></div>
-          <div class="status-ring">
-            <svg id="statusRing" width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="18" fill="none" stroke="var(--border)" stroke-width="5"/><circle id="statusArc" cx="22" cy="22" r="18" fill="none" stroke="var(--muted)" stroke-width="5" stroke-linecap="round" stroke-dasharray="113" stroke-dashoffset="113" transform="rotate(-90 22 22)"/></svg>
-            <div><div class="status-title" id="statusTitle">Pending</div><div class="subtle" id="statusNote">Results will appear after measurement.</div></div>
-          </div>
-          <div class="fact-list">
-            <div class="fact-row"><span class="k">Mode</span><span class="v" id="factMode">—</span></div>
-            <div class="fact-row"><span class="k">Frames</span><span class="v" id="factFrames">—</span></div>
-            <div class="fact-row"><span class="k">Resolution</span><span class="v" id="factRes">—</span></div>
-            <div class="fact-row"><span class="k">Duration</span><span class="v" id="factDur">—</span></div>
-          </div>
-    </section>
-    <section class="panel" aria-label="Key results">
-          <div class="panel-head"><div class="panel-title">Key Results (when ready)</div></div>
-          <div class="result-list">
-            <div class="metric"><div class="metric-name">Angular frequency (ω)</div><div class="metric-value na" id="metricOmega">Not available</div><div class="metric-why" id="metricOmegaWhy">No measurement yet.</div></div>
-            <div class="metric"><div class="metric-name">Period (T)</div><div class="metric-value na" id="metricPeriod">Not available</div><div class="metric-why" id="metricPeriodWhy">No measurement yet.</div></div>
-            <div class="metric"><div class="metric-name">Effective length (L_eff)</div><div class="metric-value na" id="metricLeff">Not available</div><div class="metric-why" id="metricLeffWhy">No measurement yet.</div></div>
-            <div class="metric"><div class="metric-name">g / L_eff (ω²)</div><div class="metric-value na" id="metricGoverL">Not available</div><div class="metric-why" id="metricGoverLWhy">No measurement yet.</div></div>
-            <div class="metric"><div class="metric-name">Gravity (g)</div><div class="metric-value na" id="metricGravity">Not available</div><div class="metric-why" id="metricGravityWhy">No measurement yet.</div></div>
-          </div>
-          <div class="interval-line" id="omegaInterval">No interval yet — nothing measured.</div>
-          <div class="interval-line" id="intervalNote">Intervals capture measurement noise under the model, not model-adequacy bias.</div>
-          <div class="info-box"><span class="info-symbol" aria-hidden="true">i</span><div><strong id="gravityTitle">Gravity (g): not computed</strong><p id="gravityBody">Requires a valid user-supplied physical length. Values stay unavailable until a real run completes.</p></div></div>
-    </section>
-    <section class="panel" aria-label="Evidence and provenance summary">
-          <div class="panel-head"><div class="panel-title">Evidence &amp; Provenance</div><span class="tag" id="provChip">Awaiting run</span></div>
-          <div class="prov-list" id="provSummary"><div class="prov-row"><span class="st" aria-hidden="true">—</span><span>No provenance yet — it appears with your first run.</span></div></div>
-          <div style="padding:0 13px 12px"><button class="btn full" id="provFullBtn" type="button">View full provenance →</button></div>
-    </section>
-  </aside>
-  <main class="main" id="main">
+    <div id="analysisViews">
     <section class="panel sci-card" id="sciCard" aria-label="Scientific analysis">
       <div class="sci-head">
         <h3>Scientific Analysis</h3>
@@ -818,10 +807,9 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
         </div>
       </div>
     </section>
-  </main>
-  <aside class="simcol" aria-label="Simulation playground">
-    <button class="tab hidden" role="tab" id="ctabSimulation" aria-controls="viewSimulation" aria-selected="false" tabindex="-1" hidden>Simulation</button>
-    <div role="tabpanel" id="viewSimulation" aria-labelledby="ctabSimulation">
+    </div>
+    <div role="tabpanel" id="viewSimulation" class="hidden" aria-label="Simulation playground">
+      <button class="tab hidden" role="tab" id="ctabSimulation" aria-controls="viewSimulation" aria-selected="false" tabindex="-1" hidden>Simulation</button>
       <div class="sim-layout">
         <aside class="sim-panel" aria-label="Simulation controls">
           <div class="sim-kicker">SIMULATION PLAYGROUND</div>
@@ -871,25 +859,42 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
         </div>
       </div>
     </div>
+  </main>
+  <aside class="rightcol" aria-label="Run status and evidence">
+    <section class="panel" aria-label="Measurement status">
+          <div class="panel-head"><div class="panel-title">Measurement Status</div><span class="tag" id="modeTag">No run</span></div>
+          <div class="status-ring">
+            <svg id="statusRing" width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="18" fill="none" stroke="var(--border)" stroke-width="5"/><circle id="statusArc" cx="22" cy="22" r="18" fill="none" stroke="var(--muted)" stroke-width="5" stroke-linecap="round" stroke-dasharray="113" stroke-dashoffset="113" transform="rotate(-90 22 22)"/></svg>
+            <div><div class="status-title" id="statusTitle">Pending</div><div class="subtle" id="statusNote">Results will appear after measurement.</div></div>
+          </div>
+          <div class="fact-list">
+            <div class="fact-row"><span class="k">Mode</span><span class="v" id="factMode">—</span></div>
+            <div class="fact-row"><span class="k">Frames</span><span class="v" id="factFrames">—</span></div>
+            <div class="fact-row"><span class="k">Resolution</span><span class="v" id="factRes">—</span></div>
+            <div class="fact-row"><span class="k">Duration</span><span class="v" id="factDur">—</span></div>
+          </div>
+    </section>
+    <section class="panel" aria-label="Key results">
+          <div class="panel-head"><div class="panel-title">Key Results (when ready)</div></div>
+          <div class="result-list">
+            <div class="metric"><div class="metric-name">Angular frequency (ω)</div><div class="metric-value na" id="metricOmega">Not available</div><div class="metric-why" id="metricOmegaWhy">No measurement yet.</div></div>
+            <div class="metric"><div class="metric-name">Period (T)</div><div class="metric-value na" id="metricPeriod">Not available</div><div class="metric-why" id="metricPeriodWhy">No measurement yet.</div></div>
+            <div class="metric"><div class="metric-name">Effective length (L_eff)</div><div class="metric-value na" id="metricLeff">Not available</div><div class="metric-why" id="metricLeffWhy">No measurement yet.</div></div>
+            <div class="metric"><div class="metric-name">g / L_eff (ω²)</div><div class="metric-value na" id="metricGoverL">Not available</div><div class="metric-why" id="metricGoverLWhy">No measurement yet.</div></div>
+            <div class="metric"><div class="metric-name">Gravity (g)</div><div class="metric-value na" id="metricGravity">Not available</div><div class="metric-why" id="metricGravityWhy">No measurement yet.</div></div>
+          </div>
+          <div class="interval-line" id="omegaInterval">No interval yet — nothing measured.</div>
+          <div class="interval-line" id="intervalNote">Intervals capture measurement noise under the model, not model-adequacy bias.</div>
+          <div class="info-box"><span class="info-symbol" aria-hidden="true">i</span><div><strong id="gravityTitle">Gravity (g): not computed</strong><p id="gravityBody">Requires a valid user-supplied physical length. Values stay unavailable until a real run completes.</p></div></div>
+    </section>
+    <section class="panel" aria-label="Evidence and provenance summary">
+          <div class="panel-head"><div class="panel-title">Evidence &amp; Provenance</div><span class="tag" id="provChip">Awaiting run</span></div>
+          <div class="prov-list" id="provSummary"><div class="prov-row"><span class="st" aria-hidden="true">—</span><span>No provenance yet — it appears with your first run.</span></div></div>
+          <div style="padding:0 13px 12px"><button class="btn full" id="provFullBtn" type="button">View full provenance →</button></div>
+    </section>
   </aside>
 </div>
-  <div class="underbar">
-    <section class="pipeline-strip" aria-label="Pipeline stages">
-      <p class="explainer">Phone video in, auditable physics out. SAM 3.1 sees, deterministic math computes.</p>
-      <div class="pipeline">
-        <div class="pstage">SAM 3.1 masks<span class="tag">live capture, offline replay</span></div>
-        <div class="pstage">Deterministic calibration + fit<span class="tag">live capture, offline replay</span></div>
-        <div class="pstage">Muse Spark advisory<span class="tag">live capture, offline replay</span></div>
-      </div>
-    </section>
-    <section class="opsbar" id="opsBar" aria-label="Operations" data-state="Ready for analysis">
-      <span class="ops-state" id="opState" data-state="Ready for analysis"><span class="ops-dot" aria-hidden="true"></span><span id="opStateText">Ready for analysis</span></span>
-      <div class="ops-activity"><strong id="opActivity">Idle — no operation running.</strong><span id="opDetail">Indeterminate progress: the backend reports completion, never percentages.</span></div>
-      <div class="progress-track hidden" id="opTrack" role="status" aria-label="Operation in progress"></div>
-      <span class="ops-elapsed" id="opElapsed"></span>
-      <div class="ops-last hidden" id="opLast"></div>
-    </section>
-  </div>
+  
 <footer class="footer"><span class="footer-honest"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 11v5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="8" r="1.2" fill="currentColor"/></svg><span>Unknown values render as null — nothing is ever estimated silently.</span></span><span class="footer-host" id="serverFoot">Local Server</span><span class="footer-honest"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>All timestamps are real source PTS.</span></span></footer>
 </div>
 <div class="toast-wrap" id="toastWrap" role="status" aria-live="polite" aria-label="Notifications"></div>
@@ -1968,7 +1973,7 @@ function paintProvSummary(kind, result, report, files) {
     hash: null, state: calibrationSummary(kind) });
   rows.push({ label: "SAM 3.1 pipeline", hash: null,
     state: kind.indexOf("motion") >= 0 || kind === "live-full"
-      ? "live capture, offline replay" : "pinned replay" });
+      ? "live capture & replay" : "pinned replay" });
   for (const item of rows) {
     const rowNode = document.createElement("div");
     rowNode.className = "prov-row";
@@ -4504,6 +4509,7 @@ function initLive() {
   if (!LIVE_AVAILABLE) return;
   hide(el("noKeyPanel"));
   show(el("livePanel"));
+  show(el("liveResultsPanel"));
   el("liveDetectBtn").addEventListener("click", runLiveDetect);
   el("liveConfirmBtn").addEventListener("click", confirmLive);
   el("liveBackBtn").addEventListener("click", backToPrompts);
@@ -4611,6 +4617,25 @@ function wireNav() {
   });
 }
 
+/* KL-10.18: Analysis | Playground view tabs. showView is top-level so
+   node-driver proofs can call it directly (the DOM stub's click() is
+   a no-op). */
+function showView(playground) {
+  el("analysisViews").classList.toggle("hidden", playground);
+  el("viewSimulation").classList.toggle("hidden", !playground);
+  const va = el("vtabAnalysis");
+  const vp = el("vtabPlayground");
+  va.setAttribute("aria-selected", playground ? "false" : "true");
+  vp.setAttribute("aria-selected", playground ? "true" : "false");
+  va.tabIndex = playground ? -1 : 0;
+  vp.tabIndex = playground ? 0 : -1;
+}
+
+function wireViewTabs() {
+  el("vtabAnalysis").addEventListener("click", () => showView(false));
+  el("vtabPlayground").addEventListener("click", () => showView(true));
+}
+
 function wireIdleAction() {
   el("idleAction").addEventListener("click", () => {
     if (opBusy) return;
@@ -4649,6 +4674,7 @@ document.addEventListener("DOMContentLoaded", () => {
   wireUpload();
   wireViewer();
   wireNav();
+  wireViewTabs();
   wireIdleAction();
   wireTabs(TAB_IDS);
   wireTabs(CTAB_IDS);

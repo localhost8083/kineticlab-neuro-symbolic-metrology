@@ -19,7 +19,7 @@ this file. New rows below the freeze line are marked explicitly.
 |---|---|---|---|---|
 | C-001 | Repository has P-001 package/config/smoke/test/CLI foundation. | `verified_fact` | `TASKS.md`, `WHITEBOARD.md`, `README.md` | reviewed |
 | C-002 | `python scripts/media_check.py` passes pinned `gemini_clean` and `test_3` structural fixtures. | `verified_fact` | command output; `fixtures/*.json` | reviewed |
-| C-003 | `python -m unittest` passes 871 tests. | `verified_fact` | command output 2026-11-01 (KL-10.17 viewport fit + live-gravity threading; one environment-dependent live-bind skip possible; the UI test module requires `node` on PATH); `tests/` | reviewed |
+| C-003 | `python -m unittest` passes 871 tests. | `verified_fact` | command output 2026-11-01 (KL-10.18 dashboard restructure; one environment-dependent live-bind skip possible; the UI test module requires `node` on PATH); `tests/` | reviewed |
 | C-004 | `python -m kineticlab --help` exits 0. | `verified_fact` | command output; `kineticlab/cli/` | reviewed |
 | C-005 | `test_3.mp4` is 1024×576 with 234 frames and non-uniform MP4 `stts` timing. | `measured` | `fixtures/test_3.json`; `scripts/media_check.py` output | structural only; not source PTS proof |
 | C-006 | SAM response fixtures contain continuous bob/card frame records for `test_3`. | `verified_fact` | `Smoke/results/test_3_*_raw.txt`; KL-3.1 adapter parses 234/234 lines per file | KL-3.2 decode DONE: 234/234 records valid per file with mask-derived centroid/area |

@@ -420,12 +420,12 @@ class PageTests(unittest.TestCase):
         self.assertEqual(self.page.count("Run rejection chain"), 1)
 
     def test_pipeline_strip(self):
-        # Pre-8.8 pipeline strip had 3 "live capture, offline replay"
-        # tags; post-8.8 keeps the copy in the new layout — at least
-        # one must survive so offline-replay truth stays visible.
+        # KL-10.18: the visible tag copy reads "live capture & replay"
+        # (the word "offline" left the visible UI on user order); at
+        # least one must survive so replay truth stays visible.
         self.assertIn("SAM 3.1 masks", self.page)
         self.assertGreaterEqual(
-            self.page.count("live capture, offline replay"), 1)
+            self.page.count("live capture & replay"), 1)
 
     def test_explainer_copy(self):
         self.assertIn("Phone video in, auditable physics out",
@@ -3324,28 +3324,26 @@ class SimulationTests(unittest.TestCase):
             self.assertNotIn("primary", tag)
 
     def test_sim_persistent_column_structure(self):
-        # KL-10.14: stage stacked over controls in the persistent right
-        # column; side-by-side again only when the rail spans full
-        # width on narrower screens.
+        # KL-10.18: the sim pane lives in the center column as the
+        # Playground pane; stage + controls sit side by side on wide
+        # screens and stack on the narrow media. The pane closes
+        # before </main>.
         block = self.page.split('id="viewSimulation"', 1)[1].split(
-            'class="underbar"', 1)[0]
+            "</main>", 1)[0]
         self.assertIn('class="sim-layout"', block)
         self.assertIn('class="sim-stage-col"', block)
         self.assertIn('class="sim-panel"', block)
         self.assertIn(
             ".sim-layout{display:grid;"
-            "grid-template-columns:minmax(0,1fr);",
+            "grid-template-columns:minmax(0,1fr) 320px;",
             self.page)
         self.assertIn(
             "@media(max-width:1250px)"
             "{.sim-layout{grid-template-columns:minmax(0,1fr) 320px}}",
             self.page)
         self.assertLess(
-            self.page.index("</main>"),
-            self.page.index('id="viewSimulation"'))
-        self.assertLess(
             self.page.index('id="viewSimulation"'),
-            self.page.index('class="underbar"'))
+            self.page.index("</main>"))
 
     def test_sim_panel_stat_tiles_and_formula(self):
         # KL-10.12: kicker, badge chip, stat tiles, formula panel,
@@ -3353,7 +3351,7 @@ class SimulationTests(unittest.TestCase):
         # KL-10.14: same content, re-anchored to the persistent column
         # (the old sciDiagWrap anchor now sits ahead of the sim block).
         block = self.page.split('id="viewSimulation"', 1)[1].split(
-            'class="underbar"', 1)[0]
+            "</main>", 1)[0]
         self.assertIn("SIMULATION PLAYGROUND", block)
         self.assertIn('class="sim-badge" id="simLabel"', block)
         self.assertIn('class="sim-stats"', block)
@@ -3694,47 +3692,58 @@ class DashboardLayout1014Tests(unittest.TestCase):
         self.assertNotIn("ctabSimulation", match.group(1))
 
     def test_left_rail_card_order(self):
+        # KL-10.18: status/evidence cards moved to a right rail; the
+        # left rail opens with the demo scenarios, then Video Analysis,
+        # then the live Setup & Detect block.
         rail = self.page.split('<aside class="sidebar"', 1)[1].split(
             "</aside>", 1)[0]
-        order = ["Video Analysis", "Measurement Status",
-                 "Key Results (when ready)", "provSummary"]
-        idx = [rail.index(token) for token in order]
+        self.assertLess(rail.index("Demo scenarios"),
+                        rail.index("Video Analysis"))
+        self.assertLess(rail.index("Video Analysis"),
+                        rail.index('id="livePanel"'))
+        right = self.page.split('<aside class="rightcol"', 1)[1].split(
+            "</aside>", 1)[0]
+        order = ["Measurement Status", "Key Results (when ready)",
+                 "provSummary"]
+        idx = [right.index(token) for token in order]
         self.assertEqual(idx, sorted(idx))
         for ident in ("dropZone", "modeTag", "metricOmega",
                       "provSummary", "livePanel", "noKeyPanel"):
-            self.assertIn(f'id="{ident}"', rail)
+            self.assertIn(f'id="{ident}"', self.page)
 
     def test_sim_persistent_column(self):
+        # KL-10.18: the sim moved into the center column as the hidden
+        # Playground pane; the top-level showView toggle swaps it with
+        # the analysis views (driven directly - the node stub's
+        # click() is a no-op).
         tag = re.search(
             r'<div role="tabpanel" id="viewSimulation"[^>]*>',
             self.page)
         self.assertIsNotNone(tag)
-        self.assertNotIn("hidden", tag.group(0))
+        self.assertIn("hidden", tag.group(0))
         self.assertLess(
-            self.page.index("</main>"),
-            self.page.index('id="viewSimulation"'))
+            self.page.index('id="viewSimulation"'),
+            self.page.index("</main>"))
         check = (
             "try {\n"
             "  const hidden = (id) => document.getElementById(id)\n"
             "    .classList.contains(\"hidden\");\n"
-            "  selectChartTab(\"ctabTrail\");\n"
-            "  const trail = { view: hidden(\"viewTrail\"),\n"
-            "    sim: hidden(\"viewSimulation\"),\n"
-            "    replay: hidden(\"viewReplay\") };\n"
-            "  selectChartTab(\"ctabTrajectory\");\n"
-            "  const traj = { view: hidden(\"viewTrajectory\"),\n"
-            "    sim: hidden(\"viewSimulation\") };\n"
-            "  __emit({ trail, traj });\n"
+            "  showView(true);\n"
+            "  const pg = { sim: hidden(\"viewSimulation\"),\n"
+            "    analysis: hidden(\"analysisViews\") };\n"
+            "  showView(false);\n"
+            "  const back = { sim: hidden(\"viewSimulation\"),\n"
+            "    analysis: hidden(\"analysisViews\") };\n"
+            "  __emit({ pg, back });\n"
             "} catch (e) {\n"
             "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
             "  process.exit(1);\n"
             "}\n")
         out = run_page_driver(self.script, check, {})
-        self.assertFalse(out["trail"]["view"])
-        self.assertFalse(out["trail"]["sim"])
-        self.assertTrue(out["trail"]["replay"])
-        self.assertFalse(out["traj"]["view"])
-        self.assertFalse(out["traj"]["sim"])
+        self.assertFalse(out["pg"]["sim"])
+        self.assertTrue(out["pg"]["analysis"])
+        self.assertTrue(out["back"]["sim"])
+        self.assertFalse(out["back"]["analysis"])
 
     def test_footer_honest_strip(self):
         foot = self.page.split('<footer class="footer">', 1)[1].split(
@@ -4119,7 +4128,7 @@ class ViewportFit1017Tests(unittest.TestCase):
             "  __emit({ rows, chain: {\n"
             "    sidebar: /min-width:0/.test(blockOf(\".sidebar{\")),\n"
             "    main: /min-width:0/.test(blockOf(\".main{\")),\n"
-            "    simcol: /min-width:0/.test(blockOf(\".simcol{\")),\n"
+            "    rightcol: /min-width:0/.test(blockOf(\".rightcol{\")),\n"
             "    panel: /min-width:0/.test(blockOf(\".panel{\")) } });\n")
         out = run_page_driver(self.script, self._check(body), {})
         self.assertEqual([row["w"] for row in out["rows"]],
@@ -4154,10 +4163,11 @@ class ViewportFit1017Tests(unittest.TestCase):
             "    panelClip: /overflow:hidden/.test(panel),\n"
             "    tabsScroll: /overflow:auto/.test(tabs),\n"
             "    tabsVisibleGone: !/overflow:visible/.test(tabs),\n"
-            "    stageWidthAuto: !/(^|;)width\\s*:/.test(stage)\n"
+            "    stageWidthAuto: !/(^|;)width\\s*:\\s*\\d+px/"
+            ".test(stage)\n"
             "      && !/min-width\\s*:/.test(stage),\n"
-            "    pipelineWraps: __KLCSS.indexOf(\".underbar \"\n"
-            "      + \".pipeline-strip .pipeline{flex-wrap:wrap}\") >= 0,\n"
+            "    pipelineWraps: __KLCSS.indexOf(\".pipeline-strip \"\n"
+            "      + \".pipeline{flex-wrap:wrap}\") >= 0,\n"
             "    nowrapGone: __KLCSS.indexOf(\"flex-wrap:nowrap\") < 0,\n"
             "  });\n")
         out = run_page_driver(self.script, self._check(body), {})
@@ -4171,48 +4181,29 @@ class ViewportFit1017Tests(unittest.TestCase):
             out["stageWidthAuto"],
             ".video-stage fills its card (no fixed width)")
         self.assertTrue(out["pipelineWraps"],
-                        "the underbar pipeline must wrap below ~1050px")
+                        "the pipeline strip must wrap below ~1050px")
         self.assertTrue(out["nowrapGone"],
                         "no flex row may forbid wrapping")
 
     def test_top_row_alignment(self):
-        body = (
-            "  const rail = __KLHTML.slice(\n"
-            "    __KLHTML.indexOf('<aside class=\"sidebar\"'));\n"
-            "  const head = rail.slice(0, rail.indexOf('<section'\n"
-            "    + ' class=\"panel\" aria-label=\"Video analysis\"'))\n"
-            "    .replace(/<aside[^>]*>/, \"\");\n"
-            "  const shellAt = __KLCSS.indexOf(\".shell{\");\n"
-            "  const shell = __KLCSS.slice(shellAt,\n"
-            "    __KLCSS.indexOf(\"}\", shellAt));\n"
-            "  const mainAt = __KLHTML.indexOf('<main class=\"main\"');\n"
-            "  const firstSec = __KLHTML.indexOf(\"<section\", mainAt);\n"
-            "  const heroTag = __KLHTML.slice(firstSec, firstSec + 160);\n"
-            "  const simAt = __KLHTML.indexOf('<aside class=\"simcol\"');\n"
-            "  const simHead = __KLHTML.slice(simAt, __KLHTML.indexOf(\n"
-            "    '<div role=\"tabpanel\" id=\"viewSimulation\"', simAt))\n"
-            "    .replace(/<aside[^>]*>/, \"\");\n"
-            "  __emit({\n"
-            "    videoFirst: !new RegExp(\"<(div|section|details\"\n"
-            "      + \"|button|span|p|h3|nav)[ >]\").test(head),\n"
-            "    shellAligns: /align-items:start/.test(shell),\n"
-            "    sciFirst: heroTag.indexOf('id=\"sciCard\"') >= 0,\n"
-            "    simFirstVisible: simHead.indexOf(\"<section\") < 0\n"
-            "      && simHead.indexOf(\"<div\") < 0\n"
-            "      && !/<button(?![^>]*hidden)[ >]/.test(simHead),\n"
-            "  });\n")
-        out = run_page_driver(self.script, self._check(body), {})
-        self.assertTrue(
-            out["videoFirst"],
-            "Video Analysis must be the rail's first card so its top "
-            "meets the hero and sim tops")
-        self.assertTrue(out["shellAligns"],
-                        ".shell must top-align its tracks")
-        self.assertTrue(out["sciFirst"],
-                        "the hero must be the center column's first card")
-        self.assertTrue(
-            out["simFirstVisible"],
-            "the sim panel must be the sim column's first visible card")
+        # KL-10.18: the center column opens with the workflow stepper,
+        # then the Analysis|Playground tab strip, then the hero; the
+        # left rail opens with the demo scenarios; .shell keeps
+        # top-aligned tracks.
+        main_at = self.page.index('<main class="main"')
+        center = self.page[main_at:main_at + 4000]
+        self.assertLess(center.index('class="stepper"'),
+                        center.index('class="tabs view-tabs"'))
+        self.assertLess(center.index('class="tabs view-tabs"'),
+                        center.index('id="sciCard"'))
+        rail = self.page.split('<aside class="sidebar"', 1)[1].split(
+            "</aside>", 1)[0]
+        self.assertLess(rail.index("Demo scenarios"),
+                        rail.index("Video Analysis"))
+        shell_at = self.page.index(".shell{")
+        self.assertIn("align-items:start",
+                      self.page[shell_at:self.page.index(
+                          "}", shell_at)])
 
     def test_page_scrolls_no_vertical_clip(self):
         body = (
