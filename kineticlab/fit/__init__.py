@@ -53,8 +53,14 @@ from kineticlab.fit.synthetic import (
     generate_trajectory,
     parse_trajectory_json,
 )
+from kineticlab.fit.uncertainty import (
+    BOOTSTRAP_SEED,
+    N_BOOT,
+    omega_interval,
+)
 
 __all__ = [
+    "BOOTSTRAP_SEED",
     "CSV_COLUMNS",
     "DESIGN_SINGULAR_REL_TOL",
     "DISCLAIMER",
@@ -64,6 +70,7 @@ __all__ = [
     "MAX_CELLS",
     "MAX_SAMPLES",
     "MISMATCH_MAX_DECAY",
+    "N_BOOT",
     "OMEGA_REFINE_TOL",
     "RECOVERY_TOL_GAMMA_PER_S",
     "RECOVERY_TOL_AMPLITUDE_RAD",
@@ -81,6 +88,7 @@ __all__ = [
     "fit_m1",
     "fit_m2",
     "generate_trajectory",
+    "omega_interval",
     "parse_fit_json",
     "parse_matrix_json",
     "parse_trajectory_json",

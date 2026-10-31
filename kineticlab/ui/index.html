@@ -2794,6 +2794,15 @@ function diagText(value) {
   return "not recorded";
 }
 
+/* KL-10.11: one resampling interval part {low, point, high} as
+   honest text. Anything malformed renders "not recorded". */
+function intervalText(part, unit) {
+  if (!part || !isFinite(part.low) || !isFinite(part.point) ||
+      !isFinite(part.high)) return "not recorded";
+  return "[" + part.low + ", " + part.high + "] " + unit +
+    " (point " + part.point + ")";
+}
+
 function paintSciDiagnosticsIdle(message) {
   const rows = el("sciDiagRows");
   rows.replaceChildren();
@@ -2897,6 +2906,18 @@ function paintSciDiagnostics(ctx) {
   /* Fit provenance + parameters. */
   rows.appendChild(row("Fit uncertainty method",
     diagText(fit ? fit.fit_uncertainty_method : null)));
+  /* KL-10.11 bootstrap interval: resampling under M1, rendered
+     null-safe in the same rows. Runs that predate it — or where it
+     could not run — keep "not recorded". */
+  const fu = diag && diag.fit_uncertainty ? diag.fit_uncertainty : null;
+  rows.appendChild(row("Uncertainty interval (omega)",
+    intervalText(fu ? fu.omega_per_s : null, "1/s")));
+  rows.appendChild(row("Uncertainty interval (g/L_eff)",
+    intervalText(fu ? fu.g_over_l_eff_per_s2 : null, "1/s^2")));
+  rows.appendChild(row("Resampling", !fu ? "not recorded"
+    : "resampling under M1 · seed " + diagText(fu.seed) +
+      " · n_boot " + diagText(fu.n_boot) +
+      " · block " + diagText(fu.block_frames) + " frames"));
   rows.appendChild(row("Optimizer",
     diagText(fit ? fit.optimizer : null)));
   rows.appendChild(row("Solver", diagText(fit ? fit.solver : null)));

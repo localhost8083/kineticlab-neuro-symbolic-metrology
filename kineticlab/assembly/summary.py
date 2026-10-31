@@ -163,6 +163,29 @@ def render_summary_md(result: dict[str, Any], diagnostics: dict[str, Any],
         lines.append(f"- final_ssr: {_v(final_ssr)}")
         lines.append(f"- bound_hits: {_v(m1_dict.get('bound_hits'))}")
         lines.append(f"- n_points: {_v(m1_dict.get('n_points'))}")
+    # KL-10.11: rendered ONLY when the assembly ran the bootstrap
+    # (diagnostics.fit_uncertainty present) — rejection and
+    # insufficient-data summaries stay byte-identical, per the
+    # KL-10.11 re-issue condition (d). Copied values only.
+    fu = diagnostics.get("fit_uncertainty")
+    if isinstance(fu, dict):
+        lines.extend(["", "## Uncertainty", ""])
+        lines.append(f"- method: {_v(fu.get('method'))}")
+        lines.append(f"- seed: {_v(fu.get('seed'))}")
+        lines.append(f"- n_boot: {_v(fu.get('n_boot'))}")
+        lines.append(f"- block_frames: {_v(fu.get('block_frames'))}")
+        lines.append("- extended_to_contain_point: "
+                     f"{_v(fu.get('extended_to_contain_point'))}")
+        for key, unit in (("omega_per_s", "1/s"),
+                          ("g_over_l_eff_per_s2", "1/s^2")):
+            part = fu.get(key)
+            if isinstance(part, dict):
+                lines.append(
+                    f"- {key} ({unit}): low {_v(part.get('low'))}, "
+                    f"point {_v(part.get('point'))}, "
+                    f"high {_v(part.get('high'))}")
+            else:
+                lines.append(f"- {key} ({unit}): null (absent)")
     lines.extend(["", "## M2 diagnostic", ""])
     m2 = diagnostics.get("m2")
     if not isinstance(m2, dict):

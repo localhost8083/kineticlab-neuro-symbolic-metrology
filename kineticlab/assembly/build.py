@@ -31,10 +31,12 @@ angles are scale-free ratios. Gravity stays null (U-2): the
 arc radius is same-data derived, flagged
 ``independent_length: false``, and can never feed a gravity path.
 
-States: success_with_warnings for the identified chain
-(uncertainty warning always present — plain success is
-structurally unreachable while no uncertainty is estimated);
-insufficient_data for
+States: success for the identified chain once the
+KL-10.11 block bootstrap estimates an interval (the uncertainty
+warning lifts; other fit warnings still yield
+success_with_warnings), success_with_warnings while fit warnings
+remain, and the legacy null-interval + uncertainty-warning shape
+when the bootstrap cannot run; insufficient_data for
 starved input (< 3 fittable points, ``E_OUT_OF_RANGE``) or
 non-converged M1 (``E_INCOHERENT_VALUE`` + termination detail,
 non-converged fit.v1 embedded for audit). Upstream critical
@@ -104,6 +106,11 @@ from kineticlab.contracts import (
 )
 from kineticlab.fit.m1 import fit_m1
 from kineticlab.fit.m2 import fit_m2
+from kineticlab.fit.uncertainty import (
+    BOOTSTRAP_SEED,
+    N_BOOT,
+    omega_interval,
+)
 from kineticlab.ingest import extract_frame_records, inspect_media
 from kineticlab.observation import parse_raw_fixture
 
@@ -114,6 +121,41 @@ MAX_REFINE = 200
 GAMMA_BOUNDS = (0.0, 1.0)
 GRID_N_GAMMA = 50
 MIN_FIT_POINTS = 3
+
+ADEQUACY_PREFIX = "M1 residuals are structured, not white noise"
+"""Prefix identifying the shared model-adequacy sentence for the
+success-path rewording (the failure paths keep the original)."""
+
+ADEQUACY_BOOTSTRAP_ASSUMPTION = (
+    "M1 residuals are structured, not white noise (lag-1 "
+    "autocorrelation ~0.88 on the replay; damping and the DC "
+    "offset are omitted): M1 is a frequency estimator for omega, "
+    "not a complete trajectory model. The reported value is a "
+    "point estimate with a resampling-based interval under M1 "
+    "(fit_uncertainty_method=block_bootstrap; see Uncertainty); "
+    "the diagnostic damped fit M2 is a cross-check, not an error bar."
+)
+"""KL-10.11 success-path rewording: the structured-residual
+limitation and the point-estimate framing survive the warning's
+disappearance, unchanged in substance."""
+
+BOOTSTRAP_NOISE_ASSUMPTION = (
+    "The omega and g/L_eff intervals come from a seeded block "
+    "bootstrap over measured frames (method block_bootstrap): they "
+    "capture measurement noise under the M1 model, not M1 "
+    "model-adequacy bias - the structured-residual limitation above "
+    "stands unchanged."
+)
+"""KL-10.11 honesty sentence (a): noise, not bias."""
+
+BOOTSTRAP_RESAMPLING_ASSUMPTION = (
+    "Block resampling preserves short-range time dependence; the "
+    "interval is resampling-based (percentiles of M1 refits), not "
+    "an analytic derivation. Endpoints extend to contain the point "
+    "estimate if a percentile excludes it (flagged as "
+    "extended_to_contain_point in fit_uncertainty)."
+)
+"""KL-10.11 honesty sentence (b): resampling, not analytic."""
 
 REQUEST_KEYS = frozenset({
     "clip_path",
@@ -908,30 +950,83 @@ def assemble_parts(*, bob: Any, card: Any, frame_table: Any,
     diagnostics_base["m2"] = m2_section(m2)
     fit_record = m1["fit"]
     g_over_l = fit_record["g_over_l_per_s2"]
-    seen_codes = {uncertainty_warning["code"]}
-    warnings = [uncertainty_warning]
-    dropped_details: list[str] = []
-    for warning in fit_record.get("warnings") or []:
-        if warning.get("code") in seen_codes:
+    # KL-10.11: seeded block bootstrap over the fitted frames. Only
+    # the success path runs it; a None outcome keeps the legacy
+    # null-interval + uncertainty-warning shape below, unchanged.
+    boot = omega_interval(
+        fit_points, pivot_x_px=pivot_x, pivot_y_px=pivot_y,
+        seed=BOOTSTRAP_SEED, n_boot=N_BOOT)
+    if boot is None:
+        seen_codes = {uncertainty_warning["code"]}
+        warnings = [uncertainty_warning]
+        dropped_details: list[str] = []
+        for warning in fit_record.get("warnings") or []:
+            if warning.get("code") in seen_codes:
+                dropped_details.append(str(warning))
+            else:
+                seen_codes.add(warning.get("code"))
+                warnings.append(warning)
+        diagnostics_base["dropped_fit_warning_details"] = dropped_details
+        result_dict = {
+            "schema_version": "result.v1",
+            "status": "success_with_warnings",
+            "measurement_name": "pendulum_g_over_l",
+            "value": g_over_l,
+            "unit": "1/s^2",
+            "interval": None,
+            "interval_method": None,
+            "identifiable_quantity": {"name": "g/L_eff", "value": g_over_l,
+                                      "unit": "1/s^2"},
+            "calibration": calibration_dict,
+            "fit": fit_record,
+            "quality_metrics": metrics,
+            "assumptions": assumptions,
+            "warnings": warnings,
+            "reject_reasons": [],
+            "provenance": provenance,
+            "exports": [],
+        }
+        return _finish(result_dict, diagnostics_base, series, out_path)
+    # The bootstrap ran: the uncertainty warning lifts. Its m1-side
+    # twin is preserved as a dropped detail, never promoted.
+    fit_record = dict(
+        fit_record,
+        fit_uncertainty_method="block_bootstrap",
+        warnings=[warning for warning in fit_record.get("warnings") or []
+                  if warning.get("code") != "W_UNCERTAINTY_UNAVAILABLE"])
+    seen_codes = set()
+    warnings = []
+    dropped_details = []
+    for warning in m1["fit"].get("warnings") or []:
+        if warning.get("code") == "W_UNCERTAINTY_UNAVAILABLE":
+            dropped_details.append(str(warning))
+        elif warning.get("code") in seen_codes:
             dropped_details.append(str(warning))
         else:
             seen_codes.add(warning.get("code"))
             warnings.append(warning)
     diagnostics_base["dropped_fit_warning_details"] = dropped_details
+    diagnostics_base["fit_uncertainty"] = boot
+    g_band = boot["g_over_l_eff_per_s2"]
+    success_assumptions = [
+        ADEQUACY_BOOTSTRAP_ASSUMPTION
+        if text.startswith(ADEQUACY_PREFIX) else text
+        for text in assumptions
+    ] + [BOOTSTRAP_NOISE_ASSUMPTION, BOOTSTRAP_RESAMPLING_ASSUMPTION]
     result_dict = {
         "schema_version": "result.v1",
-        "status": "success_with_warnings",
+        "status": "success" if not warnings else "success_with_warnings",
         "measurement_name": "pendulum_g_over_l",
         "value": g_over_l,
         "unit": "1/s^2",
-        "interval": None,
-        "interval_method": None,
+        "interval": {"lower": g_band["low"], "upper": g_band["high"]},
+        "interval_method": "block_bootstrap",
         "identifiable_quantity": {"name": "g/L_eff", "value": g_over_l,
                                   "unit": "1/s^2"},
         "calibration": calibration_dict,
         "fit": fit_record,
         "quality_metrics": metrics,
-        "assumptions": assumptions,
+        "assumptions": success_assumptions,
         "warnings": warnings,
         "reject_reasons": [],
         "provenance": provenance,

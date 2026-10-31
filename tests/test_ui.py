@@ -1281,8 +1281,10 @@ class DemoEndpointTests(DispatchCase):
     def test_success_demo_matches_pin(self):
         payload = self._run("success")
         result = payload["result"]
-        self.assertEqual(result["status"], "success_with_warnings")
+        # KL-10.11: the bootstrap ran on the demo success chain.
+        self.assertEqual(result["status"], "success")
         self.assertEqual(result["value"], 30.00563573707589)
+        self.assertEqual(result["interval_method"], "block_bootstrap")
         pinned = json.loads(
             (REPO_ROOT / "fixtures" / "assembly"
              / "result.json").read_text(encoding="utf-8"))
@@ -2839,6 +2841,59 @@ class ReplayAnimationTests(unittest.TestCase):
         self.assertNotIn("eval(", self.script)
         # The honest label is owned in exactly one place.
         self.assertEqual(self.script.count(self.LABEL), 1)
+
+
+class UncertaintyRowTests(unittest.TestCase):
+    """KL-10.11: the bootstrap interval rows proven by EXECUTING
+    the shipped page script under node — populated payload renders
+    verbatim, missing payload renders "not recorded", never throws."""
+
+    @classmethod
+    def setUpClass(cls):
+        page = (UI_DIR / "index.html").read_text(encoding="utf-8")
+        script = page.split("<script>", 1)[1].split("</script>", 1)[0]
+        assert "__KL_LIVE_AVAILABLE__" in script
+        cls.script = script.replace("__KL_LIVE_AVAILABLE__", "true")
+
+    def _rows_check(self, ctx_js):
+        return (
+            "  paintSciDiagnostics(" + ctx_js + ");\n"
+            "  __emit({ rows: document.getElementById(\"sciDiagRows\")\n"
+            "    .children.map((tr) => tr.textContent) });\n")
+
+    def test_populated_interval_renders_verbatim(self):
+        ctx = (
+            "{ result: { fit: { fit_uncertainty_method:"
+            " \"block_bootstrap\" } },\n"
+            "    report: null,\n"
+            "    diagnosticsDoc: { fit_uncertainty: {\n"
+            "      method: \"block_bootstrap\", seed: 7, n_boot: 64,\n"
+            "      block_frames: 21,\n"
+            "      omega_per_s: { low: 5.4, point: 5.5, high: 5.6 },\n"
+            "      g_over_l_eff_per_s2: { low: 29.0, point: 30.0,\n"
+            "        high: 31.0 } } },\n"
+            "    geoDoc: null, calibDoc: null }")
+        out = run_page_driver(self.script, self._rows_check(ctx), {})
+        rows = "\n".join(out["rows"])
+        self.assertIn("Fit uncertainty methodblock_bootstrap", rows)
+        self.assertIn("Uncertainty interval (omega)"
+                      "[5.4, 5.6] 1/s (point 5.5)", rows)
+        self.assertIn("Uncertainty interval (g/L_eff)"
+                      "[29, 31] 1/s^2 (point 30)", rows)
+        self.assertIn("Resamplingresampling under M1 \u00b7 seed 7 "
+                      "\u00b7 n_boot 64 \u00b7 block 21 frames", rows)
+
+    def test_missing_interval_renders_not_recorded(self):
+        ctx = ("{ result: null, report: null, diagnosticsDoc: {},\n"
+               "    geoDoc: null, calibDoc: null }")
+        out = run_page_driver(self.script, self._rows_check(ctx), {})
+        rows = "\n".join(out["rows"])
+        self.assertIn("Fit uncertainty methodnot recorded", rows)
+        self.assertIn("Uncertainty interval (omega)not recorded",
+                      rows)
+        self.assertIn("Uncertainty interval (g/L_eff)not recorded",
+                      rows)
+        self.assertIn("Resamplingnot recorded", rows)
 
 
 if __name__ == "__main__":

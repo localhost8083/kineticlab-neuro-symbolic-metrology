@@ -88,9 +88,14 @@ class DemoChainTests(unittest.TestCase):
             for path in out["written"]:
                 self.assertTrue(Path(path).is_file())
         result = out["result"]
-        self.assertEqual(result["status"], "success_with_warnings")
+        # KL-10.11: the bootstrap ran, so the demo success chain
+        # reaches plain success with a populated interval.
+        self.assertEqual(result["status"], "success")
         self.assertEqual(result["value"], 30.00563573707589)
-        self.assertIn("success_with_warnings", out["status_line"])
+        self.assertEqual(result["interval_method"], "block_bootstrap")
+        self.assertLess(result["interval"]["lower"],
+                        result["interval"]["upper"])
+        self.assertIn("chain: success —", out["status_line"])
         self.assertIn("30.00563573707589", out["status_line"])
         self.assertIn("4 exports in demo_out/success",
                       out["status_line"])

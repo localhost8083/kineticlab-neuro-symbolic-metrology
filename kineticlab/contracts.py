@@ -123,6 +123,7 @@ class ModelId(str, Enum):
 class UncertaintyMethod(str, Enum):
     NONE = "none"
     ANALYTIC_LINEARIZED = "analytic_linearized"
+    BLOCK_BOOTSTRAP = "block_bootstrap"
 
 
 class LengthSource(str, Enum):
@@ -165,8 +166,8 @@ RESULT_UNITS = frozenset({"1/s^2", "m/s^2"})
 KNOWN_QUANTITY_UNITS = {"g/L_eff": "1/s^2", "gravity": "m/s^2"}
 """Exact accepted identifiable-quantity names and their forced units."""
 
-INTERVAL_METHODS = frozenset({"analytic_linearized"})
-"""Only locked uncertainty method that can produce an interval."""
+INTERVAL_METHODS = frozenset({"analytic_linearized", "block_bootstrap"})
+"""Locked uncertainty methods that can produce an interval."""
 
 GRAVITY_REL_TOL = 1e-9
 GRAVITY_ABS_TOL = 1e-12

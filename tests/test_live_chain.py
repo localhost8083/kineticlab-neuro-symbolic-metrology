@@ -247,7 +247,9 @@ class MeasureFullTest(unittest.TestCase):
 
     def test_result_reproduces_pin(self):
         result = self.out["result"]
-        self.assertEqual(result["status"], "success_with_warnings")
+        # KL-10.11: the bootstrap ran on the live full run.
+        self.assertEqual(result["status"], "success")
+        self.assertEqual(result["interval_method"], "block_bootstrap")
         quantity = result["identifiable_quantity"]
         self.assertEqual(quantity["name"], "g/L_eff")
         self.assertEqual(quantity["unit"], "1/s^2")
@@ -308,7 +310,7 @@ class MeasureFullTest(unittest.TestCase):
         self.assertEqual(len(self.out["written"]), 4)
         for path in self.out["written"]:
             self.assertTrue(Path(path).is_file())
-        self.assertIn("success_with_warnings",
+        self.assertIn(f"run {self.run_id}: success —",
                       self.out["status_line"])
 
     def test_measure_outputs_deterministic(self):
@@ -536,8 +538,10 @@ class LiveChainTest(unittest.TestCase):
                              transport=pin_transport(FULL_TEXTS))
         self.assertEqual(out["run_id"], run_id)
         self.assertEqual(out["mode"], "full")
-        self.assertEqual(out["result"]["status"],
-                         "success_with_warnings")
+        # KL-10.11: the bootstrap ran on the live full run.
+        self.assertEqual(out["result"]["status"], "success")
+        self.assertEqual(out["result"]["interval_method"],
+                         "block_bootstrap")
         self.assertEqual(out["summary"]["mode"], "full")
 
     def test_one_shot_motion(self):

@@ -142,6 +142,15 @@ def _blank_result_hash_line(text):
         for line in text.split("\n"))
 
 
+def _blank_line_prefix(text, prefix, token):
+    # KL-10.11: normalize one full summary line by prefix. Callers
+    # assert the exact content before blanking; the byte-compare
+    # then covers everything else.
+    return "\n".join(
+        token if line.startswith(prefix) else line
+        for line in text.split("\n"))
+
+
 class AnglesTests(unittest.TestCase):
     def test_partition_excludes_explicitly(self):
         records = [
@@ -203,7 +212,9 @@ class LiveChainTests(unittest.TestCase):
 
     def test_success_path_pins(self):
         result = self.out["result"]
-        self.assertEqual(result["status"], "success_with_warnings")
+        # KL-10.11: the bootstrap ran, so the uncertainty warning
+        # lifted and plain success is reachable again.
+        self.assertEqual(result["status"], "success")
         self.assertEqual(result["measurement_name"], "pendulum_g_over_l")
         # Measured stdlib output (libm-bound float).
         self.assertTrue(math.isclose(result["value"], G_OVER_L_PIN,
@@ -212,14 +223,17 @@ class LiveChainTests(unittest.TestCase):
         self.assertEqual(result["identifiable_quantity"],
                          {"name": "g/L_eff", "value": result["value"],
                           "unit": "1/s^2"})
-        self.assertIsNone(result["interval"])
+        band = self.out["diagnostics"]["fit_uncertainty"][
+            "g_over_l_eff_per_s2"]
+        self.assertEqual(result["interval"],
+                         {"lower": band["low"], "upper": band["high"]})
+        self.assertEqual(result["interval_method"], "block_bootstrap")
         self.assertEqual(result["fit"]["model_id"], "M1")
         self.assertTrue(result["fit"]["converged"])
         self.assertIsNone(result["fit"]["gravity_m_s2"])
-        self.assertEqual(result["fit"]["fit_uncertainty_method"], "none")
-        self.assertEqual([warning["code"]
-                          for warning in result["warnings"]],
-                         ["W_UNCERTAINTY_UNAVAILABLE"])
+        self.assertEqual(result["fit"]["fit_uncertainty_method"],
+                         "block_bootstrap")
+        self.assertEqual(result["warnings"], [])
         self.assertEqual(result["reject_reasons"], [])
         self.assertEqual(result["quality_metrics"],
                          {"frames_total": 234, "frames_usable": 234,
@@ -561,6 +575,38 @@ MODEL_ADEQUACY_ASSUMPTION = (
 """Exact KL-10.7 wording (residual adequacy + point-estimate framing)."""
 
 
+ADEQUACY_BOOTSTRAP_ASSUMPTION = (
+    "M1 residuals are structured, not white noise (lag-1 "
+    "autocorrelation ~0.88 on the replay; damping and the DC "
+    "offset are omitted): M1 is a frequency estimator for omega, "
+    "not a complete trajectory model. The reported value is a "
+    "point estimate with a resampling-based interval under M1 "
+    "(fit_uncertainty_method=block_bootstrap; see Uncertainty); "
+    "the diagnostic damped fit M2 is a cross-check, not an error bar."
+)
+"""Exact KL-10.11 success-path rewording (limitation + point framing kept)."""
+
+
+BOOTSTRAP_NOISE_ASSUMPTION = (
+    "The omega and g/L_eff intervals come from a seeded block "
+    "bootstrap over measured frames (method block_bootstrap): they "
+    "capture measurement noise under the M1 model, not M1 "
+    "model-adequacy bias - the structured-residual limitation above "
+    "stands unchanged."
+)
+"""Exact KL-10.11 honesty sentence (a): noise, not bias."""
+
+
+BOOTSTRAP_RESAMPLING_ASSUMPTION = (
+    "Block resampling preserves short-range time dependence; the "
+    "interval is resampling-based (percentiles of M1 refits), not "
+    "an analytic derivation. Endpoints extend to contain the point "
+    "estimate if a percentile excludes it (flagged as "
+    "extended_to_contain_point in fit_uncertainty)."
+)
+"""Exact KL-10.11 honesty sentence (b): resampling, not analytic."""
+
+
 # KL-10.10: see tests/test_fit_m1.py — same-platform byte pins.
 PIN_SAME_PLATFORM = unittest.skipIf(
     os.environ.get("KL_CROSS_PLATFORM") == "1",
@@ -600,20 +646,80 @@ class RegenerationTests(unittest.TestCase):
                     # finite-amplitude sentence (fixture predates it).
                     self.assertIn(SMALL_ANGLE_ASSUMPTION,
                                   fresh["assumptions"])
-                    # KL-10.7: same pattern for the added
-                    # model-adequacy sentence (fixture predates it).
-                    self.assertIn(MODEL_ADEQUACY_ASSUMPTION,
+                    # KL-10.7 sentence is GONE on success (reworded
+                    # by KL-10.11); the pin below asserts the new
+                    # wording instead. The fixture keeps the old.
+                    self.assertNotIn(MODEL_ADEQUACY_ASSUMPTION,
+                                     fresh["assumptions"])
+                    # KL-10.11: the bootstrap ran — verdict flip,
+                    # lifted warning, populated interval, reworded
+                    # adequacy + two honesty sentences. Asserted
+                    # exactly here, normalized below for the
+                    # byte-compare of everything else.
+                    self.assertEqual(fresh["status"], "success")
+                    self.assertEqual(fresh["warnings"], [])
+                    self.assertEqual(fresh["interval_method"],
+                                     "block_bootstrap")
+                    band = out["diagnostics"]["fit_uncertainty"][
+                        "g_over_l_eff_per_s2"]
+                    self.assertEqual(
+                        fresh["interval"],
+                        {"lower": band["low"],
+                         "upper": band["high"]})
+                    self.assertEqual(
+                        fresh["fit"]["fit_uncertainty_method"],
+                        "block_bootstrap")
+                    self.assertEqual(fresh["fit"]["warnings"], [])
+                    self.assertIn(ADEQUACY_BOOTSTRAP_ASSUMPTION,
+                                  fresh["assumptions"])
+                    self.assertIn(BOOTSTRAP_NOISE_ASSUMPTION,
+                                  fresh["assumptions"])
+                    self.assertIn(BOOTSTRAP_RESAMPLING_ASSUMPTION,
                                   fresh["assumptions"])
                     fresh = dict(
                         fresh,
+                        status=pinned["status"],
+                        warnings=pinned["warnings"],
+                        interval=pinned["interval"],
+                        interval_method=pinned["interval_method"],
+                        fit=dict(
+                            fresh["fit"],
+                            fit_uncertainty_method=pinned["fit"][
+                                "fit_uncertainty_method"],
+                            warnings=pinned["fit"]["warnings"]),
                         assumptions=["<zero-blanked>"]
                         + [text for text in fresh["assumptions"][1:]
                            if text != SMALL_ANGLE_ASSUMPTION
-                           and text != MODEL_ADEQUACY_ASSUMPTION])
+                           and text != ADEQUACY_BOOTSTRAP_ASSUMPTION
+                           and text != BOOTSTRAP_NOISE_ASSUMPTION
+                           and text != BOOTSTRAP_RESAMPLING_ASSUMPTION])
                     pinned = dict(
                         pinned,
                         assumptions=["<zero-blanked>"]
                         + pinned["assumptions"][1:])
+                if name == "diagnostics.json":
+                    # KL-10.11: the new free-form fit_uncertainty
+                    # section, pinned exactly, then removed for the
+                    # byte-compare of everything else.
+                    fu = fresh["fit_uncertainty"]
+                    self.assertEqual(fu["method"], "block_bootstrap")
+                    self.assertEqual(fu["seed"], 20261103)
+                    self.assertEqual(fu["n_boot"], 800)
+                    self.assertEqual(fu["block_frames"], 35)
+                    self.assertFalse(
+                        fu["extended_to_contain_point"])
+                    omega = fu["omega_per_s"]
+                    band = fu["g_over_l_eff_per_s2"]
+                    self.assertLess(omega["low"], omega["point"])
+                    self.assertLess(omega["point"], omega["high"])
+                    self.assertEqual(band["low"],
+                                     omega["low"] * omega["low"])
+                    self.assertEqual(band["high"],
+                                     omega["high"] * omega["high"])
+                    self.assertEqual(band["point"],
+                                     out["result"]["value"])
+                    fresh = {key: value for key, value in fresh.items()
+                             if key != "fit_uncertainty"}
                 _assert_close_tree(
                     self, _with_basename_exports(fresh)
                     if name == "result.json" else fresh,
@@ -640,16 +746,90 @@ class RegenerationTests(unittest.TestCase):
         # KL-9.6 M2: plus the reworded zero-offset sentence, blanked
         # on both sides (old wording read from the pin itself).
         # KL-10.6: plus the added finite-amplitude sentence, removed
-        # from the fresh side (the pin predates it). KL-10.7: plus
-        # the added model-adequacy sentence, same treatment.
+        # from the fresh side (the pin predates it). KL-10.7: the
+        # old adequacy sentence is gone on success (reworded by
+        # KL-10.11); the new bullets are removed instead.
         fresh_summary = summary_bytes.decode("utf-8").replace(
             ZERO_OFFSET_ASSUMPTION, "<zero-blanked>").replace(
                 "- " + SMALL_ANGLE_ASSUMPTION + "\n", "").replace(
-                    "- " + MODEL_ADEQUACY_ASSUMPTION + "\n", "")
+                    "- " + ADEQUACY_BOOTSTRAP_ASSUMPTION + "\n",
+                    "").replace(
+                        "- " + BOOTSTRAP_NOISE_ASSUMPTION + "\n",
+                        "").replace(
+                            "- " + BOOTSTRAP_RESAMPLING_ASSUMPTION
+                            + "\n", "")
+        # KL-10.11: the Uncertainty section is new by design —
+        # assert its exact lines, then remove the whole section.
+        section_start = fresh_summary.index("## Uncertainty\n")
+        section_end = fresh_summary.index("## M2 diagnostic")
+        section = fresh_summary[section_start:section_end]
+        fu = out["diagnostics"]["fit_uncertainty"]
+        omega = fu["omega_per_s"]
+        band = fu["g_over_l_eff_per_s2"]
+        for line in (
+                "## Uncertainty",
+                "- method: block_bootstrap",
+                f"- seed: {fu['seed']!r}",
+                f"- n_boot: {fu['n_boot']!r}",
+                f"- block_frames: {fu['block_frames']!r}",
+                "- extended_to_contain_point: false",
+                f"- omega_per_s (1/s): low {omega['low']!r}, "
+                f"point {omega['point']!r}, high {omega['high']!r}",
+                f"- g_over_l_eff_per_s2 (1/s^2): low {band['low']!r}, "
+                f"point {band['point']!r}, high {band['high']!r}"):
+            self.assertIn(line, section)
+        fresh_summary = (fresh_summary[:section_start]
+                         + fresh_summary[section_end:])
+        # Verdict flip + lifted warning + populated interval:
+        # asserted exactly above, normalized for the byte-compare.
+        self.assertIn("# KineticLab result: SUCCESS (success)\n",
+                      fresh_summary)
+        self.assertIn(
+            f"- interval: {{\"lower\": {band['low']!r}, "
+            f"\"upper\": {band['high']!r}}}",
+            fresh_summary)
+        self.assertIn("- interval_method: block_bootstrap",
+                      fresh_summary)
+        self.assertIn("## Warnings\n\n- none", fresh_summary)
+        fresh_summary = fresh_summary.replace(
+            "SUCCESS (success)", "SUCCESS (<status>)").replace(
+                "- status: success\n", "- status: <status>\n")
+        fresh_summary = _blank_line_prefix(
+            fresh_summary, "- interval: ", "- interval: <interval>")
+        fresh_summary = _blank_line_prefix(
+            fresh_summary, "- interval_method: ",
+            "- interval_method: <interval_method>")
         pinned_summary = (
             ASM_DIR / SUMMARY_FILENAME).read_text(
                 encoding="utf-8").replace(
                     pinned_result["assumptions"][0], "<zero-blanked>")
+        pinned_summary = pinned_summary.replace(
+            "SUCCESS (success_with_warnings)",
+            "SUCCESS (<status>)").replace(
+                "- status: success_with_warnings\n",
+                "- status: <status>\n")
+        self.assertIn("- interval: null", pinned_summary)
+        self.assertIn("- interval_method: null", pinned_summary)
+        pinned_summary = _blank_line_prefix(
+            pinned_summary, "- interval: ", "- interval: <interval>")
+        pinned_summary = _blank_line_prefix(
+            pinned_summary, "- interval_method: ",
+            "- interval_method: <interval_method>")
+        pinned_bullet = ("- `W_UNCERTAINTY_UNAVAILABLE`: KL-7.1 estimates "
+                         "no uncertainty; method is none.\n")
+        self.assertIn(pinned_bullet, pinned_summary)
+        pinned_summary = pinned_summary.replace(pinned_bullet,
+                                                "- none\n")
+        # diagnostics.json bytes intentionally changed (new
+        # fit_uncertainty section); its hash line is blanked on
+        # both sides while the listed hashes are still verified
+        # against the freshly written files below.
+        fresh_summary = _blank_line_prefix(
+            fresh_summary, "- diagnostics.json: ",
+            "- diagnostics.json: <bytes-changed>")
+        pinned_summary = _blank_line_prefix(
+            pinned_summary, "- diagnostics.json: ",
+            "- diagnostics.json: <bytes-changed>")
         self.assertEqual(
             _blank_result_hash_line(fresh_summary),
             _blank_result_hash_line(pinned_summary))
@@ -804,7 +984,11 @@ class ParsedInjectionTests(unittest.TestCase):
             out = assemble(request, _parsed={"bob": self.bob,
                                              "card": self.card})
             result = out["result"]
-            self.assertEqual(result["status"], "success_with_warnings")
+            # KL-10.11: the injected run fits, bootstraps, and
+            # reaches plain success like the direct run.
+            self.assertEqual(result["status"], "success")
+            self.assertEqual(result["interval_method"],
+                             "block_bootstrap")
             self.assertTrue(math.isclose(result["value"], G_OVER_L_PIN,
                                          rel_tol=1e-6))
             checked = ResultContract.from_dict(copy.deepcopy(result))

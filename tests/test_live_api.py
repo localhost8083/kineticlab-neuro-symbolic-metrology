@@ -419,8 +419,10 @@ class LiveMeasureTests(LiveCase):
         self.assertEqual(status, 200)
         payload = json.loads(body.decode("utf-8"))
         self.assertEqual(payload["mode"], "full")
-        self.assertEqual(payload["result"]["status"],
-                         "success_with_warnings")
+        # KL-10.11: the bootstrap ran on the live full run.
+        self.assertEqual(payload["result"]["status"], "success")
+        self.assertEqual(payload["result"]["interval_method"],
+                         "block_bootstrap")
         self.assertEqual(
             sorted(payload["files"]),
             ["angles.csv", "diagnostics.json", "result.json",
