@@ -1377,7 +1377,7 @@ function paintVerdict(result, errorPayload) {
     return;
   }
   const status = result.status;
-  const good = status.indexOf("success") === 0;
+  const good = status === "success" || status === "success_with_warnings";
   verdict.className = good
     ? (status === "success" ? "verdict ok" : "verdict warn")
     : "verdict bad";
@@ -1477,7 +1477,7 @@ function establishedLength(result, diagnosticsDoc) {
   }
   const pivot = result && result.fit ? result.fit.pivot_length_mm : null;
   if (pivot !== null && pivot !== undefined && isFinite(pivot) &&
-      result.fit.pivot_length_source === "independent") {
+      result.fit.pivot_length_source === "independent_measurement") {
     return { value: pivot / 1000, unit: "m",
       why: "Established independent pivot length (pipeline record)." };
   }

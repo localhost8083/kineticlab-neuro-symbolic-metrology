@@ -325,34 +325,41 @@ def run_capture(clip_path: str | Path, prompts: dict[str, str],
             _fail("E_MISSING_FIELD", "upload_id",
                   f"role {role!r}: upload response carries no file id")
             raise AssertionError("unreachable")
-        answered = send({"method": "POST",
-                         "url": f"{BASE_URL}/responses",
-                         "headers": {**headers,
-                                     "Content-Type": "application/json"},
-                         "body": build_responses_body(prompt, file_id)})
-        answered_payload = _parse_json(answered["body"], role)
-        if not 200 <= int(answered["status"]) < 300:
-            status = int(answered["status"])
-            if status in (401, 403):
-                _fail("E_MISSING_FIELD", "MODEL_API_KEY",
-                      f"role {role!r}: API rejected with HTTP {status}: "
-                      f"{_api_message(answered_payload)}")
-            _fail("E_MISSING_FIELD", "output_text",
-                  f"role {role!r}: API failed with HTTP {status}: "
-                  f"{_api_message(answered_payload)}")
-            raise AssertionError("unreachable")
-        text = extract_output_text(answered_payload, role)
+        # KL-10.6 MAJOR-2: the DELETE runs in a finally so the uploaded
+        # file is removed even when the responses call or extraction
+        # fails (before this, failure paths orphaned the upload). The
+        # upload-rejection path above has no file id to delete and is
+        # out of scope.
         try:
-            removed = send({"method": "DELETE",
-                            "url": f"{BASE_URL}/files/{file_id}",
-                            "headers": dict(headers),
-                            "body": None})
-            delete_status: int | None = int(removed["status"])
-        except ContractError:
-            delete_status = None
-        deleted = delete_status is not None \
-            and 200 <= delete_status < 300
-        deleted_all = deleted_all and deleted
+            answered = send({"method": "POST",
+                             "url": f"{BASE_URL}/responses",
+                             "headers": {**headers,
+                                         "Content-Type": "application/json"},
+                             "body": build_responses_body(prompt, file_id)})
+            answered_payload = _parse_json(answered["body"], role)
+            if not 200 <= int(answered["status"]) < 300:
+                status = int(answered["status"])
+                if status in (401, 403):
+                    _fail("E_MISSING_FIELD", "MODEL_API_KEY",
+                          f"role {role!r}: API rejected with HTTP "
+                          f"{status}: {_api_message(answered_payload)}")
+                _fail("E_MISSING_FIELD", "output_text",
+                      f"role {role!r}: API failed with HTTP {status}: "
+                      f"{_api_message(answered_payload)}")
+                raise AssertionError("unreachable")
+            text = extract_output_text(answered_payload, role)
+        finally:
+            try:
+                removed = send({"method": "DELETE",
+                                "url": f"{BASE_URL}/files/{file_id}",
+                                "headers": dict(headers),
+                                "body": None})
+                delete_status: int | None = int(removed["status"])
+            except ContractError:
+                delete_status = None
+            deleted = delete_status is not None \
+                and 200 <= delete_status < 300
+            deleted_all = deleted_all and deleted
         filename = ROLE_FILENAMES[role]
         raw_path = out_path / filename
         raw_path.write_bytes(text.encode("utf-8"))

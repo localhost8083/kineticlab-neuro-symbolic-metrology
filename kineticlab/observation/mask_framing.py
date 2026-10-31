@@ -205,6 +205,14 @@ def decode_mask_data(data_value: str, *, ref: str) -> DecodedMaskFraming:
     if width <= 0 or height <= 0:
         _fail("E_OUT_OF_RANGE", ref,
               f"mask dims must be positive integers: {height}x{width}")
+    if width * height > (1 << 24):
+        # KL-10.6 MAJOR-3: bound BEFORE the codec allocates the
+        # stride*(height+pad) and width*height buffers (mirror of the
+        # KL-9.6 M8 pattern in ingest/mp4.py _read_stsz). 2**24 pixels
+        # is 2x 4K; every legitimate frame is far below.
+        _fail("E_OUT_OF_RANGE", ref,
+              f"mask dims {height}x{width} exceed the 16777216 "
+              "pixel cap")
     if not payload:
         _fail("E_EMPTY_STRING", ref,
               "mask payload is empty where "

@@ -45,9 +45,12 @@ class MockTransport:
     """Canned wire peer: records requests, serves scripted outputs."""
 
     def __init__(self, texts=None, status=200, upload_id="file-test",
-                 delete_status=200, raw_bodies=None):
+                 delete_status=200, raw_bodies=None,
+                 responses_status=None):
         self.texts = texts or {}
         self.status = status
+        self.responses_status = (status if responses_status is None
+                                 else responses_status)
         self.upload_id = upload_id
         self.delete_status = delete_status
         self.raw_bodies = raw_bodies or {}
@@ -67,7 +70,7 @@ class MockTransport:
             prompt = json.loads(request["body"].decode("utf-8"))
             text = prompt["input"][0]["content"][0]["text"]
             body = _responses_body(self.texts.get(text, ""))
-        return {"status": self.status, "body": body}
+        return {"status": self.responses_status, "body": body}
 
 
 class CaptureTest(unittest.TestCase):
@@ -81,6 +84,21 @@ class CaptureTest(unittest.TestCase):
 
     def test_timeout_documented_value(self):
         self.assertEqual(TIMEOUT_SECONDS, 300)
+
+    def test_responses_failure_still_deletes_upload(self):
+        # KL-10.6 MAJOR-2: a non-2xx /responses must not orphan the
+        # uploaded file — the DELETE fires even on the failure path.
+        transport = MockTransport(texts={"red ball": "<0f>box"},
+                                  responses_status=500)
+        with self.assertRaises(ContractError) as raised:
+            run_capture(self.clip, {"bob": "red ball"},
+                        self.out, "KEY", transport=transport)
+        self.assertEqual(raised.exception.codes, ["E_MISSING_FIELD"])
+        deletes = [item for item in transport.requests
+                   if item["method"] == "DELETE"]
+        self.assertEqual(len(deletes), 1)
+        self.assertEqual(deletes[0]["url"],
+                         f"{BASE_URL}/files/file-test")
 
     def test_multisegment_fails_fast_with_hint(self):
         # KL-9.2 item 2: a second model segment for one prompt fails

@@ -25,14 +25,14 @@ artifact, and the uploaded clip is deleted server-side after capture
 
 Run from the repo root. Expected outcomes are from the Review_Log ledger.
 
-Full test suite (~25 minutes, blocking):
+Full test suite (~17-20 minutes, blocking):
 
 ```powershell
 python -m unittest
 ```
 
-Expected: `682 tests, OK`, exit 0. One environment-dependent live-bind skip is
-possible on some machines; the authoritative runs report 0 skips.
+Expected: `790 tests, OK`, exit 0. One environment-dependent live-bind skip
+is possible on some machines.
 
 Structural media check (fast):
 

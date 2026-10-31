@@ -739,6 +739,10 @@ def assemble_parts(*, bob: Any, card: Any, frame_table: Any,
         "the geometry report model_limitations).",
         "Arc-fit radius is descriptive only, not an independent "
         "length; gravity stays null (U-2 not provided).",
+        "M1 is the small-angle model: omega0 = omega*(1 - theta0^2/16 "
+        "+ O(theta0^4)), so the reported g/L_eff = omega^2 understates "
+        "the small-angle g/L by about theta0^2/8 (order 1% at the "
+        "observed amplitudes) - stated, uncorrected.",
         "M1 is the reported model (pre-registered parsimony); the M2 "
         "outcome rides the diagnostics as a cross-check.",
     ]

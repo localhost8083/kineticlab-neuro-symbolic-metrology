@@ -2203,6 +2203,28 @@ class ScientificAnalysisTests(unittest.TestCase):
         self.assertEqual(out["counter"], "")
         self.assertEqual(out["rows"], ["DiagnosticsNo measurement loaded."])
 
+    def test_length_branch_uses_contract_vocabulary(self):
+        # KL-10.6 MINOR-2: contracts.py emits pivot_length_source
+        # "independent_measurement"; the page used to compare against
+        # "independent" (dead branch, always failed closed). Proved by
+        # executing the shipped function in both directions.
+        check = (
+            "  const hit = establishedLength({fit: {\n"
+            "    pivot_length_mm: 1.0,\n"
+            "    pivot_length_source: \"independent_measurement\"}},\n"
+            "    null);\n"
+            "  const miss = establishedLength({fit: {\n"
+            "    pivot_length_mm: 1.0,\n"
+            "    pivot_length_source: \"independent\"}}, null);\n"
+            "  __emit({ hitValue: hit.value, hitWhy: hit.why,\n"
+            "    missValue: miss.value });\n")
+        out = run_page_driver(self.script, check, {})
+        self.assertEqual(out["hitValue"], 0.001)
+        self.assertEqual(out["hitWhy"],
+                         "Established independent pivot length "
+                         "(pipeline record).")
+        self.assertIsNone(out["missValue"])
+
     def test_trajectory_tab_renders_real_series(self):
         post = (
             "  const kids =\n"

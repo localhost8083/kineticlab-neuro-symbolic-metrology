@@ -150,7 +150,12 @@ def parse_trak(data: bytes, start: int, end: int) -> dict:
 
 
 def probe_bytes(data: bytes, display: str) -> dict:
-    """Parse MP4 structure from bytes. Raises ProbeError when unparseable."""
+    """Parse MP4 structure from bytes. Raises ProbeError when unparseable.
+
+    Header-only: box extents are trusted from headers, so a truncated
+    mdat can pass here; extract_sample_timing catches it via its chunk
+    offset range check. Consumers using this probe alone must not treat
+    frame_count as decoded truth."""
     report: dict = {"path": display, "sha256": hashlib.sha256(data).hexdigest(),
                     "warnings": []}
     try:

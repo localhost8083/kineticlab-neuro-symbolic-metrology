@@ -2,7 +2,7 @@
 
 **Point a phone camera at a pendulum. Get honest physics out.**
 
-KineticLab turns an ordinary video clip into an auditable measurement: Meta **SAM 3.1** segments the bob and reference card frame-by-frame, and a deterministic, **stdlib-only** Python engine turns those masks into `g/L_eff` (scale-free, `1/s²`) — with true gravity `g` (m/s²) reported **only** when a human supplies ruler-measured references. When evidence is missing, the answer is `null` with a registered warning — never a guess.
+KineticLab turns an ordinary video clip into an auditable measurement: Meta **SAM 3.1** segments the bob and reference card frame-by-frame, and a deterministic, **stdlib-only** Python engine turns those masks into `g/L_eff` (scale-free, `1/s²`) — with gravity `g` deliberately left `null`: today’s build has no length input, so the gated gravity step is future work, not a hidden promise. When evidence is missing, the answer is `null` with a registered warning — never a guess.
 
 <p align="center">
   <img src="Docs/img/analysis_main.png" width="860" alt="KineticLab — live analysis view: upload, SAM 3.1 detect, confirm, measure" />
@@ -38,7 +38,7 @@ Every AI demo can show a number. KineticLab is built so it **can't fake one**:
 - **No language model ever authors a number.** Vision output is untrusted telemetry — SAM 3.1 `one_bit` masks are stored verbatim with source PTS and decoded by a canonical codec. Physics is computed locally, deterministically.
 - **Unknown is `null`.** Missing scale, length, or uncertainty renders as `null` plus an explicit warning code — never a guess dressed as data.
 - **The card's millimeters are always human-typed** (`user_supplied`). The app never estimates mm from pixels.
-- **Locked taxonomy.** Exactly 32 error codes and 9 warning codes in `kineticlab/contracts.py`; nothing new can appear at runtime.
+- **Locked taxonomy.** Exactly 32 error codes and 9 warning codes in `kineticlab/contracts.py`; nothing new can appear at runtime; the one documented exception is unclassified server faults, which answer `code: null` rather than an invented code.
 - **Rejection is never green.** Unsupported inputs fail loudly, with the same honesty as successes.
 - **Every export carries provenance:** `software_version`, `input_sha256`, `model_name`, artifact hashes — reproducible and auditable end-to-end.
 
@@ -79,7 +79,7 @@ Live capture needs `MODEL_API_KEY` in the environment — sent only as an `Autho
 |---|---|
 | Any clip + confirmed masks | `g/L_eff = ω²` (`1/s²`), period, amplitude, fit diagnostics, PTS-true angle CSV |
 | + human-typed card width | mm-scale geometry: pivot, arc radius (descriptive) |
-| + independently measured length | gravity `g` (m/s²) — gated, and stated as `success_with_warnings` until references are verified |
+| + independently measured length | gravity `g` — **not in this build**: `g/L_eff` is measured, but no length input exists yet, so `g` stays `null` (planned: the gated `g = (g/L) × L` step) |
 | Nothing usable | A registered rejection — red, specific, and honest |
 
 ## Audit trail

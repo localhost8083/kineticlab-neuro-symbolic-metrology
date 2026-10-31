@@ -54,6 +54,16 @@ def iter_corpus():
 
 
 class CorpusDecodeTest(unittest.TestCase):
+    def test_dims_above_pixel_cap_fail_before_allocation(self):
+        # KL-10.6 MAJOR-3: oversized dims must fail with the registered
+        # E_OUT_OF_RANGE before mask_codec allocates width*height bytes
+        # (the 50000x50000 probe used to allocate multi-GB first).
+        data = "50000,50000,!"
+        with self.assertRaises(ContractError) as raised:
+            decode_mask_data(data, ref="test#L1")
+        codes = [error.code for error in raised.exception.errors]
+        self.assertIn("E_OUT_OF_RANGE", codes)
+
     def test_all_payloads_decode_with_canonical_round_trip(self):
         count = 0
         for path, line_no, data in iter_corpus():

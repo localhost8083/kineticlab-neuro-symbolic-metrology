@@ -540,6 +540,15 @@ ZERO_OFFSET_ASSUMPTION = (
 """Exact KL-9.6 M2 wording (a DC offset is NOT absorbed by phase)."""
 
 
+SMALL_ANGLE_ASSUMPTION = (
+    "M1 is the small-angle model: omega0 = omega*(1 - theta0^2/16 "
+    "+ O(theta0^4)), so the reported g/L_eff = omega^2 understates "
+    "the small-angle g/L by about theta0^2/8 (order 1% at the "
+    "observed amplitudes) - stated, uncorrected."
+)
+"""Exact KL-10.6 wording (finite-amplitude bias disclosed, uncorrected)."""
+
+
 class RegenerationTests(unittest.TestCase):
     def test_pins_regenerate(self):
         require_smoke(REQUEST["clip_path"])
@@ -567,10 +576,15 @@ class RegenerationTests(unittest.TestCase):
                     # here and compare everything else byte-stable.
                     self.assertEqual(fresh["assumptions"][0],
                                      ZERO_OFFSET_ASSUMPTION)
+                    # KL-10.6: same pattern for the added
+                    # finite-amplitude sentence (fixture predates it).
+                    self.assertIn(SMALL_ANGLE_ASSUMPTION,
+                                  fresh["assumptions"])
                     fresh = dict(
                         fresh,
                         assumptions=["<zero-blanked>"]
-                        + fresh["assumptions"][1:])
+                        + [text for text in fresh["assumptions"][1:]
+                           if text != SMALL_ANGLE_ASSUMPTION])
                     pinned = dict(
                         pinned,
                         assumptions=["<zero-blanked>"]
@@ -600,8 +614,11 @@ class RegenerationTests(unittest.TestCase):
         # hashes are verified against the freshly written files.
         # KL-9.6 M2: plus the reworded zero-offset sentence, blanked
         # on both sides (old wording read from the pin itself).
+        # KL-10.6: plus the added finite-amplitude sentence, removed
+        # from the fresh side (the pin predates it).
         fresh_summary = summary_bytes.decode("utf-8").replace(
-            ZERO_OFFSET_ASSUMPTION, "<zero-blanked>")
+            ZERO_OFFSET_ASSUMPTION, "<zero-blanked>").replace(
+                "- " + SMALL_ANGLE_ASSUMPTION + "\n", "")
         pinned_summary = (
             ASM_DIR / SUMMARY_FILENAME).read_text(
                 encoding="utf-8").replace(

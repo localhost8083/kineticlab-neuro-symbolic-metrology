@@ -1,2 +1,5 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# Byte-verbatim repo (KL-10.6): no EOL conversion anywhere.
+# Pinned fixtures, live SAM artifacts, and exports must hash
+# identically on every platform and clone; text=auto + core.autocrlf
+# inflated every text fixture by its line count on Windows checkouts.
+* -text
