@@ -84,7 +84,11 @@ jobs:
         shell: bash
         run: |
           python -m kineticlab serve --port 8137 & SRV=$!
-          cleanup() { kill "$SRV" 2>/dev/null; wait "$SRV" 2>/dev/null; }
+          # `|| true` on wait: bash's EXIT trap replaces the step's
+          # exit code with the trap's last status, and the killed
+          # server returns 143 (SIGTERM) — run 3 (41177420687) failed
+          # with exit 143 AFTER curl had already seen the 200.
+          cleanup() { kill "$SRV" 2>/dev/null; wait "$SRV" 2>/dev/null || true; }
           trap cleanup EXIT
           for _ in $(seq 1 60); do
             if curl -fsS -o /dev/null http://127.0.0.1:8137/; then exit 0; fi
