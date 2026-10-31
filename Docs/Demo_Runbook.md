@@ -17,7 +17,7 @@ one track (Indie / Startup); scoring Impact 30 / Technical Execution
 python -m unittest
 ```
 
-Say: "797 tests pass [C-003]." Say hygiene is enforced by 5 of them
+Say: "804 tests pass [C-003]." Say hygiene is enforced by 5 of them
 (no key material in tree, fixtures, or history [C-017]).
 
 ## 1. Structural media check — NOT a SAM replay

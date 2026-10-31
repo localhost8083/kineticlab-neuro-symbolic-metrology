@@ -635,15 +635,28 @@ h3.sub:first-child{margin-top:0}
             </div>
             <div role="tabpanel" id="viewReplay" aria-labelledby="ctabReplay" class="hidden">
               <p class="sub">Replay view: every chart is shown at once — all playheads stay in sync on the source-PTS timebase.</p>
+              <p class="sub" id="replayLabel"></p>
+              <div class="chart-empty" id="replayEmpty"><span class="empty-icon" aria-hidden="true">◷</span><strong>No replay yet</strong><p>Measured arm animation appears here after a demo or measurement.</p></div>
+              <div class="chart-wrap hidden" id="replayWrap">
+                <svg id="replaySvg" class="plot" viewBox="0 0 720 340" role="img" aria-label="Measured pendulum arm replay"></svg>
+              </div>
               <div class="replay-ctl">
                 <button id="replayBtn" type="button" class="btn small" disabled>Play</button>
-                <span class="speed-tag" title="Replay runs at recording speed on the source-PTS timebase">1×</span>
+                <label class="sub" for="replaySpeed" title="Speed multiplies source-PTS deltas only — frames are never synthesized">speed</label>
+                <select class="trail-window" id="replaySpeed" aria-label="Replay speed">
+                  <option value="0.25">0.25×</option>
+                  <option value="0.5">0.5×</option>
+                  <option value="1" selected>1×</option>
+                  <option value="2">2×</option>
+                  <option value="4">4×</option>
+                </select>
                 <span class="frame-counter" id="frameCounter"></span>
               </div>
               <div class="scrubrow">
                 <label for="scrub">Scrub</label>
                 <input type="range" class="scrub" id="scrub" min="0" max="0" value="0" step="1" aria-label="Scrub the time playhead">
                 <span id="playheadReadout" class="mono"></span>
+                <span id="replayReadout" class="mono"></span>
               </div>
               <p class="sub" id="replayCaption"></p>
             </div>
@@ -1924,7 +1937,8 @@ function svgEl(tag, attrs) {
 
 const chartEmptyDefaults = {};
 function showChartEmpties(message) {
-  for (const id of ["chartEmpty", "stripEmpty", "trailEmpty"]) {
+  for (const id of ["chartEmpty", "stripEmpty", "trailEmpty",
+    "replayEmpty"]) {
     const box = el(id);
     const hint = box.querySelector("p");
     if (!(id in chartEmptyDefaults)) {
@@ -1936,12 +1950,13 @@ function showChartEmpties(message) {
 }
 
 function clearVisuals(message) {
-  for (const id of ["chartSvg", "trailSvg", "stripSvg"]) {
+  for (const id of ["chartSvg", "trailSvg", "stripSvg", "replaySvg"]) {
     el(id).replaceChildren();
   }
   /* Hide the empty bordered chart boxes too — an empty full-width
      SVG renders hundreds of pixels of nothing under the empty text. */
-  for (const id of ["chartWrap", "trailWrap", "stripWrap"]) {
+  for (const id of ["chartWrap", "trailWrap", "stripWrap",
+    "replayWrap"]) {
     hide(el(id));
   }
   showChartEmpties(message);
@@ -1964,6 +1979,11 @@ function clearVisuals(message) {
   el("frameCounter").textContent = "";
   el("replayCaption").textContent = "";
   el("trailWindow").value = "15";
+  /* KL-10.9-A: the measured-arm stage parks too — a cleared run
+     must never leave the arm at a stale position, and the speed
+     resets to 1× like the trail window resets to 15. */
+  clearReplayArm("No measured frames — nothing to replay.");
+  el("replaySpeed").value = "1";
   paintPeriodChip(null);
   paintSciState("No measurement loaded", false);
   paintSciDiagnosticsIdle("No measurement loaded.");
@@ -2318,11 +2338,161 @@ function syncPlayheads(idx) {
           "/" + order[order.length - 1] : "");
   el("frameCounter").textContent =
     (safe + 1) + " / " + order.length;
+  /* KL-10.9-A: the measured arm follows the same playhead — its
+     endpoint is the frame's own centroid, re-posed, never derived.
+     The readout names that frame's measured theta and PTS. */
+  el("replayReadout").textContent =
+    "θ = " + points[safe][1].toFixed(4) + " rad · t = " +
+    points[safe][0].toFixed(3) + " s · frame " + (safe + 1) + "/" +
+    order.length;
+  const replayGeo = seriesData.replayGeo;
+  const arm = document.getElementById("replayArm");
+  const bob = document.getElementById("replayBob");
+  if (arm && bob && replayGeo) {
+    arm.setAttribute("x2", String(replayGeo.X(trail[safe][0])));
+    arm.setAttribute("y2", String(replayGeo.Y(trail[safe][1])));
+    bob.setAttribute("cx", String(replayGeo.X(trail[safe][0])));
+    bob.setAttribute("cy", String(replayGeo.Y(trail[safe][1])));
+  }
 }
 
-/* KL-10.5 replay: a pausable 1× rAF loop over the source-PTS
-   timebase (cursor advances by real elapsed seconds, so the 1× tag
-   is true by construction). The playhead marker on the trail and
+/* KL-10.9-A measured-arm replay: the pendulum arm is drawn from
+   the pipeline's pivot_px to the measured per-frame centroid — the
+   endpoint IS the data, never derived from an angle, so this needs
+   no trigonometry (and uses none). Verbatim copy only: pivot comes
+   from diagnostics.json / the motion report as shipped. */
+function pivotFromPayload(doc) {
+  const raw = doc ? doc.pivot_px : null;
+  if (!Array.isArray(raw) || raw.length < 2) return null;
+  const x = Number(raw[0]), y = Number(raw[1]);
+  return Number.isFinite(x) && Number.isFinite(y) ? [x, y] : null;
+}
+
+function buildReplayArm(svg, pivot, trail) {
+  if (!trail || trail.length === 0) return null;
+  hide(el("replayEmpty"));
+  show(el("replayWrap"));
+  const pal = chartPalette();
+  svg.replaceChildren();
+  svgTitle(svg, "Measured pendulum arm: pipeline pivot to " +
+    trail.length + " measured bob centroids in pixel space.");
+  const W = 720, H = 340, pad = 30;
+  let minX = pivot[0], maxX = pivot[0],
+    minY = pivot[1], maxY = pivot[1];
+  for (const pt of trail) {
+    if (pt[0] < minX) minX = pt[0];
+    if (pt[0] > maxX) maxX = pt[0];
+    if (pt[1] < minY) minY = pt[1];
+    if (pt[1] > maxY) maxY = pt[1];
+  }
+  if (!(maxX > minX)) maxX = minX + 1;
+  if (!(maxY > minY)) maxY = minY + 1;
+  const span = Math.max(maxX - minX, maxY - minY) * 1.15;
+  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+  const X = (x) => pad + ((x - (cx - span / 2)) / span) * (W - 2 * pad);
+  const Y = (y) => pad + ((y - (cy - span / 2)) / span) * (H - 2 * pad);
+  svg.appendChild(svgEl("rect", { x: "0.5", y: "0.5", width: String(W - 1),
+    height: String(H - 1), fill: "none", stroke: pal.frame }));
+  const path = trail.map((pt, i) =>
+    (i === 0 ? "M" : "L") + X(pt[0]).toFixed(1) + " " + Y(pt[1]).toFixed(1)
+  ).join(" ");
+  svg.appendChild(svgEl("path", { d: path, fill: "none", stroke: pal.trail,
+    "stroke-width": "1.2", opacity: "0.45" }));
+  for (let i = 0; i < trail.length; i++) {
+    svg.appendChild(svgEl("circle", { cx: String(X(trail[i][0])),
+      cy: String(Y(trail[i][1])), r: "1.2", fill: pal.trail,
+      opacity: "0.5" }));
+  }
+  const anchor = svgEl("circle", { cx: String(X(pivot[0])),
+    cy: String(Y(pivot[1])), r: "4", fill: "none", stroke: pal.text,
+    "stroke-width": "2" });
+  const anchorLabel = svgEl("title", {});
+  anchorLabel.textContent = "pivot (pipeline pivot_px)";
+  anchor.appendChild(anchorLabel);
+  svg.appendChild(anchor);
+  svg.appendChild(svgEl("line", { id: "replayArm",
+    x1: String(X(pivot[0])), y1: String(Y(pivot[1])),
+    x2: String(X(trail[0][0])), y2: String(Y(trail[0][1])),
+    stroke: pal.text, "stroke-width": "2.5" }));
+  const bob = svgEl("circle", { id: "replayBob", cx: String(X(trail[0][0])),
+    cy: String(Y(trail[0][1])), r: "5", fill: pal.strip });
+  const bobLabel = svgEl("title", {});
+  bobLabel.textContent = "measured centroid";
+  bob.appendChild(bobLabel);
+  svg.appendChild(bob);
+  const cap = svgEl("text", { x: String(W - 12), y: String(H - 10),
+    "text-anchor": "end", fill: pal.muted, "font-size": "11" });
+  cap.textContent = "pivot → measured centroid, px (aspect preserved)";
+  svg.appendChild(cap);
+  return { X, Y };
+}
+
+function paintReplayArm(pivot) {
+  if (!seriesData) return;
+  seriesData.pivot = pivot;
+  seriesData.replayGeo = null;
+  if (!pivot) {
+    hide(el("replayWrap"));
+    show(el("replayEmpty"));
+    el("replayLabel").textContent =
+      "No pivot in this payload — arm not drawn.";
+    el("replayReadout").textContent = "";
+    return;
+  }
+  const geo = buildReplayArm(el("replaySvg"), pivot, seriesData.trail);
+  if (!geo) {
+    hide(el("replayWrap"));
+    show(el("replayEmpty"));
+    el("replayLabel").textContent =
+      "No measured centroids — arm not drawn.";
+    el("replayReadout").textContent = "";
+    return;
+  }
+  seriesData.replayGeo = geo;
+  el("replayLabel").textContent =
+    "Motion reconstructed from measured frames.";
+}
+
+function clearReplayArm(message) {
+  el("replaySvg").replaceChildren();
+  el("replayReadout").textContent = "";
+  el("replayLabel").textContent = message;
+  if (seriesData) {
+    seriesData.replayGeo = null;
+    seriesData.pivot = null;
+  }
+}
+
+/* Rejection runs keep the replay controls parked: the caption
+   carries the honest reason (never green — it is plain text). */
+function rejectionCaption(result) {
+  if (!result || !result.status) return "";
+  const status = result.status;
+  if (status === "success" || status === "success_with_warnings") return "";
+  return "No replay: this run was rejected (" + status +
+    ") — nothing measured.";
+}
+
+/* Validated replay speed: the allowlist only, anything else falls
+   back to 1 (recording speed on the source-PTS timebase). */
+function replaySpeed() {
+  const value = el("replaySpeed").value;
+  if (value === "0.25" || value === "0.5" || value === "1" ||
+      value === "2" || value === "4") return Number(value);
+  return 1;
+}
+
+/* Frame advance is multiplication of a real PTS delta only: the
+   cursor moves by elapsed seconds times speed, and the displayed
+   frame is always a measured one at or behind the cursor (see
+   replayIndexFor) — never synthesized, never extrapolated. */
+function replayAdvance(cursor, deltaMs) {
+  return cursor + (deltaMs / 1000) * replaySpeed();
+}
+
+/* KL-10.5 replay: a pausable rAF loop over the source-PTS
+   timebase (cursor advances by real elapsed seconds times the
+   selected speed, so 1× is true by construction). The playhead marker on the trail and
    the time cursor on the trajectory chart move together via
    syncPlayheads; scrubbing while paused just seeks. */
 let replayPlaying = false;
@@ -2367,7 +2537,7 @@ function startReplay() {
   const tick = (now) => {
     if (!replayPlaying || !seriesData) return;
     if (lastNow === null) lastNow = now;
-    replayCursor += (now - lastNow) / 1000;
+    replayCursor = replayAdvance(replayCursor, now - lastNow);
     lastNow = now;
     const idx = replayIndexFor(replayCursor);
     el("scrub").value = String(idx);
@@ -2421,7 +2591,7 @@ function reducedMotion() {
 }
 
 function markChartsLoading(on) {
-  for (const id of ["chartSvg", "trailSvg", "stripSvg"]) {
+  for (const id of ["chartSvg", "trailSvg", "stripSvg", "replaySvg"]) {
     el(id).classList.toggle("skeleton", on);
   }
 }
@@ -2451,6 +2621,7 @@ async function paintChart(files, result, report, modeLabel) {
   clearVisuals("Loading measured points…");
   if (!files["angles.csv"]) {
     clearVisuals("No angles.csv in this payload — nothing plotted, nothing guessed.");
+    el("replayCaption").textContent = rejectionCaption(result);
     return null;
   }
   let csvText;
@@ -2471,6 +2642,7 @@ async function paintChart(files, result, report, modeLabel) {
     if (modeLabel && result && result.status) {
       paintSciState(modeLabel + " · " + result.status, false);
     }
+    el("replayCaption").textContent = rejectionCaption(result);
     return null;
   }
   let diagnostics = { residuals: [], period: null, doc: null };
@@ -2500,9 +2672,11 @@ async function paintChart(files, result, report, modeLabel) {
     : (clearStripOnly("No residuals in this payload."), null);
   seriesData = { geo, trailGeo: null, stripGeo, points, trail, order,
     fitted, period: diagnostics.period, times, residuals,
+    pivot: null, replayGeo: null,
     trailStart: 0, trailFlags: excludedTrailRows(order, report,
       diagnostics.doc) };
   renderTrailWindow();
+  paintReplayArm(pivotFromPayload(diagnostics.doc));
   const scrubber = el("scrub");
   scrubber.max = String(order.length - 1);
   scrubber.value = String(order.length - 1);
@@ -3273,9 +3447,11 @@ async function paintMotionChart(files, report, modeLabel) {
     : (clearStripOnly("No residuals in this report."), null);
   seriesData = { geo, trailGeo: null, stripGeo, points, trail, order,
     fitted, period: diagnostics.period, times, residuals,
+    pivot: null, replayGeo: null,
     trailStart: 0, trailFlags: excludedTrailRows(order, report,
       diagnostics.doc) };
   renderTrailWindow();
+  paintReplayArm(pivotFromPayload(report));
   const scrubber = el("scrub");
   scrubber.max = String(order.length - 1);
   scrubber.value = String(order.length - 1);

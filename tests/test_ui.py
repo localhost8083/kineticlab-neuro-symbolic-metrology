@@ -947,6 +947,9 @@ class FunctionalIdPreservationTests(unittest.TestCase):
         "sciCard", "sciState", "periodChip", "trailWindow",
         "frameCounter", "replayCaption", "sciDiagWrap", "sciDiagRows",
         "fitLegend",
+        # Measured-arm replay (KL-10.9-A)
+        "replayLabel", "replayEmpty", "replayWrap", "replaySvg",
+        "replaySpeed", "replayReadout",
         "warnList", "assumeList", "reasonList", "advisoryBox",
         "provRows", "artifactRows", "exportLinks", "summaryPre",
         "reportsCard", "reportLinks",
@@ -1384,7 +1387,8 @@ class LiveServeTests(unittest.TestCase):
             [sys.executable, "-m", "kineticlab", "serve",
              "--port", str(port)],
             cwd=str(REPO_ROOT), stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT, text=True)
+            stderr=subprocess.STDOUT, text=True,
+            encoding="utf-8")
         # Cleanups run LIFO: terminate, then wait, then the stdout
         # pipe closes last (KL-10.7: the unclosed fd-3 TextIOWrapper
         # raised a ResourceWarning on the full suite under -X dev).
@@ -1852,6 +1856,7 @@ def run_page_driver(script, check_js, fetch_map=None):
         path.write_text(driver, encoding="utf-8")
         completed = subprocess.run(
             ["node", str(path)], capture_output=True, text=True,
+            encoding="utf-8",
             timeout=120, cwd=tmp)
     if completed.returncode != 0:
         raise AssertionError(
@@ -2581,6 +2586,259 @@ class ScientificAnalysisTests(unittest.TestCase):
         # Without a sidecar the embedded calibration applies.
         self.assertIn("85.6 × 53.98 mm (human-typed reference)",
                       single)
+
+
+class ReplayAnimationTests(unittest.TestCase):
+    """KL-10.9-A: the measured-arm replay proven by EXECUTING the
+    shipped page script under node — real fixture payloads, DOM stub.
+    The arm endpoint must BE the measured centroid; speed must be
+    exact PTS-delta multiplication; missing data must render honest
+    text, never throw, never fabricate."""
+
+    LABEL = "Motion reconstructed from measured frames."
+
+    @classmethod
+    def setUpClass(cls):
+        page = (UI_DIR / "index.html").read_text(encoding="utf-8")
+        script = page.split("<script>", 1)[1].split("</script>", 1)[0]
+        assert "__KL_LIVE_AVAILABLE__" in script
+        cls.script = script.replace("__KL_LIVE_AVAILABLE__", "true")
+        asm = REPO_ROOT / "fixtures" / "assembly"
+        cls.result = json.loads(
+            (asm / "result.json").read_text(encoding="utf-8"))
+        cls.diagnostics_text = (
+            asm / "diagnostics.json").read_text(encoding="utf-8")
+        cls.angles_text = (
+            asm / "angles.csv").read_text(encoding="utf-8")
+        rows = []
+        for line in cls.angles_text.strip().split("\n")[1:]:
+            cells = line.split(",")
+            rows.append(tuple(float(c) for c in cells))
+        cls.rows = rows
+
+    def paint_check(self, result_json, diag_text, preamble="", post=""):
+        return (
+            "(async () => {\n" + preamble +
+            "  const doc = await paintChart({ \"angles.csv\": \"u_csv\",\n"
+            "    \"diagnostics.json\": \"u_diag\" }, " + result_json +
+            ", null, \"demo success\");\n" +
+            post +
+            "})().catch((e) => {\n"
+            "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
+            "  process.exit(1);\n"
+            "});\n")
+
+    def fetch_map(self, diag_text=None):
+        return {"u_csv": self.angles_text,
+                "u_diag": diag_text or self.diagnostics_text}
+
+    def test_arm_label_and_endpoints_are_measured(self):
+        post = (
+            "  const kids =\n"
+            "    document.getElementById(\"replaySvg\").children;\n"
+            "  const dots = kids.filter((k) => k.tag === \"circle\"\n"
+            "    && k.attrs.r === \"1.2\").length;\n"
+            "  const anchors = kids.filter((k) => k.tag === \"circle\"\n"
+            "    && k.attrs.r === \"4\").length;\n"
+            "  let armD = \"\";\n"
+            "  const arm = document.getElementById(\"replayArm\");\n"
+            "  const bob = document.getElementById(\"replayBob\");\n"
+            "  const child = kids.find((k) => k.tag === \"line\"\n"
+            "    && k.attrs.id === \"replayArm\");\n"
+            "  for (const k of kids)\n"
+            "    if (k.tag === \"path\") armD = k.attrs.d || \"\";\n"
+            "  __emit({ label: document.getElementById(\"replayLabel\")\n"
+            "      .textContent,\n"
+            "    dots, anchors, nan: armD.includes(\"NaN\"),\n"
+            "    len: armD.length,\n"
+            "    x1: child.attrs.x1, y1: child.attrs.y1,\n"
+            "    x2: arm.getAttribute(\"x2\"), y2: arm.getAttribute(\"y2\"),\n"
+            "    cx: bob.getAttribute(\"cx\"),\n"
+            "    cy: bob.getAttribute(\"cy\") });\n")
+        out = run_page_driver(
+            self.script,
+            self.paint_check(json.dumps(self.result),
+                             self.diagnostics_text, post=post),
+            self.fetch_map())
+        # (a) the exact honest label, written by the script.
+        self.assertEqual(out["label"], self.LABEL)
+        # Every measured centroid drawn faint, one pivot anchor,
+        # finite path data throughout.
+        self.assertEqual(out["dots"], 234)
+        self.assertEqual(out["anchors"], 1)
+        self.assertGreater(out["len"], 0)
+        self.assertFalse(out["nan"])
+        for key in ("x1", "y1", "x2", "y2", "cx", "cy"):
+            self.assertTrue(float(out[key]) == float(out[key]),
+                            f"non-finite arm coordinate: {key}")
+        # The arm endpoint IS the measured-centroid marker.
+        self.assertEqual(out["x2"], out["cx"])
+        self.assertEqual(out["y2"], out["cy"])
+
+    def test_speed_multiplies_pts_deltas_exactly(self):
+        check = (
+            "  const speeds = [\"0.25\", \"0.5\", \"1\", \"2\", \"4\",\n"
+            "    \"\", \"9\", \"1x\"];\n"
+            "  const got = {};\n"
+            "  for (const s of speeds) {\n"
+            "    document.getElementById(\"replaySpeed\").value = s;\n"
+            "    got[s] = replayAdvance(10.0, 2000);\n"
+            "  }\n"
+            "  __emit(got);\n")
+        out = run_page_driver(self.script, check, {})
+        # (b) 2000 ms at speed s advances the PTS cursor by 2*s.
+        self.assertEqual(out["0.25"], 10.5)
+        self.assertEqual(out["0.5"], 11.0)
+        self.assertEqual(out["1"], 12.0)
+        self.assertEqual(out["2"], 14.0)
+        self.assertEqual(out["4"], 18.0)
+        # Anything off the allowlist falls back to 1.
+        self.assertEqual(out[""], 12.0)
+        self.assertEqual(out["9"], 12.0)
+        self.assertEqual(out["1x"], 12.0)
+
+    def test_scrub_shows_measured_frame_values(self):
+        post = (
+            "  syncPlayheads(27);\n"
+            "  const arm = document.getElementById(\"replayArm\");\n"
+            "  const bob = document.getElementById(\"replayBob\");\n"
+            "  __emit({ readout: document.getElementById(\n"
+            "      \"replayReadout\").textContent,\n"
+            "    counter: document.getElementById(\"frameCounter\")\n"
+            "      .textContent,\n"
+            "    x1: arm.getAttribute(\"x1\"), y1: arm.getAttribute(\"y1\"),\n"
+            "    x2: arm.getAttribute(\"x2\"), y2: arm.getAttribute(\"y2\"),\n"
+            "    cx: bob.getAttribute(\"cx\"),\n"
+            "    cy: bob.getAttribute(\"cy\") });\n")
+        out = run_page_driver(
+            self.script,
+            self.paint_check(json.dumps(self.result),
+                             self.diagnostics_text, post=post),
+            self.fetch_map())
+        # (c) scrub to row 27 shows that row's measured theta/PTS.
+        theta, pts = self.rows[27][2], self.rows[27][1]
+        shown = re.findall(r"[-+0-9.eE]+", out["readout"])
+        self.assertAlmostEqual(float(shown[0]), theta, places=4)
+        self.assertAlmostEqual(float(shown[1]), pts, places=3)
+        self.assertEqual(out["counter"], "28 / 234")
+        self.assertEqual(out["x2"], out["cx"])
+        self.assertEqual(out["y2"], out["cy"])
+
+    def test_reduced_motion_parks_with_posed_arm(self):
+        post = (
+            "  toggleReplay();\n"
+            "  const btn = document.getElementById(\"replayBtn\");\n"
+            "  const bob = document.getElementById(\"replayBob\");\n"
+            "  __emit({ scrub: document.getElementById(\"scrub\").value,\n"
+            "    counter: document.getElementById(\"frameCounter\")\n"
+            "      .textContent,\n"
+            "    disabled: btn.disabled, btn: btn.textContent,\n"
+            "    caption: document.getElementById(\"replayCaption\")\n"
+            "      .textContent,\n"
+            "    label: document.getElementById(\"replayLabel\")\n"
+            "      .textContent,\n"
+            "    readout: document.getElementById(\"replayReadout\")\n"
+            "      .textContent,\n"
+            "    cx: bob.getAttribute(\"cx\"),\n"
+            "    cy: bob.getAttribute(\"cy\") });\n")
+        out = run_page_driver(
+            self.script,
+            self.paint_check(json.dumps(self.result),
+                             self.diagnostics_text, post=post),
+            self.fetch_map())
+        # (d) the stub reports reduced motion: static mid-frame,
+        # parked Play, arm posed at the scrub position, no advance.
+        self.assertEqual(out["scrub"], "116")
+        self.assertEqual(out["counter"], "117 / 234")
+        self.assertTrue(out["disabled"])
+        self.assertEqual(out["btn"], "Play")
+        self.assertIn("reduced-motion", out["caption"])
+        self.assertEqual(out["label"], self.LABEL)
+        theta, pts = self.rows[116][2], self.rows[116][1]
+        shown = re.findall(r"[-+0-9.eE]+", out["readout"])
+        self.assertAlmostEqual(float(shown[0]), theta, places=4)
+        self.assertAlmostEqual(float(shown[1]), pts, places=3)
+        self.assertTrue(float(out["cx"]) == float(out["cx"]))
+        self.assertTrue(float(out["cy"]) == float(out["cy"]))
+
+    def test_empty_payload_honest_empty_state(self):
+        check = (
+            "(async () => {\n"
+            "  await paintChart({}, null, null, \"demo success\");\n"
+            "  const emptyKids = document.getElementById(\"replaySvg\")\n"
+            "    .children.length;\n"
+            "  const emptyLabel = document.getElementById(\"replayLabel\")\n"
+            "    .textContent;\n"
+            "  const emptyBtn = document.getElementById(\"replayBtn\")\n"
+            "    .disabled;\n"
+            "  await paintChart({}, { status: \"unsupported_input\" },\n"
+            "    null, \"demo rejection\");\n"
+            "  __emit({ emptyKids, emptyLabel, emptyBtn,\n"
+            "    caption: document.getElementById(\"replayCaption\")\n"
+            "      .textContent,\n"
+            "    disabled: document.getElementById(\"replayBtn\")\n"
+            "      .disabled });\n"
+            "})().catch((e) => {\n"
+            "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
+            "  process.exit(1);\n"
+            "});\n")
+        out = run_page_driver(self.script, check, {})
+        # (e) empty payload: nothing animated, honest text, no throw.
+        self.assertEqual(out["emptyKids"], 0)
+        self.assertIn("No measured frames", out["emptyLabel"])
+        self.assertIn("nothing to replay", out["emptyLabel"])
+        self.assertTrue(out["emptyBtn"])
+        # Rejection: controls parked with the honest reason.
+        self.assertIn("No replay: this run was rejected "
+                      "(unsupported_input)", out["caption"])
+        self.assertIn("nothing measured", out["caption"])
+        self.assertTrue(out["disabled"])
+
+    def test_missing_pivot_honest_no_arm(self):
+        base = json.loads(self.diagnostics_text)
+        variants = {
+            "missing": {k: v for k, v in base.items()
+                        if k != "pivot_px"},
+            "null": {**base, "pivot_px": None},
+            "malformed": {**base, "pivot_px": ["a", "b"]},
+            "short": {**base, "pivot_px": [1.0]},
+        }
+        for name, diag in variants.items():
+            with self.subTest(variant=name):
+                post = (
+                    "  const kids = document.getElementById(\n"
+                    "    \"replaySvg\").children;\n"
+                    "  const chartKids = document.getElementById(\n"
+                    "    \"chartSvg\").children;\n"
+                    "  const dots = chartKids.filter(\n"
+                    "    (k) => k.tag === \"circle\").length;\n"
+                    "  __emit({ label: document.getElementById(\n"
+                    "      \"replayLabel\").textContent,\n"
+                    "    kids: kids.length, dots });\n")
+                out = run_page_driver(
+                    self.script,
+                    self.paint_check(json.dumps(self.result),
+                                     json.dumps(diag), post=post),
+                    self.fetch_map(json.dumps(diag)))
+                # (e) no usable pivot: no arm, honest text, no
+                # throw — while the measured charts still render.
+                self.assertIn("No pivot in this payload",
+                              out["label"])
+                self.assertIn("arm not drawn", out["label"])
+                self.assertEqual(out["kids"], 0)
+                self.assertEqual(out["dots"], 234)
+
+    def test_page_invariants_hold(self):
+        # (f) the KL-10.5 bans survive this task: no trig, no
+        # timers, textContent-only DOM writes.
+        for token in ("Math.sin", "Math.cos", "Math.tan",
+                      "Math.exp", "innerHTML", "outerHTML",
+                      "insertAdjacentHTML", "document.write",
+                      "setTimeout", "setInterval"):
+            self.assertNotIn(token, self.script)
+        self.assertNotIn("eval(", self.script)
+        # The honest label is owned in exactly one place.
+        self.assertEqual(self.script.count(self.LABEL), 1)
 
 
 if __name__ == "__main__":
