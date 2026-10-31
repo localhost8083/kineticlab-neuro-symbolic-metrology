@@ -37,11 +37,15 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        include:
-          - os: ubuntu-latest
-            shell: bash
-          - os: windows-latest
-            shell: pwsh
+    # KL-10.8 fix: step-level `shell` does not support the `matrix`
+    # context (GitHub rejects it at parse time with "Unrecognized
+    # named-value: matrix"). A literal job-level default of bash is
+    # used instead — windows-latest runners include Git Bash, so the
+    # identical Quickstart commands run on both OS labels. The two
+    # serve-smoke steps pin their own shells (bash / pwsh) literally.
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v4
 
@@ -50,30 +54,24 @@ jobs:
           python-version: "3.11"
 
       - name: python --version
-        shell: ${{ matrix.shell }}
         run: python --version
 
       - name: python -m kineticlab --help
-        shell: ${{ matrix.shell }}
         run: python -m kineticlab --help
 
       - name: python scripts/media_check.py
-        shell: ${{ matrix.shell }}
         run: python scripts/media_check.py
 
       - name: python -m unittest
-        shell: ${{ matrix.shell }}
         run: python -m unittest
 
       - name: python -m kineticlab demo --chain success
-        shell: ${{ matrix.shell }}
         run: python -m kineticlab demo --chain success
 
       - name: python -m kineticlab demo --chain rejection
-        shell: ${{ matrix.shell }}
         run: python -m kineticlab demo --chain rejection
 
-      - name: serve answers 200, then stops (ubuntu)
+      - name: serve answers 200, then stops (bash variant)
         if: runner.os == 'Linux'
         shell: bash
         run: |
@@ -87,7 +85,7 @@ jobs:
           echo 'serve did not answer 200 within 30 s' >&2
           exit 1
 
-      - name: serve answers 200, then stops (windows)
+      - name: serve answers 200, then stops (windows pwsh variant)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
