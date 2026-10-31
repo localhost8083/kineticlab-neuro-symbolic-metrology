@@ -30,7 +30,7 @@ Two modes: **Full** (bob + reference card) and **Motion** (bob only — scale-fr
 
 - **Backend: Python standard library only** — zero third-party runtime dependencies.
 - **UI: one self-contained HTML file** (vanilla JS/CSS, no frameworks, no external references, no timers) served by a stdlib HTTP server on `127.0.0.1:8137`.
-- Verified by a 838-test suite (`python -m unittest`), including key hygiene (the model API key is env-only, never logged or stored) and end-to-end live runs against the real API.
+- Verified by a 854-test suite (`python -m unittest`), including key hygiene (the model API key is env-only, never logged or stored). Automated tests are mock-transport; real-API evidence is the recorded fixture run.
 - Windows-first; live-verified end-to-end on real hardware.
 
 ## Honest status
@@ -42,9 +42,9 @@ Two modes: **Full** (bob + reference card) and **Motion** (bob only — scale-fr
 
 - Stdlib-only backend; the UI stays a single self-contained file — no frameworks, no external refs.
 - Never add a taxonomy code; never let a model author or "clean up" a numeric result.
-- `fixtures/` is read-only; task ledgers (`TASKS.md`, `WHITEBOARD.md`) and review docs (`Docs/Review_Log.md`, `Docs/Claims_Register.md`, `PLAN.md`) have named owners — check before writing.
+- `fixtures/` is read-only; task ledgers (`TASKS.md`, `WHITEBOARD.md`) and review docs (`Docs/Review_Log_Public.md`, `Docs/Claims_Register_Public.md`, `PLAN.md`) have named owners — check before writing.
 - No commits or pushes without the owner's explicit approval.
 
 ---
 
-*File owner: Fable (reviewer). Created 2026-10-29 at the user's request as a shareable project description; content is descriptive only — authoritative claims live in `Docs/Claims_Register.md`.*
+*File owner: Fable (reviewer). Created 2026-10-29 at the user's request as a shareable project description; content is descriptive only — authoritative claims live in `Docs/Claims_Register_Public.md`.*

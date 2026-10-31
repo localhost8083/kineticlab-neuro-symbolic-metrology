@@ -824,11 +824,13 @@ class RefinementTests(unittest.TestCase):
             cls.style = ""
 
     def test_sidebar_width_in_range(self):
-        # Desktop sidebar must sit in the 210–230px band.
+        # KL-10.14: the sidebar is the left rail at 300–320px, and the
+        # shell carries three tracks (rail, center, persistent sim).
         self.assertRegex(
             self.style,
-            r"\.shell\{[^}]*grid-template-columns:22\dpx",
-            "sidebar width must be 220–229px")
+            r"\.shell\{[^}]*grid-template-columns:3[012]\dpx",
+            "left rail width must be 300–329px")
+        self.assertIn("minmax(0,1fr) 320px", self.style)
 
     def test_advanced_diagnostics_collapsed(self):
         # Collapsed by default (no open attribute) and owning the
@@ -987,6 +989,11 @@ class FunctionalIdPreservationTests(unittest.TestCase):
         # KL-10.13 polish: top loading bar + inline field errors
         "globalProgress", "globalProgressLabel", "clipFieldError",
         "liveMmError", "livePromptBobError", "livePromptCardError",
+        # KL-10.14 dashboard: header verdict badge + interval sub-line
+        "verdictBadge", "omegaInterval",
+        # KL-10.15 gravity: length input + g tile + interval note
+        "liveLengthMm", "liveLengthError", "metricGravity",
+        "metricGravityWhy", "intervalNote",
     ]
 
     @classmethod
@@ -3318,27 +3325,37 @@ class SimulationTests(unittest.TestCase):
             self.assertNotIn("good", tag)
             self.assertNotIn("primary", tag)
 
-    def test_sim_layout_two_column_structure(self):
-        # KL-10.12: stage column + 320px panel, collapsing narrow.
+    def test_sim_persistent_column_structure(self):
+        # KL-10.14: stage stacked over controls in the persistent right
+        # column; side-by-side again only when the rail spans full
+        # width on narrower screens.
         block = self.page.split('id="viewSimulation"', 1)[1].split(
-            'id="sciDiagWrap"', 1)[0]
+            'class="underbar"', 1)[0]
         self.assertIn('class="sim-layout"', block)
         self.assertIn('class="sim-stage-col"', block)
         self.assertIn('class="sim-panel"', block)
         self.assertIn(
             ".sim-layout{display:grid;"
-            "grid-template-columns:minmax(0,1fr) 320px",
+            "grid-template-columns:minmax(0,1fr);",
             self.page)
         self.assertIn(
-            "@media(max-width:900px)"
-            "{.sim-layout{grid-template-columns:1fr}}",
+            "@media(max-width:1250px)"
+            "{.sim-layout{grid-template-columns:minmax(0,1fr) 320px}}",
             self.page)
+        self.assertLess(
+            self.page.index("</main>"),
+            self.page.index('id="viewSimulation"'))
+        self.assertLess(
+            self.page.index('id="viewSimulation"'),
+            self.page.index('class="underbar"'))
 
     def test_sim_panel_stat_tiles_and_formula(self):
         # KL-10.12: kicker, badge chip, stat tiles, formula panel,
         # footer note — all present with the frozen node IDs.
+        # KL-10.14: same content, re-anchored to the persistent column
+        # (the old sciDiagWrap anchor now sits ahead of the sim block).
         block = self.page.split('id="viewSimulation"', 1)[1].split(
-            'id="sciDiagWrap"', 1)[0]
+            'class="underbar"', 1)[0]
         self.assertIn("SIMULATION PLAYGROUND", block)
         self.assertIn('class="sim-badge" id="simLabel"', block)
         self.assertIn('class="sim-stats"', block)
@@ -3592,6 +3609,295 @@ class UiPolish1013Tests(unittest.TestCase):
         self.assertTrue(out["hiddenBar"])
         self.assertTrue(out["skel"])
         self.assertTrue(out["reduced"])
+
+
+@unittest.skipUnless(shutil.which("node"),
+                     "node is required for page-execution proofs")
+class DashboardLayout1014Tests(unittest.TestCase):
+    """KL-10.14: the 3-column instrument dashboard — header badge,
+    four-tab hero strip, left-rail order, persistent sim column,
+    footer strip, and the Key Results interval line."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.page = (UI_DIR / "index.html").read_text(encoding="utf-8")
+        script = cls.page.split("<script>", 1)[1].split("</script>", 1)[0]
+        assert "__KL_LIVE_AVAILABLE__" in script
+        cls.script = script.replace("__KL_LIVE_AVAILABLE__", "true")
+        asm = REPO_ROOT / "fixtures" / "assembly"
+        cls.success_result = json.loads(
+            (asm / "result.json").read_text(encoding="utf-8"))
+        cls.rejection_result = json.loads(
+            (asm / "rejection" / "result.json").read_text(
+                encoding="utf-8"))
+
+    def test_header_verdict_badge_states(self):
+        self.assertIn('id="verdictBadge">No run yet', self.page)
+        self.assertIn("verdict-badge is-neutral", self.page)
+        check = (
+            "try {\n"
+            "  paintVerdict({ status: \"success\",\n"
+            "    fit: { observation_count: 234 } }, null);\n"
+            "  const badge = document.getElementById(\"verdictBadge\");\n"
+            "  const good = { text: badge.textContent,\n"
+            "    cls: badge.className,\n"
+            "    verdict: document.getElementById(\"verdict\")\n"
+            "      .className };\n"
+            "  paintVerdict(" + json.dumps(self.success_result)
+            + ", null);\n"
+            "  const pinned = { text: badge.textContent,\n"
+            "    cls: badge.className };\n"
+            "  paintVerdict(" + json.dumps(self.rejection_result)
+            + ", null);\n"
+            "  const bad = { text: badge.textContent,\n"
+            "    cls: badge.className,\n"
+            "    verdict: document.getElementById(\"verdict\")\n"
+            "      .className };\n"
+            "  paintVerdict(null, { error: { code: \"E_TIMEOUT\" } });\n"
+            "  const failed = { text: badge.textContent,\n"
+            "    cls: badge.className };\n"
+            "  paintVerdict({ status: \"success_with_warnings\",\n"
+            "    fit: null }, null);\n"
+            "  const warn = { text: badge.textContent,\n"
+            "    cls: badge.className };\n"
+            "  __emit({ good, pinned, bad, failed, warn });\n"
+            "} catch (e) {\n"
+            "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
+            "  process.exit(1);\n"
+            "}\n")
+        out = run_page_driver(self.script, check, {})
+        self.assertEqual(out["good"]["text"], "verdict: success")
+        self.assertIn("is-success", out["good"]["cls"])
+        self.assertEqual(out["good"]["verdict"], "verdict ok")
+        self.assertEqual(out["pinned"]["text"],
+                         "verdict: success with warnings")
+        self.assertIn("is-warn", out["pinned"]["cls"])
+        self.assertEqual(out["bad"]["text"], "verdict: rejected")
+        self.assertIn("is-warn", out["bad"]["cls"])
+        self.assertEqual(out["bad"]["verdict"], "verdict bad")
+        self.assertEqual(out["failed"]["text"], "verdict: failed")
+        self.assertIn("is-warn", out["failed"]["cls"])
+        self.assertIn("is-warn", out["warn"]["cls"])
+        self.assertNotIn("is-success", out["warn"]["cls"])
+
+    def test_chart_strip_has_four_tabs(self):
+        strip = self.page.split('id="sciCard"', 1)[1].split(
+            'id="viewTrajectory"', 1)[0]
+        self.assertEqual(strip.count('role="tab"'), 4)
+        for ident in ("ctabTrajectory", "ctabResiduals", "ctabTrail",
+                      "ctabReplay"):
+            self.assertIn(f'id="{ident}"', strip)
+        self.assertNotIn("ctabSimulation", strip)
+        self.assertIn('id="ctabSimulation"', self.page)
+        match = re.search(r"CTAB_IDS = \[(.*?)\]", self.script,
+                          re.DOTALL)
+        self.assertIsNotNone(match)
+        self.assertEqual(match.group(1).count('"ctab'), 4)
+        self.assertNotIn("ctabSimulation", match.group(1))
+
+    def test_left_rail_card_order(self):
+        rail = self.page.split('<aside class="sidebar"', 1)[1].split(
+            "</aside>", 1)[0]
+        order = ["Video Analysis", "Measurement Status",
+                 "Key Results (when ready)", "provSummary"]
+        idx = [rail.index(token) for token in order]
+        self.assertEqual(idx, sorted(idx))
+        for ident in ("dropZone", "modeTag", "metricOmega",
+                      "provSummary", "livePanel", "noKeyPanel"):
+            self.assertIn(f'id="{ident}"', rail)
+
+    def test_sim_persistent_column(self):
+        tag = re.search(
+            r'<div role="tabpanel" id="viewSimulation"[^>]*>',
+            self.page)
+        self.assertIsNotNone(tag)
+        self.assertNotIn("hidden", tag.group(0))
+        self.assertLess(
+            self.page.index("</main>"),
+            self.page.index('id="viewSimulation"'))
+        check = (
+            "try {\n"
+            "  const hidden = (id) => document.getElementById(id)\n"
+            "    .classList.contains(\"hidden\");\n"
+            "  selectChartTab(\"ctabTrail\");\n"
+            "  const trail = { view: hidden(\"viewTrail\"),\n"
+            "    sim: hidden(\"viewSimulation\"),\n"
+            "    replay: hidden(\"viewReplay\") };\n"
+            "  selectChartTab(\"ctabTrajectory\");\n"
+            "  const traj = { view: hidden(\"viewTrajectory\"),\n"
+            "    sim: hidden(\"viewSimulation\") };\n"
+            "  __emit({ trail, traj });\n"
+            "} catch (e) {\n"
+            "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
+            "  process.exit(1);\n"
+            "}\n")
+        out = run_page_driver(self.script, check, {})
+        self.assertFalse(out["trail"]["view"])
+        self.assertFalse(out["trail"]["sim"])
+        self.assertTrue(out["trail"]["replay"])
+        self.assertFalse(out["traj"]["view"])
+        self.assertFalse(out["traj"]["sim"])
+
+    def test_footer_honest_strip(self):
+        foot = self.page.split('<footer class="footer">', 1)[1].split(
+            "</footer>", 1)[0]
+        left = "Unknown values render as null"
+        right = "All timestamps are real source PTS."
+        self.assertIn(left, foot)
+        self.assertIn(right, foot)
+        self.assertLess(foot.index(left), foot.index(right))
+        self.assertIn('id="serverFoot"', foot)
+
+    def test_omega_interval_line(self):
+        check = (
+            "try {\n"
+            "  const node = document.getElementById(\"omegaInterval\");\n"
+            "  paintOmegaInterval({ fit_uncertainty: {\n"
+            "    method: \"block_bootstrap\", n_boot: 800,\n"
+            "    omega_per_s: { low: 5.468, point: 5.478,\n"
+            "      high: 5.489 } } });\n"
+            "  const band = node.textContent;\n"
+            "  paintOmegaInterval(null);\n"
+            "  const none = node.textContent;\n"
+            "  paintOmegaInterval({ fit_uncertainty: { method: \"x\",\n"
+            "    omega_per_s: { low: 1 } } });\n"
+            "  __emit({ band, none, partial: node.textContent });\n"
+            "} catch (e) {\n"
+            "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
+            "  process.exit(1);\n"
+            "}\n")
+        out = run_page_driver(self.script, check, {})
+        self.assertEqual(
+            out["band"],
+            "ω ∈ [5.468, 5.489] 1/s · block bootstrap n=800")
+        self.assertEqual(out["none"], "interval unavailable (null)")
+        self.assertEqual(out["partial"], "interval unavailable (null)")
+
+
+@unittest.skipUnless(shutil.which("node"),
+                     "node is required for page-execution proofs")
+class Gravity1015Tests(unittest.TestCase):
+    """KL-10.15: optional pivot-length input, gravity tile with its
+    honest null frame, the interval one-liner, and the layout-fit
+    guards (stacked mode toggle, wrapping controls, wrapping
+    metric values)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.page = (UI_DIR / "index.html").read_text(encoding="utf-8")
+        script = cls.page.split("<script>", 1)[1].split("</script>", 1)[0]
+        assert "__KL_LIVE_AVAILABLE__" in script
+        cls.script = script.replace("__KL_LIVE_AVAILABLE__", "true")
+        cls.style = cls.page.split("<style>", 1)[1].split(
+            "</style>", 1)[0]
+
+    def test_length_validation_states(self):
+        check = (
+            "try {\n"
+            "  const input = document.getElementById(\"liveLengthMm\");\n"
+            "  const box = document.getElementById(\"liveLengthError\");\n"
+            "  input.value = \"\";\n"
+            "  const empty = validateLiveLength();\n"
+            "  const emptyShown = { ok: empty.ok, value: empty.value,\n"
+            "    hidden: box.classList.contains(\"hidden\") };\n"
+            "  input.value = \"326\";\n"
+            "  const good = validateLiveLength();\n"
+            "  input.value = \"5\";\n"
+            "  const bad = validateLiveLength();\n"
+            "  const shown = { ok: bad.ok, text: box.textContent,\n"
+            "    hidden: box.classList.contains(\"hidden\"),\n"
+            "    invalid: input.getAttribute(\"aria-invalid\") };\n"
+            "  input.value = \"abc\";\n"
+            "  const text = validateLiveLength();\n"
+            "  input.value = \"326\";\n"
+            "  const fixed = validateLiveLength();\n"
+            "  __emit({ emptyShown, good, shown, textOk: text.ok,\n"
+            "    fixedOk: fixed.ok, cleared: box.textContent,\n"
+            "    clearedInvalid: input.getAttribute(\"aria-invalid\")"
+            " });\n"
+            "} catch (e) {\n"
+            "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
+            "  process.exit(1);\n"
+            "}\n")
+        out = run_page_driver(self.script, check, {})
+        self.assertTrue(out["emptyShown"]["ok"])
+        self.assertIsNone(out["emptyShown"]["value"])
+        self.assertTrue(out["emptyShown"]["hidden"])
+        self.assertTrue(out["good"]["ok"])
+        self.assertEqual(out["good"]["value"], 326)
+        self.assertFalse(out["shown"]["ok"])
+        self.assertIn("10 and 2000", out["shown"]["text"])
+        self.assertFalse(out["shown"]["hidden"])
+        self.assertEqual(out["shown"]["invalid"], "true")
+        self.assertFalse(out["textOk"])
+        self.assertTrue(out["fixedOk"])
+        self.assertEqual(out["cleared"], "")
+        self.assertEqual(out["clearedInvalid"], "false")
+
+    def test_gravity_tile_states(self):
+        check = (
+            "try {\n"
+            "  paintGravity({ fit: { gravity_m_s2: 9.78,\n"
+            "    pivot_length_mm: 326.0,\n"
+            "    pivot_length_source: \"independent_measurement\" } },\n"
+            "    \"demo success\");\n"
+            "  const tile = document.getElementById(\"metricGravity\")\n"
+            "    .textContent;\n"
+            "  const why = document.getElementById(\"metricGravityWhy\")\n"
+            "    .textContent;\n"
+            "  const title = document.getElementById(\"gravityTitle\")\n"
+            "    .textContent;\n"
+            "  const body = document.getElementById(\"gravityBody\")\n"
+            "    .textContent;\n"
+            "  paintGravity({ fit: { gravity_m_s2: null,\n"
+            "    pivot_length_mm: null,\n"
+            "    pivot_length_source: \"not_provided\" } },\n"
+            "    \"demo success\");\n"
+            "  const nullTile = document.getElementById(\n"
+            "    \"metricGravity\").textContent;\n"
+            "  const nullWhy = document.getElementById(\n"
+            "    \"metricGravityWhy\").textContent;\n"
+            "  const nullBody = document.getElementById(\"gravityBody\")\n"
+            "    .textContent;\n"
+            "  paintGravity({ fit: { gravity_m_s2: 9.78,\n"
+            "    pivot_length_source: \"estimated_scale\" } }, \"x\");\n"
+            "  const spoof = document.getElementById(\"metricGravity\")\n"
+            "    .textContent;\n"
+            "  __emit({ tile, why, title, body, nullTile, nullWhy,\n"
+            "    nullBody, spoof });\n"
+            "} catch (e) {\n"
+            "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
+            "  process.exit(1);\n"
+            "}\n")
+        out = run_page_driver(self.script, check, {})
+        self.assertIn("m/s", out["tile"])
+        self.assertIn("user-supplied", out["why"])
+        self.assertIn("9.78", out["title"])
+        self.assertIn("user_supplied", out["body"])
+        self.assertEqual(out["nullTile"], "Not available")
+        self.assertEqual(
+            out["nullWhy"],
+            "g is not claimed because no independent length was "
+            "provided.")
+        self.assertEqual(out["nullBody"], out["nullWhy"])
+        self.assertEqual(out["spoof"], "Not available")
+
+    def test_interval_note_one_liner(self):
+        self.assertIn(
+            'id="intervalNote">Intervals capture measurement noise '
+            "under the model, not model-adequacy bias.<",
+            self.page)
+
+    def test_layout_fit_guards(self):
+        self.assertIn(
+            ".moderow{display:flex;flex-direction:column;", self.style)
+        controls = re.search(r"\.video-controls\{[^}]*\}", self.style)
+        self.assertIsNotNone(controls)
+        self.assertIn("flex-wrap:wrap", controls.group(0))
+        value = re.search(r"\.metric-value\{[^}]*\}", self.style)
+        self.assertIsNotNone(value)
+        self.assertIn("overflow-wrap:anywhere", value.group(0))
+        self.assertNotIn("white-space:nowrap", value.group(0))
 
 
 if __name__ == "__main__":

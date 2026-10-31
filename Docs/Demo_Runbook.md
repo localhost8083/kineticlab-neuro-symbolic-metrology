@@ -1,9 +1,9 @@
 # Demo Runbook (skeleton, M-4)
 
 Ordered local demo: every step runs offline from pinned artifacts.
-Every number shown cites its `Docs/Claims_Register.md` claim ID; no
-other numbers are displayed. Items marked USER ACTION need a human
-(card owner / submitter) and are not agent work.
+Every number shown cites its `Docs/Claims_Register_Public.md` claim
+ID; no other numbers are displayed. Items marked USER ACTION need a
+human (card owner / submitter) and are not agent work.
 
 Submission context (source:
 `Docs/meta_ai_developer_hackathon_details.md`): deadline Nov 4, 9:00
@@ -17,7 +17,7 @@ one track (Indie / Startup); scoring Impact 30 / Technical Execution
 python -m unittest
 ```
 
-Say: "838 tests pass [C-003]." Say hygiene is enforced by 5 of them
+Say: "854 tests pass [C-003]." Say hygiene is enforced by 5 of them
 (no key material in tree, fixtures, or history [C-017]).
 
 ## 1. Structural media check — NOT a SAM replay
@@ -62,16 +62,16 @@ cause [C-026]). Open `fixtures/geometry/overlay_live_ball.svg` in a
 browser: the centroid path follows the swing. HUMAN INSPECTION DONE
 2026-10-28: card owner confirmed "path looks right".
 
-Say: "g stays null everywhere — U-2 length was never provided, so no
-gravity is claimed [C-027]."
+Say: "In this pinned demo, g stays null — no length was supplied,
+so no gravity is claimed [C-027]."
 
 ## 4. Fit honesty (1 min)
 
 Say: bounded M1/M2 fits recover planted parameters inside a mapped
 stall boundary on synthetic data only; the matrix reports where
 recovery stalls instead of hiding it (gate finding in
-`Docs/Review_Log.md`). No fit output in this demo is presented as a
-physical gravity measurement [C-027].
+`Docs/Review_Log_Public.md`). No fit output in this demo is presented
+as a physical gravity measurement [C-027].
 
 ## 5. USER ACTION — record the video
 

@@ -15,7 +15,9 @@ Module layout (one stage per concern, mirroring the pipeline):
   recomputed; export SHA-256 list included).
 
 The reported fit is always M1 (pre-registered parsimony); M2 rides
-the diagnostics as a cross-check. Gravity stays null (U-2). The
+the diagnostics as a cross-check. Gravity stays null without a
+human-typed pivot length (U-2); a supplied length attaches through
+``apply_pivot_length`` on the success paths only. The
 fitter's synthetic-input label is dropped at the boundary with the
 reason documented in ``build`` — fit.v1 carries no synthetic
 wording (asserted in tests).
@@ -34,7 +36,9 @@ from kineticlab.assembly.build import (
     MIN_FIT_POINTS,
     NON_CRITICAL_WARNINGS,
     OMEGA_BOUNDS,
+    PIVOT_LENGTH_BOUNDS_MM,
     REJECTION_STATE,
+    apply_pivot_length,
     assemble,
     assemble_parts,
     m2_section,
@@ -64,9 +68,11 @@ __all__ = [
     "MIN_FIT_POINTS",
     "NON_CRITICAL_WARNINGS",
     "OMEGA_BOUNDS",
+    "PIVOT_LENGTH_BOUNDS_MM",
     "REJECTION_STATE",
     "SUMMARY_FILENAME",
     "angle_series",
+    "apply_pivot_length",
     "assemble",
     "assemble_parts",
     "build_fit_points",

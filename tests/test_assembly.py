@@ -54,6 +54,7 @@ from kineticlab.assembly import (
     REJECTION_STATE,
     SUMMARY_FILENAME,
     angle_series,
+    apply_pivot_length,
     assemble,
     assemble_parts,
     build_fit_points,
@@ -1884,6 +1885,181 @@ class ArtifactHashesRenderTests(unittest.TestCase):
                 hashes["raw_bob_sha256"] = bad
                 with self.assertRaises(TypeError):
                     self._render({"artifact_hashes": hashes})
+
+
+class PivotLengthGravityTests(unittest.TestCase):
+    """KL-10.15: gravity from a human-typed pivot length.
+
+    Four full assembles of the pinned live chain (default, explicit
+    None, length 326 mm, degenerate 5 mm) prove the seam: the None
+    path is exactly the default path, a usable length attaches
+    gravity through the contract identity with provenance, a
+    degenerate length fails closed to null plus one registered
+    warning, and rejection paths never see the length at all.
+    """
+
+    LENGTH_MM = 326.0
+
+    @classmethod
+    def setUpClass(cls):
+        require_smoke(REQUEST["clip_path"])
+        cls.tmp = tempfile.TemporaryDirectory()
+        root = Path(cls.tmp.name)
+        cls.plain_dir = root / "plain"
+        cls.plain_dir.mkdir()
+        cls.plain = assemble(dict(REQUEST, out_dir=str(cls.plain_dir)))
+        cls.none_dir = root / "none"
+        cls.none_dir.mkdir()
+        cls.none = assemble(dict(REQUEST, out_dir=str(cls.none_dir)),
+                            pivot_length_mm=None)
+        cls.length_dir = root / "length"
+        cls.length_dir.mkdir()
+        cls.length = assemble(
+            dict(REQUEST, out_dir=str(cls.length_dir)),
+            pivot_length_mm=cls.LENGTH_MM)
+        cls.degenerate_dir = root / "degenerate"
+        cls.degenerate_dir.mkdir()
+        cls.degenerate = assemble(
+            dict(REQUEST, out_dir=str(cls.degenerate_dir)),
+            pivot_length_mm=5.0)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def test_none_is_strict_noop(self):
+        result = copy.deepcopy(self.plain["result"])
+        diagnostics = copy.deepcopy(self.plain["diagnostics"])
+        apply_pivot_length(result, diagnostics, None)
+        self.assertEqual(result, self.plain["result"])
+        self.assertEqual(diagnostics, self.plain["diagnostics"])
+
+    def test_explicit_none_matches_default(self):
+        # The None path is exactly the default path: identical
+        # records, identical angles bytes, identical summary bytes
+        # (modulo the out-dir-dependent result hash line, blanked
+        # on both sides like the pin-regeneration test does).
+        self.assertEqual(
+            _with_basename_exports(self.none["result"]),
+            _with_basename_exports(self.plain["result"]))
+        self.assertEqual(self.none["diagnostics"],
+                         self.plain["diagnostics"])
+        self.assertEqual(
+            (self.none_dir / "angles.csv").read_bytes(),
+            (self.plain_dir / "angles.csv").read_bytes())
+        none_summary = (self.none_dir / SUMMARY_FILENAME).read_text(
+            encoding="utf-8")
+        plain_summary = (self.plain_dir / SUMMARY_FILENAME).read_text(
+            encoding="utf-8")
+        self.assertEqual(_blank_result_hash_line(none_summary),
+                         _blank_result_hash_line(plain_summary))
+
+    def test_gravity_identity_and_provenance(self):
+        result = self.length["result"]
+        fit = result["fit"]
+        self.assertEqual(fit["pivot_length_mm"], self.LENGTH_MM)
+        self.assertEqual(fit["pivot_length_source"],
+                         "independent_measurement")
+        expected = fit["g_over_l_per_s2"] * self.LENGTH_MM / 1000.0
+        self.assertTrue(math.isclose(fit["gravity_m_s2"], expected,
+                                     rel_tol=1e-12))
+        self.assertEqual(result["status"], "success")
+        self.assertEqual(result["warnings"], [])
+        assumptions = result["assumptions"]
+        self.assertFalse(any("U-2 not provided" in text
+                             for text in assumptions))
+        gravity_lines = [text for text in assumptions
+                         if "user_supplied" in text]
+        self.assertEqual(len(gravity_lines), 1)
+        self.assertIn("326.0 mm", gravity_lines[0])
+        checked = ResultContract.from_dict(copy.deepcopy(result))
+        self.assertEqual(checked.to_dict(), result)
+
+    def test_gravity_interval_mapping(self):
+        diagnostics = self.length["diagnostics"]
+        band = diagnostics["fit_uncertainty"]["g_over_l_eff_per_s2"]
+        gravity = diagnostics["fit_uncertainty"]["gravity_m_s2"]
+        scale = self.LENGTH_MM / 1000.0
+        for key in ("low", "point", "high"):
+            with self.subTest(endpoint=key):
+                self.assertTrue(math.isclose(
+                    gravity[key], band[key] * scale, rel_tol=1e-12))
+        summary = (self.length_dir / SUMMARY_FILENAME).read_text(
+            encoding="utf-8")
+        self.assertIn("- gravity provenance: pivot_length_mm 326.0",
+                      summary)
+        self.assertIn("independent_measurement", summary)
+        self.assertIn("- gravity_m_s2 (m/s^2): low ", summary)
+        self.assertIn("linear rescale of the g/L_eff band", summary)
+
+    def test_degenerate_length_fails_closed(self):
+        result = self.degenerate["result"]
+        fit = result["fit"]
+        self.assertIsNone(fit["gravity_m_s2"])
+        self.assertIsNone(fit["pivot_length_mm"])
+        self.assertEqual(fit["pivot_length_source"], "not_provided")
+        codes = [warning["code"] for warning in result["warnings"]]
+        self.assertEqual(codes, ["W_ASSUMPTION_UNVERIFIED"])
+        self.assertIn("gravity stays null",
+                      result["warnings"][0]["detail"])
+        self.assertEqual(result["status"], "success_with_warnings")
+        self.assertTrue(any("rejected" in text
+                            for text in result["assumptions"]))
+        self.assertNotIn("gravity_m_s2",
+                         self.degenerate["diagnostics"]
+                         ["fit_uncertainty"])
+        checked = ResultContract.from_dict(copy.deepcopy(result))
+        self.assertEqual(checked.to_dict(), result)
+        for name, bad in (("low", 9.99), ("high", 2000.01),
+                          ("nan", float("nan")),
+                          ("inf", float("inf")),
+                          ("text", "326"), ("bool", True)):
+            with self.subTest(length=name):
+                probe_result = copy.deepcopy(self.plain["result"])
+                probe_diagnostics = copy.deepcopy(
+                    self.plain["diagnostics"])
+                apply_pivot_length(probe_result, probe_diagnostics,
+                                   bad)
+                self.assertIsNone(
+                    probe_result["fit"]["gravity_m_s2"])
+                probe_codes = [warning["code"] for warning
+                               in probe_result["warnings"]]
+                self.assertEqual(probe_codes,
+                                 ["W_ASSUMPTION_UNVERIFIED"])
+
+    def test_rejection_paths_ignore_length(self):
+        calibration = json.loads(
+            (REPO_ROOT / "fixtures" / "geometry"
+             / "calibration_live.json").read_text(encoding="utf-8"))
+        report = json.loads(
+            (REPO_ROOT / "fixtures" / "geometry"
+             / "geometry_report_live.json").read_text(encoding="utf-8"))
+        table = [SimpleNamespace(frame_index=index,
+                                 pts_seconds=index * 0.04, valid=True)
+                 for index in range(234)]
+        card = [SimpleNamespace(frame_index=index, valid=True)
+                for index in range(234)]
+        bob = [SimpleNamespace(frame_index=index, valid=True,
+                               pts_seconds=index * 0.04,
+                               centroid_x_px=1.0, centroid_y_px=2.0)
+               for index in range(2)]
+        with tempfile.TemporaryDirectory() as tmp:
+            out = assemble_parts(
+                bob=bob, card=card, frame_table=table,
+                calibration_dict=calibration, report_pin=report,
+                clip_sha256="b" * 64, out_dir=tmp,
+                raw_bob_display="synthetic-test",
+                raw_card_display="synthetic",
+                geometry_report_display="synthetic",
+                artifact_hashes=_synthetic_hashes(),
+                pivot_length_mm=self.LENGTH_MM)
+        result = out["result"]
+        self.assertEqual(result["status"], "insufficient_data")
+        self.assertIsNone(result["fit"])
+        codes = [warning["code"] for warning in result["warnings"]]
+        self.assertEqual(codes, ["W_UNCERTAINTY_UNAVAILABLE"])
+        self.assertNotIn("gravity_m_s2",
+                         json.dumps(out["diagnostics"]))
 
 
 if __name__ == "__main__":

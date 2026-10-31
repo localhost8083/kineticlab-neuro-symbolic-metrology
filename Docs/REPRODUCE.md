@@ -1,7 +1,7 @@
 # KineticLab reproduction guide
 
 Judge-facing steps to reproduce the verified offline checks and one live capture.
-Source of truth for the live transcript: `Docs/Review_Log.md`, entries
+Source of truth for the live transcript: `Docs/Review_Log_Public.md`, entries
 "2026-10-29 - KL-8.4 - VERIFIED" and "2026-10-29 - KL-8.4 - LIVE VERIFIED".
 
 ## 1. Prerequisites
@@ -23,7 +23,7 @@ artifact, and the uploaded clip is deleted server-side after capture
 
 ## 2. Verified commands
 
-Run from the repo root. Expected outcomes are from the Review_Log ledger.
+Run from the repo root. Expected outcomes are from the Review_Log_Public ledger.
 
 Full test suite (~17-20 minutes, blocking):
 
@@ -31,8 +31,8 @@ Full test suite (~17-20 minutes, blocking):
 python -m unittest
 ```
 
-Expected: `838 tests, OK`, exit 0. One environment-dependent live-bind skip
-is possible on some machines.
+Expected: `854 tests, OK`, exit 0. One environment-dependent live-bind skip
+is possible on some machines. The UI test module requires `node` on PATH.
 
 Byte pins are same-platform determinism: on a different OS C library
 (glibc vs UCRT) floats drift in the last ulp, so CI runs the suite with
@@ -86,11 +86,12 @@ Expected: serves on `http://127.0.0.1:8137` (127.0.0.1 only, default port
 Live motion-mode capture (needs the key prefix from section 1):
 
 ```powershell
-$env:MODEL_API_KEY = [Environment]::GetEnvironmentVariable('MODEL_API_KEY','User'); python -m kineticlab capture --clip Smoke/test_4.mp4 --mode motion
+$env:MODEL_API_KEY = [Environment]::GetEnvironmentVariable('MODEL_API_KEY','User'); python -m kineticlab capture --clip <your-own-side-view-clip.mp4> --mode motion
 ```
 
-Expected: exit 0; `captured: bob 237/237 valid`; one run directory under
-`live_out/` with `motion_report.json` and `motion_angles.csv`.
+Expected: exit 0; `captured: bob N/N valid` for your clip's frame
+count; one run directory under `live_out/` with `motion_report.json`
+and `motion_angles.csv`.
 
 Live full-mode capture (needs the key prefix; card width is typed by you):
 
@@ -125,6 +126,8 @@ default and no guessing; motion mode with `--card-width-mm` is rejected.
 - Unknown renders as `null`, never a guess.
 - Gravity stays `null` without a reference card plus an independent pivot
   length; unestimated uncertainty carries `W_UNCERTAINTY_UNAVAILABLE`.
+  Type the optional pivot length you measured and the run reports `g`
+  with its `user_supplied` provenance — no accuracy claim is made.
 - Card width in mm is always human-typed (`user_supplied`), never derived
   from pixels or guessed.
 - Model output is untrusted telemetry: detection boxes are confirmed by a
@@ -136,9 +139,10 @@ default and no guessing; motion mode with `--card-width-mm` is rejected.
 
 ## 5. What a real run produced (historical example)
 
-Motion-mode live run `live-20261029T093519Z-3a9279f4` on `Smoke/test_4.mp4`
-(1920x1080, 237 frames), from the Review_Log transcript. Historical example,
-not a guarantee; your run will produce its own values.
+Motion-mode live run `live-20261029T093519Z-3a9279f4` on a private
+1920x1080 side-view clip (237 frames), from the Review_Log_Public
+transcript. Historical example, not a guarantee; your run will produce
+its own values.
 
 - Frames: 237/237 valid, live SAM 3.1, prompt "red ball".
 - Period: 1.1483600498 s; omega: 5.4714419126 1/s.
@@ -146,4 +150,4 @@ not a guarantee; your run will produce its own values.
 - Gravity: `null`; scale and pivot length `null`; reason
   "no reference card: no scale".
 - Run artifacts (`live_out/`) were later deleted in a user-directed cleanup;
-  the Review_Log ledger text is the remaining record of this run.
+  the Review_Log_Public ledger text is the remaining record of this run.

@@ -143,6 +143,12 @@ def render_summary_md(result: dict[str, Any], diagnostics: dict[str, Any],
         lines.append(
             f"- g_over_l_per_s2: {_v(fit_dict.get('g_over_l_per_s2'))}")
         lines.append(f"- gravity_m_s2: {_v(fit_dict.get('gravity_m_s2'))}")
+        if fit_dict.get("gravity_m_s2") is not None:
+            lines.append(
+                "- gravity provenance: pivot_length_mm "
+                f"{_v(fit_dict.get('pivot_length_mm'))}, source "
+                f"{_v(fit_dict.get('pivot_length_source'))} "
+                "(user_supplied length)")
         fitted = _rows(m1_dict.get("fitted"))
         if fitted:
             lines.append("- fitted (copied from diagnostics):")
@@ -186,6 +192,14 @@ def render_summary_md(result: dict[str, Any], diagnostics: dict[str, Any],
                     f"high {_v(part.get('high'))}")
             else:
                 lines.append(f"- {key} ({unit}): null (absent)")
+        gravity_band = fu.get("gravity_m_s2")
+        if isinstance(gravity_band, dict):
+            lines.append(
+                "- gravity_m_s2 (m/s^2): low "
+                f"{_v(gravity_band.get('low'))}, "
+                f"point {_v(gravity_band.get('point'))}, "
+                f"high {_v(gravity_band.get('high'))} "
+                "(linear rescale of the g/L_eff band by L/1000)")
     lines.extend(["", "## M2 diagnostic", ""])
     m2 = diagnostics.get("m2")
     if not isinstance(m2, dict):

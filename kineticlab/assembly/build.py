@@ -157,6 +157,21 @@ BOOTSTRAP_RESAMPLING_ASSUMPTION = (
 )
 """KL-10.11 honesty sentence (b): resampling, not analytic."""
 
+PIVOT_LENGTH_BOUNDS_MM = (10.0, 2000.0)
+"""Plausibility window for a human-typed pivot length (KL-10.15).
+
+A supplied length outside this window (or non-finite, or not a
+number at all) fails closed: gravity stays null with a registered
+warning, never a guess. The UI enforces the same window
+pre-submit; assembly re-checks because the UI is not a trust
+boundary.
+"""
+
+GRAVITY_LENGTH_PREFIX = "Arc-fit radius is descriptive only"
+"""Prefix of the shared U-2 sentence that a supplied pivot length
+replaces (valid and degenerate spellings below). Length-less runs
+keep the original sentence byte-identically."""
+
 REQUEST_KEYS = frozenset({
     "clip_path",
     "raw_bob_path",
@@ -491,8 +506,122 @@ def _upstream_rejection(*, stage: str, error: ContractError,
     return _finish(result_dict, diagnostics, series or [], out_path)
 
 
-def assemble(request: Any, _parsed: dict[str, Any] | None = None
-             ) -> dict[str, Any]:
+def _usable_pivot_length_mm(value: Any) -> float | None:
+    """Validate a human-typed pivot length (KL-10.15).
+
+    Returns the length as a float when it is a finite number inside
+    ``PIVOT_LENGTH_BOUNDS_MM``, else None. Booleans are not numbers
+    here; strings are not parsed — the caller supplied the value,
+    so the caller types it.
+    """
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    if not math.isfinite(value):
+        return None
+    low, high = PIVOT_LENGTH_BOUNDS_MM
+    if not low <= value <= high:
+        return None
+    return float(value)
+
+
+def _gravity_assumption(length_mm: float, band_mapped: bool) -> str:
+    text = (
+        "Gravity derives from the user-supplied independent pivot "
+        f"length ({length_mm} mm, user_supplied): gravity_m_s2 = "
+        "g/L_eff x L/1000. "
+    )
+    if band_mapped:
+        text += (
+            "The gravity band linearly rescales the g/L_eff "
+            "block-bootstrap band by L/1000 (the omega-squared step "
+            "sits inside the bootstrap replicates); it captures "
+            "measurement noise under the M1 model, not "
+            "model-adequacy bias. "
+        )
+    else:
+        text += "No interval was mapped: the gravity point stands alone. "
+    return text + "Arc-fit radius remains descriptive only."
+
+
+def apply_pivot_length(result_dict: dict[str, Any],
+                       diagnostics: dict[str, Any],
+                       pivot_length_mm: Any) -> None:
+    """Attach gravity from a human-typed pivot length (KL-10.15).
+
+    Mutates the freshly built success-path ``result_dict`` /
+    ``diagnostics`` in place; rejection and insufficient-data
+    records never reach this function. ``None`` is a strict no-op
+    (length-less runs stay byte-identical). A usable length sets the
+    fit's ``pivot_length_mm`` / ``pivot_length_source``
+    (``independent_measurement``) / ``gravity_m_s2`` through the
+    contract identity, maps the gravity band from the g/L_eff
+    bootstrap band when one exists, and swaps the U-2 assumption
+    sentence for the gravity spelling. Anything else fails closed:
+    gravity stays null and a registered ``W_ASSUMPTION_UNVERIFIED``
+    warning records the rejection (the status is re-derived so a
+    bare ``success`` never carries a warning).
+    """
+    if pivot_length_mm is None:
+        return
+    length = _usable_pivot_length_mm(pivot_length_mm)
+    fit = result_dict.get("fit")
+    g_over_l = fit.get("g_over_l_per_s2") \
+        if isinstance(fit, dict) else None
+    usable = length is not None and isinstance(g_over_l, float) \
+        and math.isfinite(g_over_l)
+    uncertainty = diagnostics.get("fit_uncertainty")
+    band = uncertainty.get("g_over_l_eff_per_s2") \
+        if isinstance(uncertainty, dict) else None
+    band_ok = isinstance(band, dict) and all(
+        isinstance(band.get(key), (int, float))
+        and math.isfinite(band[key])
+        for key in ("low", "point", "high"))
+    assumptions = result_dict.get("assumptions")
+    if isinstance(assumptions, list):
+        for index, text in enumerate(assumptions):
+            if isinstance(text, str) \
+                    and text.startswith(GRAVITY_LENGTH_PREFIX):
+                if usable:
+                    assert length is not None
+                    assumptions[index] = _gravity_assumption(
+                        length, band_ok)
+                else:
+                    assumptions[index] = (
+                        "A pivot length was supplied but rejected "
+                        "(non-finite or outside 10-2000 mm); gravity "
+                        "stays null. Arc-fit radius remains "
+                        "descriptive only."
+                    )
+    if not usable or not isinstance(fit, dict) \
+            or not isinstance(g_over_l, float):
+        warnings = result_dict.get("warnings")
+        if isinstance(warnings, list):
+            warnings.append({
+                "code": "W_ASSUMPTION_UNVERIFIED",
+                "detail": "supplied pivot length rejected "
+                          "(non-finite or outside 10-2000 mm); "
+                          "gravity stays null",
+            })
+            if result_dict.get("status") == "success":
+                result_dict["status"] = "success_with_warnings"
+        return
+    assert length is not None
+    scale = length / 1000.0
+    fit["pivot_length_mm"] = length
+    fit["pivot_length_source"] = "independent_measurement"
+    fit["gravity_m_s2"] = g_over_l * scale
+    if band_ok:
+        assert isinstance(uncertainty, dict)
+        assert isinstance(band, dict)
+        uncertainty["gravity_m_s2"] = {
+            "low": band["low"] * scale,
+            "point": band["point"] * scale,
+            "high": band["high"] * scale,
+        }
+
+
+def assemble(request: Any, _parsed: dict[str, Any] | None = None,
+             *, pivot_length_mm: Any = None) -> dict[str, Any]:
     """Assemble the end-to-end offline result (see module docstring).
 
     Returns ``{"result", "diagnostics", "angle_series",
@@ -513,6 +642,13 @@ def assemble(request: Any, _parsed: dict[str, Any] | None = None
     are the parsed ones (chain proves it via the parse-check SHA
     pins or a fresh parse); outputs are then identical, field
     for field, to parsing again. All other callers omit it.
+
+    ``pivot_length_mm`` (KL-10.15) optionally carries a
+    human-typed independent pivot length in mm. ``None`` (the
+    default) is a strict no-op: every record is byte-identical to
+    the length-less run. A usable value attaches gravity through
+    :func:`apply_pivot_length` on the success paths only;
+    rejection and insufficient-data records never see it.
     """
     paths = _read_request(request)
     clip_bytes = paths["clip_path"].read_bytes()
@@ -621,7 +757,8 @@ def assemble(request: Any, _parsed: dict[str, Any] | None = None
         raw_bob_display=displays["raw_bob_path"],
         raw_card_display=displays["raw_card_path"],
         geometry_report_display=displays["geometry_report_path"],
-        artifact_hashes=artifact_hashes)
+        artifact_hashes=artifact_hashes,
+        pivot_length_mm=pivot_length_mm)
 
 
 def assemble_parts(*, bob: Any, card: Any, frame_table: Any,
@@ -629,7 +766,8 @@ def assemble_parts(*, bob: Any, card: Any, frame_table: Any,
                    clip_sha256: Any, out_dir: Any,
                    raw_bob_display: str, raw_card_display: str,
                    geometry_report_display: str,
-                   artifact_hashes: dict[str, Any]) -> dict[str, Any]:
+                   artifact_hashes: dict[str, Any],
+                   pivot_length_mm: Any = None) -> dict[str, Any]:
     """Join loaded parts into the validated result (testable seam).
 
     Same contract as ``assemble`` minus file loading: records/table
@@ -639,6 +777,7 @@ def assemble_parts(*, bob: Any, card: Any, frame_table: Any,
     unchanged (validated strictly: each value null or 64-char
     lowercase hex). Powers the rejection-state tests with
     synthetic parts (labeled in-test, never pinned as evidence).
+    ``pivot_length_mm`` behaves as in ``assemble`` (None no-op).
     """
     if not isinstance(bob, (list, tuple)) \
             or not isinstance(card, (list, tuple)) \
@@ -986,6 +1125,8 @@ def assemble_parts(*, bob: Any, card: Any, frame_table: Any,
             "provenance": provenance,
             "exports": [],
         }
+        apply_pivot_length(result_dict, diagnostics_base,
+                           pivot_length_mm)
         return _finish(result_dict, diagnostics_base, series, out_path)
     # The bootstrap ran: the uncertainty warning lifts. Its m1-side
     # twin is preserved as a dropped detail, never promoted.
@@ -1032,6 +1173,7 @@ def assemble_parts(*, bob: Any, card: Any, frame_table: Any,
         "provenance": provenance,
         "exports": [],
     }
+    apply_pivot_length(result_dict, diagnostics_base, pivot_length_mm)
     return _finish(result_dict, diagnostics_base, series, out_path)
 
 
