@@ -8,7 +8,7 @@ KineticLab turns an ordinary video clip into an auditable measurement: Meta **SA
   <img src="Docs/img/analysis_main.png" width="860" alt="KineticLab — live analysis view: upload, SAM 3.1 detect, confirm, measure" />
 </p>
 
-![Python](https://img.shields.io/badge/python-3.11%2B-306998) ![Runtime](https://img.shields.io/badge/runtime-stdlib--only-success) ![Tests](https://img.shields.io/badge/tests-832%20passing-brightgreen) ![CI](https://github.com/localhost8083/kineticlab-neuro-symbolic-metrology/actions/workflows/ci.yml/badge.svg) ![Meta](https://img.shields.io/badge/Meta-SAM%203.1-0668E5) ![License](https://img.shields.io/badge/license-MIT-lightgrey)
+![Python](https://img.shields.io/badge/python-3.11%2B-306998) ![Runtime](https://img.shields.io/badge/runtime-stdlib--only-success) ![Tests](https://img.shields.io/badge/tests-838%20passing-brightgreen) ![CI](https://github.com/localhost8083/kineticlab-neuro-symbolic-metrology/actions/workflows/ci.yml/badge.svg) ![Meta](https://img.shields.io/badge/Meta-SAM%203.1-0668E5) ![License](https://img.shields.io/badge/license-MIT-lightgrey)
 
 **Cross-platform note.** The suite's byte pins prove *same-machine* replay determinism. OS C math libraries (glibc, UCRT) differ in the last ulp, which moves fit floats in the 8th+ decimal — a real numerical fact, not a bug. CI therefore runs the full suite on ubuntu + windows with the byte-pin tests skipped (`KL_CROSS_PLATFORM=1`) and UTF-8 text mode forced (`PYTHONUTF8=1`, the PEP 686 default). The pins stay strict on a single machine: rerun the suite twice locally and every hash matches.
 
@@ -69,7 +69,7 @@ cd kineticlab-neuro-symbolic-metrology
 python --version
 python -m kineticlab --help
 python scripts/media_check.py
-python -m unittest          # 832 tests
+python -m unittest          # 838 tests
 python -m kineticlab serve  # localhost UI
 ```
 

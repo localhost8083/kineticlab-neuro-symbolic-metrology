@@ -984,6 +984,9 @@ class FunctionalIdPreservationTests(unittest.TestCase):
         "chartWrap", "stripWrap", "trailWrap",
         # Advanced diagnostics (collapsed by default)
         "advDiag",
+        # KL-10.13 polish: top loading bar + inline field errors
+        "globalProgress", "globalProgressLabel", "clipFieldError",
+        "liveMmError", "livePromptBobError", "livePromptCardError",
     ]
 
     @classmethod
@@ -3365,6 +3368,230 @@ class SimulationTests(unittest.TestCase):
             with self.subTest(token=token):
                 self.assertIn(token, region)
         self.assertIn('id="simSeedTile"', self.page)
+
+
+@unittest.skipUnless(shutil.which("node"),
+                     "node is required for page-execution proofs")
+class UiPolish1013Tests(unittest.TestCase):
+    """KL-10.13: toasts, inline validation, and the top loading bar
+    proven by EXECUTING the shipped page script under node with the
+    DOM stub and a hand-driven rAF queue (the shared ticker is the
+    only clock, so synthetic timestamps drive every lifecycle)."""
+
+    RAF_PREAMBLE = (
+        "  const __cbs = [];\n"
+        "  globalThis.requestAnimationFrame = (cb) => {\n"
+        "    __cbs.push(cb); return __cbs.length; };\n"
+        "  const __tick = (now) => {\n"
+        "    const batch = __cbs.splice(0, __cbs.length);\n"
+        "    for (const cb of batch) cb(now); };\n")
+
+    @classmethod
+    def setUpClass(cls):
+        page = (UI_DIR / "index.html").read_text(encoding="utf-8")
+        script = page.split("<script>", 1)[1].split("</script>", 1)[0]
+        assert "__KL_LIVE_AVAILABLE__" in script
+        cls.script = script.replace("__KL_LIVE_AVAILABLE__", "true")
+
+    def test_toast_auto_dismiss_via_raf(self):
+        check = (
+            "try {\n" + self.RAF_PREAMBLE +
+            "  notify(\"Run complete\", \"Done.\", \"ok\");\n"
+            "  const wrap = document.getElementById(\"toastWrap\");\n"
+            "  const before = wrap.children.length;\n"
+            "  __tick(0);\n"
+            "  __tick(3000);\n"
+            "  const mid = wrap.children.length;\n"
+            "  __tick(8000);\n"
+            "  __emit({ before, mid, after: wrap.children.length });\n"
+            "} catch (e) {\n"
+            "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
+            "  process.exit(1);\n"
+            "}\n")
+        out = run_page_driver(self.script, check, {})
+        self.assertEqual(out["before"], 1)
+        self.assertEqual(out["mid"], 1)
+        self.assertEqual(out["after"], 0)
+
+    def test_toast_hover_pauses_dismiss(self):
+        check = (
+            "try {\n" + self.RAF_PREAMBLE +
+            "  notify(\"Saved\", \"Held.\", \"info\");\n"
+            "  const wrap = document.getElementById(\"toastWrap\");\n"
+            "  __tick(0);\n"
+            "  const toast = wrap.children[0];\n"
+            "  toast.onmouseenter();\n"
+            "  __tick(60000);\n"
+            "  const held = wrap.children.length;\n"
+            "  toast.onmouseleave();\n"
+            "  __tick(70000);\n"
+            "  __emit({ held, after: wrap.children.length });\n"
+            "} catch (e) {\n"
+            "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
+            "  process.exit(1);\n"
+            "}\n")
+        out = run_page_driver(self.script, check, {})
+        self.assertEqual(out["held"], 1)
+        self.assertEqual(out["after"], 0)
+
+    def test_toast_close_button_dismisses(self):
+        check = (
+            "try {\n" + self.RAF_PREAMBLE +
+            "  notify(\"Heads up\", \"Closable.\", \"warn\");\n"
+            "  const wrap = document.getElementById(\"toastWrap\");\n"
+            "  __tick(0);\n"
+            "  const toast = wrap.children[0];\n"
+            "  const kinds = toast.className;\n"
+            "  toast.children[0].onclick();\n"
+            "  const after = wrap.children.length;\n"
+            "  __tick(9000);\n"
+            "  __emit({ kinds, after,\n"
+            "    still: wrap.children.length });\n"
+            "} catch (e) {\n"
+            "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
+            "  process.exit(1);\n"
+            "}\n")
+        out = run_page_driver(self.script, check, {})
+        self.assertEqual(out["kinds"], "toast warning")
+        self.assertEqual(out["after"], 0)
+        self.assertEqual(out["still"], 0)
+
+    def test_toast_kinds_cap_and_structure(self):
+        check = (
+            "try {\n" + self.RAF_PREAMBLE +
+            "  const mapped = [toastKindName(\"ok\"),\n"
+            "    toastKindName(\"info\"), toastKindName(\"warn\"),\n"
+            "    toastKindName(\"bad\"), toastKindName(\"error\"),\n"
+            "    toastKindName(\"success\")];\n"
+            "  notify(\"One\", \"a\", \"ok\");\n"
+            "  notify(\"Two\", \"b\", \"info\");\n"
+            "  notify(\"Three\", \"c\", \"warn\");\n"
+            "  notify(\"Four\", \"d\", \"bad\");\n"
+            "  notify(\"Five\", \"e\", \"success\");\n"
+            "  const wrap = document.getElementById(\"toastWrap\");\n"
+            "  const first = wrap.children[0];\n"
+            "  __emit({ mapped, count: wrap.children.length,\n"
+            "    classes: wrap.children.map((t) => t.className),\n"
+            "    roles: wrap.children.map((t) =>\n"
+            "      t.getAttribute(\"role\")),\n"
+            "    kids: first.children.length,\n"
+            "    head: first.children[1].textContent,\n"
+            "    body: first.children[2].textContent });\n"
+            "} catch (e) {\n"
+            "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
+            "  process.exit(1);\n"
+            "}\n")
+        out = run_page_driver(self.script, check, {})
+        self.assertEqual(out["mapped"], ["success", "info", "warning",
+                                         "error", "error", "success"])
+        self.assertEqual(out["count"], 3)
+        self.assertEqual(out["classes"], ["toast warning", "toast error",
+                                          "toast success"])
+        self.assertEqual(out["roles"], ["status", "status", "status"])
+        self.assertEqual(out["kids"], 3)
+        self.assertEqual(out["head"], "Three")
+        self.assertEqual(out["body"], "c")
+
+    def test_clip_validation_states(self):
+        check = (
+            "try {\n"
+            "  const wrong = clipFileError({ name: \"notes.txt\",\n"
+            "    type: \"text/plain\", size: 12 });\n"
+            "  const empty = clipFileError({ name: \"a.mp4\",\n"
+            "    type: \"video/mp4\", size: 0 });\n"
+            "  const big = clipFileError({ name: \"a.mp4\",\n"
+            "    type: \"video/mp4\", size: 70 * 1048576 });\n"
+            "  const good = clipFileError({ name: \"a.webm\",\n"
+            "    type: \"video/webm\", size: 100 });\n"
+            "  const byExt = clipFileError({ name: \"a.mp4\",\n"
+            "    type: \"\", size: 5 });\n"
+            "  const badOk = validateClipSelection(\n"
+            "    { name: \"notes.txt\", type: \"text/plain\", size: 12 });\n"
+            "  const box = document.getElementById(\"clipFieldError\");\n"
+            "  const shown = { ok: badOk, text: box.textContent,\n"
+            "    hidden: box.classList.contains(\"hidden\"),\n"
+            "    invalid: document.getElementById(\"dropZone\")\n"
+            "      .getAttribute(\"aria-invalid\") };\n"
+            "  const goodOk = validateClipSelection(\n"
+            "    { name: \"a.mp4\", type: \"video/mp4\", size: 5 });\n"
+            "  __emit({ wrong, empty, big, good, byExt, shown,\n"
+            "    goodOk, cleared: box.textContent,\n"
+            "    clearedInvalid: document.getElementById(\"dropZone\")\n"
+            "      .getAttribute(\"aria-invalid\") });\n"
+            "} catch (e) {\n"
+            "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
+            "  process.exit(1);\n"
+            "}\n")
+        out = run_page_driver(self.script, check, {})
+        self.assertIn("not an MP4 or WebM", out["wrong"])
+        self.assertIn("empty", out["empty"])
+        self.assertIn("64 MB", out["big"])
+        self.assertIsNone(out["good"])
+        self.assertIsNone(out["byExt"])
+        self.assertFalse(out["shown"]["ok"])
+        self.assertIn("not an MP4 or WebM", out["shown"]["text"])
+        self.assertFalse(out["shown"]["hidden"])
+        self.assertEqual(out["shown"]["invalid"], "true")
+        self.assertTrue(out["goodOk"])
+        self.assertEqual(out["cleared"], "")
+        self.assertEqual(out["clearedInvalid"], "false")
+
+    def test_live_validation_loading_and_reduced_motion(self):
+        check = (
+            "try {\n"
+            "  const bob = document.getElementById(\"livePromptBob\");\n"
+            "  const card = document.getElementById(\"livePromptCard\");\n"
+            "  bob.value = \"\"; card.value = \"card\";\n"
+            "  const bobBad = validateLivePrompts(\"full\");\n"
+            "  const bobErr = document.getElementById(\n"
+            "    \"livePromptBobError\").textContent;\n"
+            "  const bobInv = bob.getAttribute(\"aria-invalid\");\n"
+            "  bob.value = \"red ball\"; card.value = \"\";\n"
+            "  const cardBad = validateLivePrompts(\"full\");\n"
+            "  card.value = \"card\";\n"
+            "  const promptsOk = validateLivePrompts(\"full\");\n"
+            "  const mm = document.getElementById(\"liveMm\");\n"
+            "  mm.value = \"\";\n"
+            "  const mmEmpty = validateLiveMm();\n"
+            "  const mmErr = document.getElementById(\"liveMmError\")\n"
+            "    .textContent;\n"
+            "  mm.value = \"85.6\";\n"
+            "  const mmGood = validateLiveMm();\n"
+            "  mm.value = \"abc\";\n"
+            "  const mmText = validateLiveMm();\n"
+            "  showProgress(\"Measuring\", \"Working.\", \"Busy.\");\n"
+            "  const bar = document.getElementById(\"globalProgress\");\n"
+            "  const shownBar = !bar.classList.contains(\"hidden\");\n"
+            "  const label = document.getElementById(\n"
+            "    \"globalProgressLabel\").textContent;\n"
+            "  hideProgress();\n"
+            "  markChartsLoading(true);\n"
+            "  const skel = document.getElementById(\"chartSvg\")\n"
+            "    .classList.contains(\"skeleton\");\n"
+            "  markChartsLoading(false);\n"
+            "  __emit({ bobBad, bobErr, bobInv, cardBad, promptsOk,\n"
+            "    mmEmpty, mmErr, mmGood, mmText, shownBar, label,\n"
+            "    hiddenBar: bar.classList.contains(\"hidden\"),\n"
+            "    skel, reduced: reducedMotion() });\n"
+            "} catch (e) {\n"
+            "  console.error(\"KLFAIL \" + (e && e.stack || e));\n"
+            "  process.exit(1);\n"
+            "}\n")
+        out = run_page_driver(self.script, check, {})
+        self.assertFalse(out["bobBad"])
+        self.assertIn("empty", out["bobErr"])
+        self.assertEqual(out["bobInv"], "true")
+        self.assertFalse(out["cardBad"])
+        self.assertTrue(out["promptsOk"])
+        self.assertIsNone(out["mmEmpty"])
+        self.assertIn("never guessed", out["mmErr"])
+        self.assertEqual(out["mmGood"], 85.6)
+        self.assertIsNone(out["mmText"])
+        self.assertTrue(out["shownBar"])
+        self.assertEqual(out["label"], "Measuring")
+        self.assertTrue(out["hiddenBar"])
+        self.assertTrue(out["skel"])
+        self.assertTrue(out["reduced"])
 
 
 if __name__ == "__main__":

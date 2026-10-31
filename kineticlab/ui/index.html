@@ -14,9 +14,16 @@
   --text:#F1F5F9;--muted:#94A3B8;--border:#26354B;
   --blue:#4F7DFF;--blue-2:#7294ff;--violet:#8B6BFF;
   --green:#34D399;--amber:#FBBF24;--red:#FB7185;
+  --cyan:#43E6F4;--danger-text:#FDA4B5;
   --shadow:0 10px 30px rgba(0,0,0,.18);--grid:#26354B;
   --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  /* KL-10.13 spacing scale (4/8/12/16/24/32) + shared radii. Every
+     section gap, card padding, and control gap resolves from these
+     tokens so panels share one grid in both themes. */
+  --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;
+  --space-5:24px;--space-6:32px;
+  --radius-sm:8px;--radius-md:12px;--radius-lg:14px;
 }
 html[data-theme="light"]{
   color-scheme:light;
@@ -24,6 +31,7 @@ html[data-theme="light"]{
   --text:#17243A;--muted:#64748B;--border:#E2E8F0;
   --blue:#3468F5;--blue-2:#2454dc;--violet:#7957F5;
   --green:#10B981;--amber:#F59E0B;--red:#EF4444;
+  --cyan:#0E7C86;--danger-text:#B91C1C;
   --shadow:0 8px 28px rgba(26,47,84,.055);--grid:#e7edf6;
 }
 *{box-sizing:border-box}
@@ -31,8 +39,10 @@ html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 var(--sans);transition:background .22s,color .22s}
 button,input{font:inherit}
 button{cursor:pointer}
-button:focus-visible,input:focus-visible,a:focus-visible,[role="tab"]:focus-visible,[role="button"]:focus-visible,summary:focus-visible{outline:3px solid var(--blue-2);outline-offset:2px;border-radius:6px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible,[role="tab"]:focus-visible,[role="button"]:focus-visible,summary:focus-visible{outline:3px solid var(--blue-2);outline-offset:2px;border-radius:6px}
 button:disabled{opacity:.48;cursor:not-allowed}
+input:disabled,select:disabled,textarea:disabled{opacity:.55;cursor:not-allowed}
+.btn:active:not(:disabled),.icon-btn:active:not(:disabled),.tab:active,.thumb:active:not(:disabled){filter:brightness(1.08)}
 .app{min-height:100vh;display:grid;grid-template-rows:66px minmax(0,1fr) 34px}
 /* ---- header ---- */
 .topbar{height:66px;display:flex;align-items:center;gap:12px;padding:0 24px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:10;transition:background .22s,border-color .22s}
@@ -66,8 +76,8 @@ button:disabled{opacity:.48;cursor:not-allowed}
 details.demo-card summary{cursor:pointer;font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:750;list-style-position:inside;padding:2px 0}
 details.demo-card summary::-webkit-details-marker{color:var(--muted)}
 /* ---- main + stepper ---- */
-.main{padding:20px 28px 24px;min-width:0;max-width:1920px;width:100%;margin:0 auto}
-.stepper{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));column-gap:16px;background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:15px;padding:15px 18px;margin-bottom:18px}
+.main{padding:var(--space-5) var(--space-6) var(--space-5);min-width:0;max-width:1920px;width:100%;margin:0 auto}
+.stepper{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));column-gap:var(--space-4);background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:var(--radius-lg);padding:var(--space-4);margin-bottom:var(--space-4)}
 .step{position:relative;display:grid;grid-template-columns:30px minmax(0,1fr);gap:9px;align-items:start;min-width:0}
 .step:not(:last-child):after{content:"";position:absolute;top:14px;left:calc(100% + 3px);right:-13px;height:2px;background:var(--border)}
 .step.done:not(:last-child):after{background:var(--blue)}
@@ -81,16 +91,16 @@ details.demo-card summary::-webkit-details-marker{color:var(--muted)}
 .step.failed .step-number{background:var(--red);color:#fff;border-color:var(--red)}
 .step-title{font-size:13px;font-weight:750;margin:2px 0 3px}
 .step-desc{font-size:12px;color:var(--muted)}
-.pipeline-strip{background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:15px;padding:11px 16px;margin-bottom:18px}
+.pipeline-strip{background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);margin-bottom:var(--space-4)}
 .pipeline-strip .explainer{font-size:13px;font-weight:600;margin:0 0 6px}
 .pipeline{display:flex;flex-wrap:wrap;border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .pstage{flex:1 1 0;min-width:200px;padding:8px 14px;font-size:12px;font-weight:600}
 .pstage + .pstage{border-left:1px solid var(--border)}
 .pstage .tag{display:block;font-family:var(--mono);font-size:11px;font-weight:400;color:var(--muted);margin-top:2px}
 /* ---- workspace grid + panels ---- */
-.workspace{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr) minmax(300px,1fr);gap:16px;align-items:start}
-.panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);min-width:0;overflow:hidden;transition:background .22s,border-color .22s,box-shadow .22s}
-.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.workspace{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr) minmax(300px,1fr);gap:var(--space-4);align-items:start}
+.panel{background:linear-gradient(155deg,var(--surface-2),var(--surface));border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow);min-width:0;overflow:hidden;transition:background .22s,border-color .22s,box-shadow .22s}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--border);flex-wrap:wrap}
 .panel-title{font-weight:750;font-size:13px;letter-spacing:-.15px}
 .subtle{color:var(--muted);font-size:12px}
 .sub{color:var(--muted);font-size:12px;line-height:1.55}
@@ -104,7 +114,7 @@ code.tag.muted{color:var(--muted)}
 .mono{font-family:var(--mono);overflow-wrap:anywhere}
 .hidden{display:none!important}
 /* ---- buttons ---- */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);padding:9px 14px;border-radius:9px;font-size:12px;font-weight:700;min-height:40px;transition:transform .16s,background .16s,border-color .16s,box-shadow .16s;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);border:1px solid var(--border);background:var(--surface);color:var(--text);padding:var(--space-2) var(--space-3);border-radius:var(--radius-sm);font-size:12px;font-weight:700;min-height:40px;transition:transform .16s,background .16s,border-color .16s,box-shadow .16s;white-space:nowrap}
 .btn:hover:not(:disabled){transform:translateY(-1px);background:var(--surface-2)}
 .btn:active:not(:disabled){transform:translateY(0) scale(.985)}
 .btn.primary{background:linear-gradient(105deg,var(--blue),var(--blue-2));border-color:transparent;color:#fff}
@@ -116,7 +126,7 @@ button.copybtn{font-size:12px;font-weight:600;padding:2px 9px;margin-left:8px;bo
 .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 700ms linear infinite;vertical-align:-3px}
 @keyframes spin{to{transform:rotate(360deg)}}
 /* ---- viewer ---- */
-.viewer-wrap{padding:12px}
+.viewer-wrap{padding:var(--space-3)}
 .video-stage{position:relative;aspect-ratio:16/9;min-height:240px;background:#05080e;border-radius:10px;overflow:hidden;display:grid;place-items:center;color:#fff;border:1px dashed transparent}
 /* KL-8.11 G8 feedback: the viewer column stretches to the row height instead of leaving dead space under shorter columns; the video stage absorbs it. */
 .workspace>.panel:first-child{align-self:stretch;display:flex;flex-direction:column}
@@ -146,16 +156,16 @@ details.acc .accbody{padding:0 14px 12px}
 details.uploadwrap{border:0;margin:10px 0 0;background:transparent}
 details.uploadwrap summary{font-size:12px;font-weight:700;cursor:pointer}
 /* ---- live flow blocks ---- */
-.liveblock{padding:12px 15px;border-top:1px solid var(--border)}
+.liveblock{padding:var(--space-3) var(--space-4);border-top:1px solid var(--border)}
 .liveblock:first-child{border-top:0}
 .liveblock h3{font-size:12px;margin:0 0 8px;font-weight:750}
 .moderow{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}
 .moderow label{display:flex;gap:8px;align-items:center;cursor:pointer;border:1px solid var(--border);border-radius:9px;padding:8px 10px;font-size:12px;font-weight:700;flex:1;justify-content:center}
 .moderow input[type="radio"]{accent-color:var(--blue)}
 .moderow label:has(input:checked){background:var(--blue);border-color:var(--blue);color:#fff}
-.fieldgrid{display:grid;gap:10px;margin:0 0 10px}
-.fieldgrid label{display:grid;gap:6px;font-size:12px;color:var(--muted)}
-.fieldgrid input[type="text"]{font-size:13px;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:9px 12px;width:100%}
+.fieldgrid{display:grid;gap:var(--space-3);margin:0 0 var(--space-3)}
+.fieldgrid label{display:grid;gap:var(--space-2);font-size:12px;color:var(--muted)}
+.fieldgrid input[type="text"]{font-size:13px;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:var(--space-2) var(--space-3);width:100%;transition:border-color .16s,box-shadow .16s}
 .object-row{display:flex;align-items:center;gap:9px;padding:10px 0;border-bottom:1px solid var(--border);font-size:12px}
 .object-row:last-of-type{border-bottom:0}
 .object-dot{width:10px;height:10px;border-radius:50%;flex:none}
@@ -179,7 +189,7 @@ details.uploadwrap summary{font-size:12px;font-weight:700;cursor:pointer}
 .errorbox .rawDetail{font-family:var(--mono);font-size:11px;white-space:pre-wrap;word-break:break-word;margin-top:6px}
 .stateline{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:8px;overflow-wrap:anywhere}
 /* ---- right column: status, metrics, provenance ---- */
-.right-column{display:flex;flex-direction:column;gap:16px;min-width:0}
+.right-column{display:flex;flex-direction:column;gap:var(--space-4);min-width:0}
 .status-ring{display:flex;align-items:center;gap:12px;padding:4px 15px 10px}
 .status-ring svg{flex:none}
 .status-title{font-weight:750;font-size:13px}
@@ -323,16 +333,18 @@ h3.sub:first-child{margin-top:0}
 /* ---- footer / toast / modal / skeleton ---- */
 .footer{display:flex;align-items:center;justify-content:space-between;padding:0 22px;border-top:1px solid var(--border);background:var(--surface);font-size:12px;color:var(--muted)}
 .footer strong{color:var(--text)}
-.toast-wrap{position:fixed;right:22px;bottom:50px;z-index:50;display:flex;flex-direction:column;gap:8px;max-width:340px}
-.toast{padding:12px 15px;border:1px solid var(--border);border-radius:12px;background:var(--surface);box-shadow:var(--shadow);opacity:0;transform:translateY(10px);transition:opacity .22s,transform .22s}
+.toast-wrap{position:fixed;top:78px;right:var(--space-5);z-index:50;display:flex;flex-direction:column;gap:var(--space-2);max-width:340px;width:calc(100vw - var(--space-6))}
+.toast{padding:var(--space-3) var(--space-4);border:1px solid var(--border);border-left:3px solid var(--border);border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow);opacity:0;transform:translateY(-4px);transition:opacity .18s,transform .18s}
 .toast.show{opacity:1;transform:translateY(0)}
 .toast strong{display:block;margin-bottom:2px;font-size:12px}
 .toast span{font-size:12px;color:var(--muted)}
-.toast.ok{border-color:color-mix(in srgb,var(--green) 45%,var(--border))}
-.toast.warn{border-color:color-mix(in srgb,var(--amber) 45%,var(--border))}
-.toast.bad{border-color:color-mix(in srgb,var(--red) 45%,var(--border))}
-.toast .toast-x{float:right;border:0;background:transparent;color:var(--muted);font-size:14px;padding:0 0 4px 8px}
-.opsbar{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:13px;padding:11px 18px;margin-bottom:18px;flex-wrap:wrap}
+.toast.success,.toast.ok{border-left-color:var(--green)}
+.toast.info{border-left-color:var(--cyan)}
+.toast.warning,.toast.warn{border-left-color:var(--amber)}
+.toast.error,.toast.bad{border-left-color:var(--red)}
+.toast .toast-x{float:right;border:0;background:transparent;color:var(--muted);font-size:14px;padding:0 0 var(--space-1) var(--space-2);min-width:32px;min-height:32px;border-radius:var(--radius-sm);transition:background .16s,color .16s}
+.toast .toast-x:hover{background:var(--surface-2);color:var(--text)}
+.opsbar{display:flex;align-items:center;gap:var(--space-3);background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);margin-bottom:var(--space-4);flex-wrap:wrap}
 .ops-state{display:inline-flex;align-items:center;gap:8px;font-weight:750;font-size:13px;white-space:nowrap}
 .ops-dot{width:10px;height:10px;border-radius:50%;background:var(--muted);flex:none}
 .ops-state[data-state="Detecting"] .ops-dot,.ops-state[data-state="Measuring"] .ops-dot{background:var(--blue);animation:pulse-ring 1.4s ease-in-out infinite}
@@ -357,9 +369,29 @@ h3.sub:first-child{margin-top:0}
 .progress-track::after{content:"";position:absolute;top:0;bottom:0;left:0;width:28%;border-radius:inherit;background:linear-gradient(90deg,var(--blue),var(--violet));animation:indeterminate 1.2s linear infinite}
 @keyframes indeterminate{from{transform:translateX(-120%)}to{transform:translateX(420%)}}
 .progress-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);font-family:var(--mono)}
-.skeleton{position:relative;overflow:hidden;background:var(--surface-2);border-radius:8px;min-height:18px}
+.skeleton{position:relative;overflow:hidden;background:var(--surface-2);border-radius:var(--radius-sm);min-height:18px}
 .skeleton::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 20%,color-mix(in srgb,var(--blue) 12%,transparent) 50%,transparent 80%);animation:shimmer 1.4s linear infinite}
 @keyframes shimmer{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+/* KL-10.13 top loading bar: slim indeterminate fill, CSS-only motion,
+   no numbers. Under reduced motion the fill rests full-width and the
+   text label carries the state instead. */
+.global-progress{position:fixed;top:0;left:0;right:0;height:3px;z-index:60;background:var(--surface-3)}
+.global-progress-fill{position:absolute;top:0;bottom:0;left:0;width:28%;border-radius:inherit;background:linear-gradient(90deg,var(--blue),var(--cyan));animation:indeterminate 1.2s linear infinite}
+.global-progress-label{position:absolute;top:var(--space-2);right:var(--space-4);font-size:12px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:2px var(--space-3);opacity:0;pointer-events:none}
+@media (prefers-reduced-motion:reduce){.global-progress-fill{animation:none;width:100%;opacity:.55}.global-progress-label{opacity:1}.skeleton::after{animation:none}}
+/* KL-10.13 inline field validation: the message sits under its field,
+   the field itself carries the invalid ring, and fixing the value
+   clears both. */
+.field-error{color:var(--danger-text);font-size:12px;line-height:1.5;margin-top:var(--space-2)}
+.field-error:empty{display:none}
+input[aria-invalid="true"],textarea[aria-invalid="true"],select[aria-invalid="true"]{border-color:var(--red)!important;box-shadow:0 0 0 1px var(--red)}
+#dropZone[aria-invalid="true"]{border-color:var(--red);box-shadow:0 0 0 1px var(--red)}
+.thumb{transition:background .16s,color .16s,border-color .16s}
+.thumb:hover:not(:disabled){background:var(--surface-3);color:var(--text)}
+.exports a{transition:color .16s}
+.exports a:hover{color:var(--cyan)}
+details.acc summary,details.uploadwrap summary{transition:color .16s}
+details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
 /* Deliberate upload state: the viewer is a drop panel until a clip stages. */
 #playerWrap{position:absolute;inset:0}
 .upload-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:24px;color:#c8d4e4}
@@ -388,6 +420,7 @@ h3.sub:first-child{margin-top:0}
 </style>
 </head>
 <body>
+<div class="global-progress hidden" id="globalProgress" role="status" aria-label="Loading"><div class="global-progress-fill" aria-hidden="true"></div><span class="global-progress-label" id="globalProgressLabel">Loading…</span></div>
 <div class="app">
 <header class="topbar">
   <div class="brand">
@@ -451,7 +484,7 @@ h3.sub:first-child{margin-top:0}
       <div class="panel">
         <div class="panel-head"><div><div class="panel-title">Video analysis</div><div class="subtle" id="fileMeta">No clip loaded — use the upload panel below.</div></div><div class="btnrow"><button class="btn small hidden" id="browseBtn" type="button">Choose MP4</button><button class="btn small hidden" id="liveRecordBtn" type="button">Record</button></div></div>
         <div class="viewer-wrap">
-          <div class="video-stage dropzone" id="dropZone" role="button" tabindex="0" aria-label="Video viewer — drop an MP4 file here or activate to browse">
+          <div class="video-stage dropzone" id="dropZone" role="button" tabindex="0" aria-label="Video viewer — drop an MP4 file here or activate to browse" aria-describedby="clipFieldError">
             <div id="playerWrap" class="hidden">
               <video id="livePreview" muted playsinline preload="auto"></video>
               <svg id="liveOverlay" class="stage-overlay" aria-hidden="true"></svg>
@@ -472,7 +505,7 @@ h3.sub:first-child{margin-top:0}
               <div class="drop-icon" aria-hidden="true">↑</div>
               <div><strong>Drop a side-view MP4 here</strong></div>
               <ul class="format-list">
-                <li>MP4 file · up to 64 MB</li>
+                <li>MP4 or WebM file · up to 64 MB</li>
                 <li>Best: side-view pendulum, fixed camera</li>
               </ul>
               <div class="btnrow">
@@ -481,8 +514,9 @@ h3.sub:first-child{margin-top:0}
               </div>
               <div class="empty-error hidden" id="emptyError"></div>
             </div>
-            <input type="file" id="clipFile" accept="video/mp4,.mp4" tabindex="-1" hidden>
+            <input type="file" id="clipFile" accept="video/mp4,video/webm,.mp4,.webm" tabindex="-1" hidden>
           </div>
+          <div class="field-error hidden" id="clipFieldError" role="alert"></div>
           <div><span class="filechip hidden" id="fileChip"></span></div>
           <div class="filmstrip" id="filmstrip" aria-label="Clip segments"><span class="subtle">Load a clip to enable the filmstrip.</span></div>
           <div class="subtle" id="liveRecordNote" style="margin-top:8px">Or record in-browser (MP4 requested); the recording waits here until you press Detect.</div>
@@ -520,8 +554,8 @@ h3.sub:first-child{margin-top:0}
             <details class="acc">
               <summary>Prompts (defaults usually fine)</summary>
               <div class="accbody fieldgrid">
-                <label>Bob prompt <input type="text" id="livePromptBob" value="red ball" autocomplete="off"></label>
-                <label id="livePromptCardWrap">Card prompt <input type="text" id="livePromptCard" value="white paper card" autocomplete="off"></label>
+                <label>Bob prompt <input type="text" id="livePromptBob" value="red ball" autocomplete="off" aria-describedby="livePromptBobError"><span class="field-error hidden" id="livePromptBobError" role="alert"></span></label>
+                <label id="livePromptCardWrap">Card prompt <input type="text" id="livePromptCard" value="white paper card" autocomplete="off" aria-describedby="livePromptCardError"><span class="field-error hidden" id="livePromptCardError" role="alert"></span></label>
               </div>
             </details>
             <div class="btnrow">
@@ -548,7 +582,7 @@ h3.sub:first-child{margin-top:0}
           <div class="liveblock hidden" id="liveMeasureWrap" aria-label="Measure">
             <h3>Measure</h3>
             <div class="fieldgrid" id="liveMmRow">
-              <label>Card width in mm — type the measured width, never guessed <input type="text" id="liveMm" inputmode="decimal" placeholder="e.g. 85.6" autocomplete="off"></label>
+              <label>Card width in mm — type the measured width, never guessed <input type="text" id="liveMm" inputmode="decimal" placeholder="e.g. 85.6" autocomplete="off" aria-describedby="liveMmError"><span class="field-error hidden" id="liveMmError" role="alert"></span></label>
             </div>
             <div class="btnrow">
               <button id="liveMeasureBtn" class="btn primary" type="button">Measure</button>
@@ -805,7 +839,7 @@ h3.sub:first-child{margin-top:0}
 </div>
 <footer class="footer"><span><strong>⚗ KineticLab</strong> · Deterministic math. Verified evidence. Real physics.</span><span class="footer-host" id="serverFoot">Local Server</span></footer>
 </div>
-<div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
+<div class="toast-wrap" id="toastWrap" role="status" aria-live="polite" aria-label="Notifications"></div>
 <script>
 "use strict";
 /* KL-8.8 theme: dark default, light override, persisted preference. */
@@ -1016,20 +1050,40 @@ function markOnline(ok) {
   }
 }
 
-/* Toasts: success/info retire on a real elapsed clock via the shared
-   rAF ticker; failures persist until dismissed so an error is never
-   concealed. Timer functions are banned; the ticker is the only clock. */
+/* KL-10.13 toasts: four kinds (success, info, warning, error; the
+   older ok/warn/bad spellings map onto them) stack top-right with at
+   most three visible. Every kind retires on a real elapsed clock via
+   the shared rAF ticker, and hovering holds that clock. Inline panels
+   keep the full detail, so a retired toast never hides the only copy.
+   Timer functions are banned; the ticker is the only clock. */
 const TOAST_LINGER_MS = 4200;
+function toastKindName(kind) {
+  if (kind === "ok" || kind === "success") return "success";
+  if (kind === "info") return "info";
+  if (kind === "bad" || kind === "error") return "error";
+  return "warning";
+}
 function notify(title, message, kind) {
   const wrap = el("toastWrap");
   const toast = document.createElement("div");
-  toast.className = "toast " + (kind || "ok");
+  toast.className = "toast " + toastKindName(kind);
+  toast.setAttribute("role", "status");
+  let toastGone = false;
+  let toastHovered = false;
+  const dismiss = () => { toastGone = true; toast.remove(); };
+  const hold = () => { toastHovered = true; };
+  const release = () => { toastHovered = false; };
+  toast.addEventListener("mouseenter", hold);
+  toast.addEventListener("mouseleave", release);
+  toast.onmouseenter = hold;
+  toast.onmouseleave = release;
   const close = document.createElement("button");
   close.className = "toast-x";
   close.type = "button";
   close.setAttribute("aria-label", "Dismiss notification");
   close.textContent = "×";
-  close.addEventListener("click", () => { toast.remove(); });
+  close.addEventListener("click", dismiss);
+  close.onclick = dismiss;
   toast.appendChild(close);
   const head = document.createElement("strong");
   head.textContent = title;
@@ -1039,14 +1093,18 @@ function notify(title, message, kind) {
   toast.appendChild(body);
   wrap.appendChild(toast);
   requestAnimationFrame(() => { toast.classList.add("show"); });
-  if (kind !== "bad") {
-    const born = performance.now();
-    scheduleRaf((now) => {
-      if (now - born < TOAST_LINGER_MS) return true;
-      toast.remove();
-      return false;
-    });
-  }
+  let toastElapsed = 0;
+  let toastLast = null;
+  scheduleRaf((now) => {
+    if (toastGone) return false;
+    if (toastLast === null) toastLast = now;
+    if (!toastHovered) toastElapsed += now - toastLast;
+    toastLast = now;
+    if (toastElapsed < TOAST_LINGER_MS) return true;
+    dismiss();
+    return false;
+  });
+  while (wrap.children.length > 3) wrap.firstChild.remove();
   while (wrap.children.length > 4) wrap.firstChild.remove();
 }
 
@@ -1064,6 +1122,8 @@ function showProgress(title, description, statusText) {
   el("opDetail").textContent = (description ? description + " " : "") +
     (statusText || "Indeterminate — no percentage available.");
   el("opElapsed").textContent = "0.0s";
+  el("globalProgressLabel").textContent = title;
+  show(el("globalProgress"));
   show(el("opTrack"));
   hide(el("opLast"));
   progressStart = performance.now();
@@ -1078,6 +1138,98 @@ function showProgress(title, description, statusText) {
 function hideProgress() {
   progressActive = false;
   hide(el("opTrack"));
+  hide(el("globalProgress"));
+}
+
+/* KL-10.13 inline validation. Every check runs before any request is
+   sent; the message renders under its own field, the field carries
+   the invalid state, and focus moves to it. Fixing the value clears
+   the message. Nothing here blocks with a dialog. */
+const CLIP_MAX_BYTES = 64 * 1024 * 1024;
+function clipFileError(file) {
+  if (!file) return "Choose a video file first.";
+  const type = typeof file.type === "string" ? file.type : "";
+  const name = typeof file.name === "string"
+    ? file.name.toLowerCase() : "";
+  const typeOk = type === "video/mp4" || type === "video/webm" ||
+    (type === "" &&
+      (name.endsWith(".mp4") || name.endsWith(".webm")));
+  if (!typeOk) {
+    return "That file is not an MP4 or WebM video. " +
+      "Choose an MP4 or WebM clip.";
+  }
+  if (!file.size) {
+    return "That file is empty. Choose a non-empty MP4 or WebM clip.";
+  }
+  if (file.size > CLIP_MAX_BYTES) {
+    return "That file is " + (file.size / 1048576).toFixed(1) +
+      " MB. The limit is 64 MB, so trim or re-export a shorter clip.";
+  }
+  return null;
+}
+function setFieldError(field, errorNode, message) {
+  if (!field || !errorNode) return;
+  if (message) {
+    errorNode.textContent = message;
+    show(errorNode);
+    field.setAttribute("aria-invalid", "true");
+  } else {
+    errorNode.textContent = "";
+    hide(errorNode);
+    field.setAttribute("aria-invalid", "false");
+  }
+}
+function validateClipSelection(file) {
+  const message = clipFileError(file);
+  const zone = el("dropZone");
+  const box = el("clipFieldError");
+  if (message) {
+    box.textContent = message;
+    show(box);
+    zone.setAttribute("aria-invalid", "true");
+    zone.focus();
+    return false;
+  }
+  box.textContent = "";
+  hide(box);
+  zone.setAttribute("aria-invalid", "false");
+  return true;
+}
+function validateLivePrompts(mode) {
+  const bob = el("livePromptBob");
+  const bobError = el("livePromptBobError");
+  const bobBad = bob.value.trim() === "";
+  setFieldError(bob, bobError,
+    bobBad ? "Bob prompt is empty. Name the bob to find, " +
+      "for example red ball." : null);
+  let cardBad = false;
+  if (mode === "full") {
+    const card = el("livePromptCard");
+    cardBad = card.value.trim() === "";
+    setFieldError(card, el("livePromptCardError"),
+      cardBad ? "Card prompt is empty. Name the card to find, " +
+        "for example white paper card." : null);
+  } else {
+    setFieldError(el("livePromptCard"),
+      el("livePromptCardError"), null);
+  }
+  if (bobBad) { bob.focus(); return false; }
+  if (cardBad) { el("livePromptCard").focus(); return false; }
+  return true;
+}
+function validateLiveMm() {
+  const input = el("liveMm");
+  const raw = input.value.trim();
+  const value = raw === "" ? NaN : Number(raw);
+  if (!isFinite(value) || value <= 0) {
+    setFieldError(input, el("liveMmError"),
+      "Type the measured card width in mm. " +
+      "It is never guessed, so Measure waits for your number.");
+    input.focus();
+    return null;
+  }
+  setFieldError(input, el("liveMmError"), null);
+  return value;
 }
 function opsComplete(summary) {
   el("opElapsed").textContent =
@@ -1413,6 +1565,7 @@ function setStage(name) {
 async function runDemo(chain) {
   const spinner = el("demoSpin");
   setBusy(true);
+  notify("Demo started", "Running the pinned " + chain + " chain.", "info");
   show(spinner);
   setStage("stageEmpty");
   for (const stage of ["upload", "detect", "confirm", "measure"]) setWorkflowStage(stage, "processing");
@@ -3608,6 +3761,10 @@ async function runLiveDetect() {
   }
   const mode = liveMode();
   liveState.mode = mode;
+  if (!validateLivePrompts(mode)) {
+    notify("Check the prompts", "A prompt is empty. Fill it in to detect.", "warn");
+    return;
+  }
   const spinner = el("liveSpin");
   hide(el("liveErr"));
   show(spinner);
@@ -3726,11 +3883,8 @@ async function runLiveMeasure() {
   const mode = liveState.mode;
   let mm = null;
   if (mode === "full") {
-    const raw = el("liveMm").value.trim();
-    mm = raw === "" ? null : Number(raw);
-    if (mm === null || !isFinite(mm) || mm <= 0) {
-      showError(el("liveMeasureErr"), null,
-        "Type the measured card width in mm — it is never guessed.");
+    mm = validateLiveMm();
+    if (mm === null) {
       notify("Card width needed", "Type the measured width; it is never guessed.", "warn");
       return;
     }
@@ -3799,7 +3953,11 @@ async function runLiveMeasure() {
       opsComplete("Measure (motion) · " + payload.status_line +
         " · " + motionCounts(payload.report));
     }
-    notify("Measure complete", payload.status_line, "ok");
+    const measureRejected = mode === "full"
+      ? payload.result.status === "unsupported_input"
+      : !(payload.report && payload.report.status === "complete");
+    notify("Measure complete", payload.status_line,
+      measureRejected ? "warn" : "ok");
   } catch (err) {
     markOnline(false);
     setStage("stageResult");
@@ -4134,7 +4292,7 @@ function wireViewer() {
       "try a different MP4 (H.264) or re-export it.";
     el("emptyError").textContent = msg;
     show(el("emptyError"));
-    notify("Clip will not play", msg, "warn");
+    notify("Clip will not play", msg, "bad");
   });
   video.addEventListener("timeupdate", () => {
     el("timeLabel").textContent =
@@ -4190,6 +4348,7 @@ function wireViewer() {
 
 function stageClip(file) {
   if (!file) return;
+  if (!validateClipSelection(file)) return;
   el("emptyError").textContent = "";
   hide(el("emptyError"));
   setPendingFile(file);
@@ -4212,6 +4371,24 @@ function initLive() {
   el("liveBackBtn").addEventListener("click", backToPrompts);
   el("liveMeasureBtn").addEventListener("click", runLiveMeasure);
   el("liveRecordBtn").addEventListener("click", toggleLiveRecord);
+  el("livePromptBob").addEventListener("input", () => {
+    if (el("livePromptBob").value.trim() !== "") {
+      setFieldError(el("livePromptBob"),
+        el("livePromptBobError"), null);
+    }
+  });
+  el("livePromptCard").addEventListener("input", () => {
+    if (el("livePromptCard").value.trim() !== "") {
+      setFieldError(el("livePromptCard"),
+        el("livePromptCardError"), null);
+    }
+  });
+  el("liveMm").addEventListener("input", () => {
+    const raw = el("liveMm").value.trim();
+    if (raw !== "" && isFinite(Number(raw)) && Number(raw) > 0) {
+      setFieldError(el("liveMm"), el("liveMmError"), null);
+    }
+  });
   const syncMode = () => {
     if (el("liveModeMotion").checked) hide(el("livePromptCardWrap"));
     else show(el("livePromptCardWrap"));
