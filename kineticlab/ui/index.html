@@ -260,7 +260,7 @@ details.uploadwrap summary{font-size:12px;font-weight:700;cursor:pointer}
 .tab[aria-selected="true"]::after{content:"";position:absolute;left:9%;right:9%;bottom:0;height:3px;border-radius:4px 4px 0 0;background:var(--cyan);box-shadow:0 0 12px color-mix(in srgb,var(--cyan) 30%,transparent)}
 [role="tabpanel"]{animation:fadein 180ms ease}
 @keyframes fadein{from{opacity:.25}to{opacity:1}}
-.chart-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;padding:0;overflow:visible;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--cyan) 3%,transparent)}
+.chart-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;padding:0;overflow:auto;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--cyan) 3%,transparent)}
 .chart-wrap{background:var(--surface-2);border:1px solid var(--border);border-radius:11px;padding:12px;min-width:0}
 .chart-wrap svg.plot{width:100%;height:auto;display:block}
 /* Bounded visualization heights: the SVGs keep their aspect ratio
@@ -364,7 +364,7 @@ h3.sub:first-child{margin-top:0}
 .empty{text-align:center;padding:28px 20px;color:var(--muted)}
 .empty strong{display:block;color:var(--text);font-size:16px;margin-bottom:6px}
 /* ---- footer / toast / modal / skeleton ---- */
-.footer{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 var(--space-4) var(--space-4);padding:12px 18px;border:1px solid var(--border);border-radius:11px;background:var(--surface);font-size:12px;color:var(--muted)}
+.footer{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:0 var(--space-4) var(--space-4);padding:12px 18px;border:1px solid var(--border);border-radius:11px;background:var(--surface);font-size:12px;color:var(--muted)}
 .footer strong{color:var(--text)}
 .toast-wrap{position:fixed;top:78px;right:var(--space-5);z-index:50;display:flex;flex-direction:column;gap:var(--space-2);max-width:340px;width:calc(100vw - var(--space-6))}
 .toast{padding:var(--space-3) var(--space-4);border:1px solid var(--border);border-left:3px solid var(--border);border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow);opacity:0;transform:translateY(-4px);transition:opacity .18s,transform .18s}
@@ -442,7 +442,7 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
 .idle-compact{display:flex;align-items:center;gap:12px;padding:14px 18px;color:var(--muted);font-size:13px}
 .underbar .pipeline-strip,.underbar .opsbar{margin-bottom:0}
 .underbar .pipeline-strip .explainer{font-size:12px}
-.underbar .pipeline-strip .pipeline{flex-wrap:nowrap}
+.underbar .pipeline-strip .pipeline{flex-wrap:wrap}
 .footer-honest{display:inline-flex;align-items:center;gap:8px}
 .footer-honest svg{width:15px;height:15px;flex:none;color:var(--cyan)}
 .idle-compact .idle-dot{width:10px;height:10px;border-radius:50%;background:var(--muted);flex:none}
@@ -452,9 +452,10 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
 /* ---- responsive ---- */
 @media(min-width:1600px){.shell{grid-template-columns:minmax(300px,.82fr) minmax(0,2.05fr) minmax(340px,1.05fr)}}
 @media(max-width:1250px){.shell{grid-template-columns:minmax(300px,.9fr) minmax(0,1.8fr)}.simcol{grid-column:1/-1}.brand-sub{display:none}.result-list{grid-template-columns:1fr 1fr}}
+@media(max-width:1200px){.topbar .pill{display:none}.brand-kicker{display:none}.brand-tagline{display:none}}
 @media(max-width:900px){.topbar{padding:0 16px}.brand-kicker{font-size:10px}.brand-tagline{font-size:11px}}
-@media(max-width:760px){.app{grid-template-rows:60px minmax(0,1fr) auto auto}.topbar{height:60px;padding:0 12px;gap:10px}.brand-name{font-size:17px}.topbar .pill{display:none}.brand-kicker{font-size:9px}.shell{grid-template-columns:1fr;padding:var(--space-3)}.rail-navrow{flex-wrap:wrap}.underbar{padding:0 var(--space-3)}.underbar .pipeline-strip .pipeline{flex-wrap:wrap}.result-list{grid-template-columns:1fr 1fr}.footer{padding:8px 12px;flex-wrap:wrap;gap:6px;margin:0 var(--space-3) var(--space-3)}.footer .footer-host{display:none}}
-@media(max-width:560px){.chart-tabs .tab{flex-direction:column;gap:3px;font-size:10px;padding:8px 4px}.tab svg{width:16px;height:16px}.sim-stats{gap:6px}.sim-stat-value{font-size:16px}.metric-value{font-size:18px}.footer{font-size:10px}.verdict-badge{font-size:10px;padding:4px 9px}}
+@media(max-width:760px){.app{grid-template-rows:60px minmax(0,1fr) auto auto}.topbar{height:60px;padding:0 12px;gap:10px}.brand-name{font-size:17px}.topbar .pill{display:none}.brand-kicker{font-size:9px}.shell{grid-template-columns:minmax(0,1fr);padding:var(--space-3)}.rail-navrow{flex-wrap:wrap}.underbar{padding:0 var(--space-3)}.underbar .pipeline-strip .pipeline{flex-wrap:wrap}.result-list{grid-template-columns:1fr 1fr}.footer{padding:8px 12px;flex-wrap:wrap;gap:6px;margin:0 var(--space-3) var(--space-3)}.footer .footer-host{display:none}.sim-layout{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:560px){.chart-tabs .tab{flex-direction:column;gap:3px;font-size:10px;padding:8px 4px}.tab svg{width:16px;height:16px}.sim-stats{gap:6px}.sim-stat-value{font-size:16px}.metric-value{font-size:18px}.footer{font-size:10px}.verdict-badge{font-size:10px;padding:4px 9px}.brand-name{display:none}.brand-divider{display:none}.topbar{gap:8px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}.spinner{animation:none;border-top-color:var(--border)}[role="tabpanel"]{animation:none}}
 </style>
 </head>
@@ -477,39 +478,6 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
 </header>
 <div class="shell">
   <aside class="sidebar" aria-label="Primary navigation">
-    <div class="rail-util">
-      <div class="rail-navrow">
-        <button class="nav-btn active" type="button" data-nav="analysis" id="navAnalysis" title="New Analysis"><span class="nav-icon" aria-hidden="true">◈</span><span class="nav-label">New Analysis</span></button>
-        <button class="nav-btn" type="button" data-nav="charts" id="navCharts" title="Charts"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-label">Charts</span></button>
-        <button class="nav-btn" type="button" data-nav="evidence" id="navEvidence" title="Evidence"><span class="nav-icon" aria-hidden="true">▤</span><span class="nav-label">Evidence</span></button>
-      </div>
-      <details class="demo-card" open aria-label="Demo scenarios">
-        <summary>Demo scenarios</summary>
-        <div class="chainpanel" id="panelSuccess">
-          <h3>Success chain</h3>
-          <p>Pinned masks → fit. Reports g/L.</p>
-          <button id="demoSuccessBtn" class="btn primary full" type="button">Run success chain</button>
-        </div>
-        <div class="chainpanel" id="panelReject">
-          <h3>Rejection chain</h3>
-          <p>Corrupt geometry. Fails honestly.</p>
-          <button id="demoRejectBtn" class="btn danger-ghost full" type="button">Run rejection chain</button>
-        </div>
-        <div class="btnrow" style="margin-top:10px">
-          <span id="demoSpin" class="spinner hidden" role="status" aria-label="assembling"></span>
-        </div>
-      </details>
-      <details class="rail-fold" aria-label="Workflow stages">
-        <summary>Workflow stages</summary>
-    <section class="stepper" aria-label="Analysis workflow" title="Stages reflect the most recent run - a demo run genuinely completes every stage offline.">
-      <div class="step" id="stepUpload" data-stage="upload"><div class="step-number">1</div><div><div class="step-title">Upload</div><div class="step-desc">Load your video</div></div></div>
-      <div class="step" id="stepDetect" data-stage="detect"><div class="step-number">2</div><div><div class="step-title">Detect</div><div class="step-desc">AI finds objects (SAM 3.1)</div></div></div>
-      <div class="step" id="stepConfirm" data-stage="confirm"><div class="step-number">3</div><div><div class="step-title">Confirm</div><div class="step-desc">Review and approve</div></div></div>
-      <div class="step" id="stepMeasure" data-stage="measure"><div class="step-number">4</div><div><div class="step-title">Measure</div><div class="step-desc">Compute physics</div></div></div>
-      <div class="step" id="stepResults" data-stage="results"><div class="step-number">5</div><div><div class="step-title">Results</div><div class="step-desc">View &amp; export</div></div></div>
-    </section>
-      </details>
-    </div>
     <section class="panel" aria-label="Video analysis">
         <div class="panel-head"><div><div class="panel-title">Video Analysis</div><div class="subtle" id="fileMeta">No clip loaded — use the upload panel below.</div></div><div class="btnrow"><button class="btn small hidden" id="browseBtn" type="button">Choose MP4</button><button class="btn small hidden" id="liveRecordBtn" type="button">Record</button></div></div>
         <div class="viewer-wrap">
@@ -631,6 +599,39 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
           </div>
         </section>
     </section>
+    <div class="rail-util">
+      <div class="rail-navrow">
+        <button class="nav-btn active" type="button" data-nav="analysis" id="navAnalysis" title="New Analysis"><span class="nav-icon" aria-hidden="true">◈</span><span class="nav-label">New Analysis</span></button>
+        <button class="nav-btn" type="button" data-nav="charts" id="navCharts" title="Charts"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-label">Charts</span></button>
+        <button class="nav-btn" type="button" data-nav="evidence" id="navEvidence" title="Evidence"><span class="nav-icon" aria-hidden="true">▤</span><span class="nav-label">Evidence</span></button>
+      </div>
+      <details class="demo-card" open aria-label="Demo scenarios">
+        <summary>Demo scenarios</summary>
+        <div class="chainpanel" id="panelSuccess">
+          <h3>Success chain</h3>
+          <p>Pinned masks → fit. Reports g/L.</p>
+          <button id="demoSuccessBtn" class="btn primary full" type="button">Run success chain</button>
+        </div>
+        <div class="chainpanel" id="panelReject">
+          <h3>Rejection chain</h3>
+          <p>Corrupt geometry. Fails honestly.</p>
+          <button id="demoRejectBtn" class="btn danger-ghost full" type="button">Run rejection chain</button>
+        </div>
+        <div class="btnrow" style="margin-top:10px">
+          <span id="demoSpin" class="spinner hidden" role="status" aria-label="assembling"></span>
+        </div>
+      </details>
+      <details class="rail-fold" aria-label="Workflow stages">
+        <summary>Workflow stages</summary>
+    <section class="stepper" aria-label="Analysis workflow" title="Stages reflect the most recent run - a demo run genuinely completes every stage offline.">
+      <div class="step" id="stepUpload" data-stage="upload"><div class="step-number">1</div><div><div class="step-title">Upload</div><div class="step-desc">Load your video</div></div></div>
+      <div class="step" id="stepDetect" data-stage="detect"><div class="step-number">2</div><div><div class="step-title">Detect</div><div class="step-desc">AI finds objects (SAM 3.1)</div></div></div>
+      <div class="step" id="stepConfirm" data-stage="confirm"><div class="step-number">3</div><div><div class="step-title">Confirm</div><div class="step-desc">Review and approve</div></div></div>
+      <div class="step" id="stepMeasure" data-stage="measure"><div class="step-number">4</div><div><div class="step-title">Measure</div><div class="step-desc">Compute physics</div></div></div>
+      <div class="step" id="stepResults" data-stage="results"><div class="step-number">5</div><div><div class="step-title">Results</div><div class="step-desc">View &amp; export</div></div></div>
+    </section>
+      </details>
+    </div>
     <section class="panel" aria-label="Measurement status">
           <div class="panel-head"><div class="panel-title">Measurement Status</div><span class="tag" id="modeTag">No run</span></div>
           <div class="status-ring">

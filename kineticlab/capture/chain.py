@@ -40,6 +40,13 @@ NOT transferred to other clips):
 - Motion + a supplied mm is REJECTED (``E_INCOHERENT_VALUE``), never
   silently ignored: a silently unused physical size would let the user
   believe the report used it. Same for a card prompt in motion mode.
+- An optional human-typed ``pivot_length_mm`` threads from the measure
+  request through ``run_measure`` / ``run_live_chain`` to ``assemble``
+  (full mode only, KL-10.17). Motion mode has no gravity path, so it
+  leaves the length unused with its pivot/gravity fields null — never
+  claimed — and the UI only offers the field in full mode, so no user
+  is misled. Absent or unusable values reproduce the length-less run
+  byte for byte (never an error).
 - Zero valid records for a required role is ``E_EMPTY_STRING`` (the
   detection set is empty), raised at detect so no empty run confirms.
 - Non-monotonic valid PTS raises the observation code (time corruption
@@ -72,6 +79,7 @@ from kineticlab.assembly.build import (
     GRID_N_OMEGA,
     MAX_REFINE,
     OMEGA_BOUNDS,
+    PIVOT_LENGTH_BOUNDS_MM,
     assemble,
 )
 from kineticlab.assembly.export import export_angles_csv
@@ -343,6 +351,34 @@ def validate_card_width_mm(value: Any, mode: str) -> float | None:
         _fail("E_OUT_OF_RANGE", "card_width_mm",
               f"card width must be positive, got {value!r}")
         raise AssertionError("unreachable")
+    return number
+
+
+def validate_pivot_length_mm(value: Any) -> float | None:
+    """Parse the optional human-typed pivot length (KL-10.17).
+
+    Returns the length as a float when it is a finite number inside
+    ``PIVOT_LENGTH_BOUNDS_MM``, else None. Strings parse (multipart
+    fields arrive as text); booleans are not numbers here. Never
+    raises: an absent or unusable length leaves gravity null, exactly
+    the length-less run (byte-identical records).
+    """
+    if value is None:
+        return None
+    if isinstance(value, str):
+        try:
+            number = float(value.strip())
+        except ValueError:
+            return None
+    elif isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    else:
+        number = float(value)
+    if not math.isfinite(number):
+        return None
+    low, high = PIVOT_LENGTH_BOUNDS_MM
+    if not low <= number <= high:
+        return None
     return number
 
 
@@ -645,7 +681,9 @@ def _fresh_calibration(clip_sha256: str, long_med: float,
 
 
 def _measure_full(run_dir: Path, summary: dict[str, Any],
-                  card_width_mm: float) -> dict[str, Any]:
+                  card_width_mm: float,
+                  pivot_length_mm: float | None = None
+                  ) -> dict[str, Any]:
     clip = run_dir / CLIP_FILENAME
     table = extract_frame_records(str(clip))
     try:
@@ -725,7 +763,8 @@ def _measure_full(run_dir: Path, summary: dict[str, Any],
         "calibration_path": str(calibration_path),
         "geometry_report_path": str(report_path),
         "out_dir": str(run_dir),
-    }, _parsed={"bob": parsed["bob"], "card": parsed["card"]})
+    }, _parsed={"bob": parsed["bob"], "card": parsed["card"]},
+        pivot_length_mm=pivot_length_mm)
     written = [str(run_dir / name) for name in
                ("result.json", "diagnostics.json", "angles.csv",
                 "summary.md")]
@@ -883,12 +922,20 @@ def _measure_motion(run_dir: Path,
 
 
 def run_measure(run_dir: str | Path,
-                card_width_mm: Any = None) -> dict[str, Any]:
+                card_width_mm: Any = None,
+                pivot_length_mm: Any = None) -> dict[str, Any]:
     """Measure a confirmed run dir to completion (full or motion).
 
     Full mode needs the human-typed ``card_width_mm``; motion mode
     rejects it. Returns the mode output (``result``- or
     ``report``-shaped) plus ``written`` paths and a ``status_line``.
+
+    ``pivot_length_mm`` (KL-10.17) optionally carries the human-typed
+    independent pivot length; full mode forwards it to
+    :func:`kineticlab.assembly.build.assemble` so gravity computes.
+    Absent or unusable values behave exactly like the length-less
+    run. Motion mode has no gravity path, so it leaves the length
+    unused and its pivot/gravity fields null (never claimed).
     """
     target = Path(run_dir)
     validate_run_id(target.name)
@@ -897,7 +944,9 @@ def run_measure(run_dir: str | Path,
     width = validate_card_width_mm(card_width_mm, mode)
     if mode == "full":
         assert width is not None
-        return _measure_full(target, summary, width)
+        pivot = validate_pivot_length_mm(pivot_length_mm)
+        return _measure_full(target, summary, width,
+                             pivot_length_mm=pivot)
     return _measure_motion(target, summary)
 
 
@@ -924,19 +973,22 @@ def run_live_chain(clip: str | Path, mode: str,
                    prompts: dict[str, str], card_width_mm: Any,
                    run_dir: str | Path, api_key: str,
                    transport: Callable[[dict[str, Any]],
-                                       dict[str, Any]] | None = None
-                   ) -> dict[str, Any]:
+                                       dict[str, Any]] | None = None,
+                   pivot_length_mm: Any = None) -> dict[str, Any]:
     """One-shot live chain: detect then measure (the CLI composition).
 
     ``run_dir`` must already be the run's directory (callers mint the id
     with :func:`new_run_id`). Returns the measure output plus ``run_id``,
-    ``summary``, and ``clip_sha256``.
+    ``summary``, and ``clip_sha256``. ``pivot_length_mm`` (KL-10.17)
+    forwards to :func:`run_measure` so recorded runs carry the length
+    identically to served runs.
     """
     target = Path(run_dir)
     validate_run_id(target.name)
     detected = run_detect(clip, target, mode, prompts, api_key,
                           transport=transport)
-    measured = run_measure(target, card_width_mm)
+    measured = run_measure(target, card_width_mm,
+                           pivot_length_mm=pivot_length_mm)
     return {**measured, "run_id": detected["run_id"],
             "summary": detected["summary"],
             "clip_sha256": detected["clip_sha256"]}

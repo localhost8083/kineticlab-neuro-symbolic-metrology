@@ -17,8 +17,10 @@ behind the real work instead of colliding on it):
 - ``GET /api/overlay`` — the pinned ball-trajectory overlay SVG.
 - ``POST /api/live`` — live capture stages (KL-8.4): multipart
   ``stage=detect`` (clip + mode + prompts -> run id + confirm
-  summary) or ``stage=measure`` (run id + card mm -> result +
-  export links). Requires ``MODEL_API_KEY`` in the server env.
+  summary) or ``stage=measure`` (run id + card mm + optional pivot
+  mm -> result + export links; an absent or unusable pivot mm leaves
+  gravity null, never an error). Requires ``MODEL_API_KEY`` in the
+  server env.
 - ``GET /api/runs/<run-id>/<name>`` — one live-run export's bytes
   (run id pattern-validated, name on a fixed allowlist; requires
   the key like all live routes).
@@ -71,6 +73,7 @@ from kineticlab.capture.chain import (
     run_detect,
     run_measure,
     validate_mode,
+    validate_pivot_length_mm,
     validate_run_id,
 )
 from kineticlab.contracts import ContractError, validate_frame_table
@@ -614,9 +617,11 @@ class _Handler(BaseHTTPRequestHandler):
             if fields["mode"] != summary.get("mode"):
                 _fail("E_INCOHERENT_VALUE", "part:mode",
                       "measure mode disagrees with the confirmed run")
+        pivot = validate_pivot_length_mm(fields.get("pivot_length_mm"))
         try:
             out = run_measure(run_dir,
-                              fields.get("card_width_mm"))
+                              fields.get("card_width_mm"),
+                              pivot_length_mm=pivot)
         except ContractError as error:
             self._live_error(error)
             raise AssertionError("unreachable")

@@ -37,6 +37,7 @@ from kineticlab.capture.chain import (
     run_measure,
     validate_card_width_mm,
     validate_mode,
+    validate_pivot_length_mm,
     validate_prompts,
     validate_run_id,
 )
@@ -665,6 +666,95 @@ class MeasureReuseFallbackTest(unittest.TestCase):
                 with self.subTest(export=name):
                     self.assertEqual((run / name).read_bytes(),
                                      payload)
+
+
+class PivotLengthThreading1017Tests(unittest.TestCase):
+    """KL-10.17 item 2: the human-typed pivot length threads from
+    measure to assemble (full mode); absent or unusable values
+    reproduce the length-less run byte for byte."""
+
+    def test_validate_pivot_length_mm(self):
+        self.assertEqual(validate_pivot_length_mm("500"), 500.0)
+        self.assertEqual(validate_pivot_length_mm(500), 500.0)
+        self.assertEqual(validate_pivot_length_mm(10.0), 10.0)
+        self.assertEqual(validate_pivot_length_mm(2000.0), 2000.0)
+        self.assertEqual(validate_pivot_length_mm(" 85.6 "), 85.6)
+        for bad in (None, "", "junk", "5", "9.999", "2000.1",
+                    "9999", "nan", "inf", "-inf", True, False,
+                    [500], {"value": 500}):
+            with self.subTest(pivot=bad):
+                self.assertIsNone(validate_pivot_length_mm(bad))
+
+    def _detect_full(self, root):
+        run_id = new_run_id()
+        run_detect(TEST_3, root / run_id, "full",
+                   {"bob": "red ball", "card": "white paper card"},
+                   SECRET, transport=pin_transport(FULL_TEXTS))
+        return root / run_id
+
+    def test_run_measure_full_computes_gravity(self):
+        require_smoke(TEST_3)
+        with tempfile.TemporaryDirectory() as tmp:
+            target = self._detect_full(Path(tmp))
+            out = run_measure(target, 85.60, pivot_length_mm="500")
+            fit = out["result"]["fit"]
+            self.assertEqual(fit["pivot_length_mm"], 500.0)
+            self.assertEqual(fit["pivot_length_source"],
+                             "independent_measurement")
+            self.assertAlmostEqual(fit["gravity_m_s2"],
+                                   fit["g_over_l_per_s2"] * 0.5)
+
+    def test_invalid_pivot_is_byte_identical_to_absent(self):
+        require_smoke(TEST_3)
+        with tempfile.TemporaryDirectory() as tmp:
+            target = self._detect_full(Path(tmp))
+            plain = run_measure(target, 85.60)
+            plain_result = (target / "result.json").read_bytes()
+            plain_diag = (target / "diagnostics.json").read_bytes()
+            self.assertIsNone(
+                plain["result"]["fit"]["gravity_m_s2"])
+            for bad in ("junk", "5", "9999"):
+                with self.subTest(pivot=bad):
+                    out = run_measure(target, 85.60,
+                                      pivot_length_mm=bad)
+                    self.assertEqual(out["result"], plain["result"])
+                    self.assertEqual(out["diagnostics"],
+                                     plain["diagnostics"])
+                    self.assertEqual((target / "result.json").read_bytes(),
+                                     plain_result)
+                    self.assertEqual(
+                        (target / "diagnostics.json").read_bytes(),
+                        plain_diag)
+
+    def test_run_live_chain_forwards_pivot(self):
+        require_smoke(TEST_3)
+        with tempfile.TemporaryDirectory() as tmp:
+            run_id = new_run_id()
+            out = run_live_chain(
+                TEST_3, "full",
+                {"bob": "red ball", "card": "white paper card"},
+                85.60, Path(tmp) / run_id, SECRET,
+                transport=pin_transport(FULL_TEXTS),
+                pivot_length_mm=500.0)
+            fit = out["result"]["fit"]
+            self.assertEqual(fit["pivot_length_mm"], 500.0)
+            self.assertEqual(fit["pivot_length_source"],
+                             "independent_measurement")
+            self.assertAlmostEqual(fit["gravity_m_s2"],
+                                   fit["g_over_l_per_s2"] * 0.5)
+
+    def test_run_live_chain_motion_ignores_pivot(self):
+        require_smoke(TEST_3)
+        with tempfile.TemporaryDirectory() as tmp:
+            run_id = new_run_id()
+            out = run_live_chain(TEST_3, "motion", {"bob": "red ball"},
+                                 None, Path(tmp) / run_id, SECRET,
+                                 transport=pin_transport(FULL_TEXTS),
+                                 pivot_length_mm=500.0)
+            report = out["report"]
+            self.assertEqual(report["status"], "complete")
+            self.assertIsNone(report["pivot_length_mm"])
+            self.assertIsNone(report["gravity_m_s2"])
 
 
 if __name__ == "__main__":

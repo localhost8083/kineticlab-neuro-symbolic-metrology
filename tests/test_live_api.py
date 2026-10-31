@@ -361,12 +361,15 @@ class LiveMeasureTests(LiveCase):
             else:
                 os.environ["MODEL_API_KEY"] = previous
 
-    def measure(self, run_id, card_width_mm=None, mode=None):
+    def measure(self, run_id, card_width_mm=None, mode=None,
+                pivot_length_mm=None):
         fields = {"stage": "measure", "run_id": run_id}
         if card_width_mm is not None:
             fields["card_width_mm"] = card_width_mm
         if mode is not None:
             fields["mode"] = mode
+        if pivot_length_mm is not None:
+            fields["pivot_length_mm"] = pivot_length_mm
         return self.post_live(fields)
 
     def test_no_key_is_503(self):
@@ -454,6 +457,38 @@ class LiveMeasureTests(LiveCase):
                 get_status, _, content = self.get(href)
                 self.assertEqual(get_status, 200)
                 self.assertGreater(len(content), 0)
+
+    def test_measure_full_with_pivot_computes_gravity(self):
+        # KL-10.17 item 2: the measure form field reaches assemble.
+        self.set_key(SECRET)
+        status, _, body = self.measure(self.full_id, "85.6",
+                                       pivot_length_mm="500")
+        self.assertEqual(status, 200)
+        payload = json.loads(body.decode("utf-8"))
+        fit = payload["result"]["fit"]
+        self.assertEqual(fit["pivot_length_mm"], 500.0)
+        self.assertEqual(fit["pivot_length_source"],
+                         "independent_measurement")
+        self.assertAlmostEqual(fit["gravity_m_s2"],
+                               fit["g_over_l_per_s2"] * 0.5)
+        self.assertNotIn(SECRET, body.decode("utf-8"))
+
+    def test_measure_invalid_pivot_fail_closed_byte_identical(self):
+        # KL-10.17 item 2: an unusable pivot field is treated as
+        # absent — the null-gravity path, never an error page.
+        self.set_key(SECRET)
+        _, _, plain_body = self.measure(self.full_id, "85.6")
+        plain = json.loads(plain_body.decode("utf-8"))
+        self.assertIsNone(plain["result"]["fit"]["gravity_m_s2"])
+        for bad in ("junk", "5", "9999"):
+            with self.subTest(pivot=bad):
+                status, _, body = self.measure(
+                    self.full_id, "85.6", pivot_length_mm=bad)
+                self.assertEqual(status, 200)
+                payload = json.loads(body.decode("utf-8"))
+                self.assertEqual(payload["result"], plain["result"])
+                self.assertEqual(payload["diagnostics"],
+                                 plain["diagnostics"])
 
     def test_measure_without_summary_is_404(self):
         self.set_key(SECRET)

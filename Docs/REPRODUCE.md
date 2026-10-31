@@ -31,7 +31,7 @@ Full test suite (~17-20 minutes, blocking):
 python -m unittest
 ```
 
-Expected: `860 tests, OK`, exit 0. One environment-dependent live-bind skip
+Expected: `871 tests, OK`, exit 0. One environment-dependent live-bind skip
 is possible on some machines. The UI test module requires `node` on PATH.
 
 Byte pins are same-platform determinism: on a different OS C library

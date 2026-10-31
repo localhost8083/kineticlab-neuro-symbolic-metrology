@@ -4021,5 +4021,232 @@ class Fidelity1016Tests(unittest.TestCase):
         self.assertEqual(strip.count("<svg"), 4)
         self.assertNotIn("Motion Trail", self.page)
 
+
+@unittest.skipUnless(shutil.which("node"),
+                     "node is required for page-execution proofs")
+class ViewportFit1017Tests(unittest.TestCase):
+    """KL-10.17 item 1: the dashboard fits the viewport — shell track
+    arithmetic resolved per width from the shipped CSS, panel/video
+    containment, common top alignment, and page-level scrolling.
+
+    Node has no layout engine, so each proof executes against the
+    shipped stylesheet + markup: media-query resolution per width,
+    track-minimum/gap/padding arithmetic, and containment facts.
+    """
+
+    WIDTHS = (1920, 1440, 1250, 1000, 900, 760, 560, 390)
+
+    @classmethod
+    def setUpClass(cls):
+        cls.page = (UI_DIR / "index.html").read_text(encoding="utf-8")
+        script = cls.page.split("<script>", 1)[1].split("</script>", 1)[0]
+        assert "__KL_LIVE_AVAILABLE__" in script
+        cls.script = script.replace("__KL_LIVE_AVAILABLE__", "true")
+        cls.css = cls.page.split("<style>", 1)[1].split("</style>", 1)[0]
+
+    def _check(self, body):
+        prelude = ("const __KLCSS = " + json.dumps(self.css) + ";\n"
+                   "const __KLHTML = " + json.dumps(self.page) + ";\n")
+        return (prelude + "try {\n" + body
+                + "\n} catch (e) {\n"
+                + '  console.error("KLFAIL " + (e && e.stack || e));\n'
+                + "  process.exit(1);\n}\n")
+
+    def test_shell_tracks_fit_every_breakpoint(self):
+        body = (
+            "  const widths = [1920, 1440, 1250, 1000, 900, 760,\n"
+            "    560, 390];\n"
+            "  function varPx(name) {\n"
+            "    const hit = __KLCSS.match(new RegExp(name\n"
+            "      + \":(\\\\d+)px\"));\n"
+            "    return Number(hit[1]);\n"
+            "  }\n"
+            "  const gap = varPx(\"--space-4\");\n"
+            "  const base = __KLCSS.match(/\\.shell\\{display:grid;"
+            "grid-template-columns:([^;]+);/)[1];\n"
+            "  const baseBody = __KLCSS.match(\n"
+            "    /\\.shell\\{([^}]*)\\}/)[1];\n"
+            "  const basePad = varPx(\"--space-\" + baseBody.match(\n"
+            "    /padding:var\\(--space-(\\d)\\)/)[1]);\n"
+            "  const rules = [];\n"
+            "  for (const ln of __KLCSS.split(\"\\n\")) {\n"
+            "    const mm = ln.match(\n"
+            "      /@media\\((min|max)-width:(\\d+)px\\)\\{(.*)\\}/);\n"
+            "    if (!mm) continue;\n"
+            "    const sh = mm[3].match(/\\.shell\\{([^}]*)\\}/);\n"
+            "    if (!sh) continue;\n"
+            "    const cm = sh[1].match(\n"
+            "      /grid-template-columns:([^;}]+)/);\n"
+            "    const pm = sh[1].match(\n"
+            "      /padding:var\\(--space-(\\d)\\)/);\n"
+            "    rules.push({ min: mm[1] === \"min\"\n"
+            "      ? Number(mm[2]) : 0,\n"
+            "      max: mm[1] === \"max\" ? Number(mm[2]) : 1000000,\n"
+            "      cols: cm ? cm[1] : null,\n"
+            "      pad: pm ? varPx(\"--space-\" + pm[1]) : null });\n"
+            "  }\n"
+            "  function colsFor(w) {\n"
+            "    let cols = base, pad = basePad;\n"
+            "    for (const rule of rules) {\n"
+            "      if (w >= rule.min && w <= rule.max) {\n"
+            "        if (rule.cols) cols = rule.cols;\n"
+            "        if (rule.pad !== null) pad = rule.pad;\n"
+            "      }\n"
+            "    }\n"
+            "    return { cols, pad };\n"
+            "  }\n"
+            "  function trackMin(track) {\n"
+            "    const hit = track.match(/^minmax\\((\\d+)(px)?,/);\n"
+            "    return hit ? Number(hit[1]) : null;\n"
+            "  }\n"
+            "  const rows = widths.map((w) => {\n"
+            "    const found = colsFor(w);\n"
+            "    const tracks = found.cols.split(\" \")\n"
+            "      .filter((t) => t.length);\n"
+            "    const mins = tracks.map(trackMin);\n"
+            "    const automatic = mins.some((x) => x === null);\n"
+            "    const total = automatic ? null\n"
+            "      : mins.reduce((a, b) => a + b, 0)\n"
+            "        + (tracks.length - 1) * gap + 2 * found.pad;\n"
+            "    return { w, cols: found.cols, mins, total,\n"
+            "      fits: total !== null && total <= w };\n"
+            "  });\n"
+            "  function blockOf(text) {\n"
+            "    const i = __KLCSS.indexOf(text);\n"
+            "    return i < 0 ? \"\"\n"
+            "      : __KLCSS.slice(i, __KLCSS.indexOf(\"}\", i));\n"
+            "  }\n"
+            "  __emit({ rows, chain: {\n"
+            "    sidebar: /min-width:0/.test(blockOf(\".sidebar{\")),\n"
+            "    main: /min-width:0/.test(blockOf(\".main{\")),\n"
+            "    simcol: /min-width:0/.test(blockOf(\".simcol{\")),\n"
+            "    panel: /min-width:0/.test(blockOf(\".panel{\")) } });\n")
+        out = run_page_driver(self.script, self._check(body), {})
+        self.assertEqual([row["w"] for row in out["rows"]],
+                         list(self.WIDTHS))
+        for row in out["rows"]:
+            with self.subTest(width=row["w"]):
+                self.assertNotIn(None, row["mins"],
+                                 "every track needs an explicit zero-able "
+                                 f"minimum: {row['cols']}")
+                self.assertTrue(
+                    row["fits"],
+                    f"tracks need {row['total']}px at {row['w']}px: "
+                    f"{row['cols']}")
+        for selector, ok in out["chain"].items():
+            with self.subTest(selector=selector):
+                self.assertTrue(
+                    ok, f"{selector} needs min-width:0 so content never "
+                        "forces its track wider than its share")
+
+    def test_panels_and_video_contained(self):
+        body = (
+            "  function blockOf(text) {\n"
+            "    const i = __KLCSS.indexOf(text);\n"
+            "    return i < 0 ? \"\"\n"
+            "      : __KLCSS.slice(i, __KLCSS.indexOf(\"}\", i));\n"
+            "  }\n"
+            "  const panel = blockOf(\".panel{\");\n"
+            "  const tabs = blockOf(\".chart-tabs{\");\n"
+            "  const stage = blockOf(\".video-stage{\");\n"
+            "  __emit({\n"
+            "    panelMin: /min-width:0/.test(panel),\n"
+            "    panelClip: /overflow:hidden/.test(panel),\n"
+            "    tabsScroll: /overflow:auto/.test(tabs),\n"
+            "    tabsVisibleGone: !/overflow:visible/.test(tabs),\n"
+            "    stageWidthAuto: !/(^|;)width\\s*:/.test(stage)\n"
+            "      && !/min-width\\s*:/.test(stage),\n"
+            "    pipelineWraps: __KLCSS.indexOf(\".underbar \"\n"
+            "      + \".pipeline-strip .pipeline{flex-wrap:wrap}\") >= 0,\n"
+            "    nowrapGone: __KLCSS.indexOf(\"flex-wrap:nowrap\") < 0,\n"
+            "  });\n")
+        out = run_page_driver(self.script, self._check(body), {})
+        self.assertTrue(out["panelMin"], ".panel needs min-width:0")
+        self.assertTrue(out["panelClip"], ".panel clips at its own border")
+        self.assertTrue(out["tabsScroll"],
+                        ".chart-tabs must scroll instead of bleeding")
+        self.assertTrue(out["tabsVisibleGone"],
+                        ".chart-tabs must not paint tabs past its box")
+        self.assertTrue(
+            out["stageWidthAuto"],
+            ".video-stage fills its card (no fixed width)")
+        self.assertTrue(out["pipelineWraps"],
+                        "the underbar pipeline must wrap below ~1050px")
+        self.assertTrue(out["nowrapGone"],
+                        "no flex row may forbid wrapping")
+
+    def test_top_row_alignment(self):
+        body = (
+            "  const rail = __KLHTML.slice(\n"
+            "    __KLHTML.indexOf('<aside class=\"sidebar\"'));\n"
+            "  const head = rail.slice(0, rail.indexOf('<section'\n"
+            "    + ' class=\"panel\" aria-label=\"Video analysis\"'))\n"
+            "    .replace(/<aside[^>]*>/, \"\");\n"
+            "  const shellAt = __KLCSS.indexOf(\".shell{\");\n"
+            "  const shell = __KLCSS.slice(shellAt,\n"
+            "    __KLCSS.indexOf(\"}\", shellAt));\n"
+            "  const mainAt = __KLHTML.indexOf('<main class=\"main\"');\n"
+            "  const firstSec = __KLHTML.indexOf(\"<section\", mainAt);\n"
+            "  const heroTag = __KLHTML.slice(firstSec, firstSec + 160);\n"
+            "  const simAt = __KLHTML.indexOf('<aside class=\"simcol\"');\n"
+            "  const simHead = __KLHTML.slice(simAt, __KLHTML.indexOf(\n"
+            "    '<div role=\"tabpanel\" id=\"viewSimulation\"', simAt))\n"
+            "    .replace(/<aside[^>]*>/, \"\");\n"
+            "  __emit({\n"
+            "    videoFirst: !new RegExp(\"<(div|section|details\"\n"
+            "      + \"|button|span|p|h3|nav)[ >]\").test(head),\n"
+            "    shellAligns: /align-items:start/.test(shell),\n"
+            "    sciFirst: heroTag.indexOf('id=\"sciCard\"') >= 0,\n"
+            "    simFirstVisible: simHead.indexOf(\"<section\") < 0\n"
+            "      && simHead.indexOf(\"<div\") < 0\n"
+            "      && !/<button(?![^>]*hidden)[ >]/.test(simHead),\n"
+            "  });\n")
+        out = run_page_driver(self.script, self._check(body), {})
+        self.assertTrue(
+            out["videoFirst"],
+            "Video Analysis must be the rail's first card so its top "
+            "meets the hero and sim tops")
+        self.assertTrue(out["shellAligns"],
+                        ".shell must top-align its tracks")
+        self.assertTrue(out["sciFirst"],
+                        "the hero must be the center column's first card")
+        self.assertTrue(
+            out["simFirstVisible"],
+            "the sim panel must be the sim column's first visible card")
+
+    def test_page_scrolls_no_vertical_clip(self):
+        body = (
+            "  function blockOf(text) {\n"
+            "    const i = __KLCSS.indexOf(text);\n"
+            "    return i < 0 ? \"\"\n"
+            "      : __KLCSS.slice(i, __KLCSS.indexOf(\"}\", i));\n"
+            "  }\n"
+            "  function noFixedHeight(block) {\n"
+            "    return !/height\\s*:/.test(\n"
+            "      block.replace(/min-height:[^;]+;?/, \"\"));\n"
+            "  }\n"
+            "  __emit({\n"
+            "    bodyScrolls: !/overflow\\s*:/.test(blockOf(\"\\nbody{\")),\n"
+            "    appGrows: /minmax\\(0,1fr\\)/.test(blockOf(\".app{\"))\n"
+            "      && /min-height:100vh/.test(blockOf(\".app{\"))\n"
+            "      && !/[^-]height:100vh/.test(__KLCSS),\n"
+            "    shellGrows: noFixedHeight(blockOf(\".shell{\")),\n"
+            "    panelGrows: noFixedHeight(blockOf(\".panel{\")),\n"
+            "    chromeCollapses: __KLCSS.indexOf(\"@media(max-width:\"\n"
+            "      + \"1200px){.topbar .pill{display:none}\") >= 0,\n"
+            "    footerWraps: /flex-wrap:wrap/.test(blockOf(\".footer{\")),\n"
+            "  });\n")
+        out = run_page_driver(self.script, self._check(body), {})
+        self.assertTrue(out["bodyScrolls"], "the page itself must scroll")
+        self.assertTrue(out["appGrows"],
+                        ".app must grow past the viewport, never pin to it")
+        self.assertTrue(out["shellGrows"], ".shell must grow with content")
+        self.assertTrue(out["panelGrows"], ".panel must grow with content")
+        self.assertTrue(
+            out["chromeCollapses"],
+            "header chips must collapse before the topbar overflows")
+        self.assertTrue(out["footerWraps"], ".footer must wrap, not push")
+
+
 if __name__ == "__main__":
     unittest.main()
