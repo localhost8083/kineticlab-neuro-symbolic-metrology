@@ -31,11 +31,12 @@ Full test suite (~17-20 minutes, blocking):
 python -m unittest
 ```
 
-Expected on the maintained machine: `878 tests, OK`, exit 0. On a fresh
-clone without the local `Smoke/` media the Smoke-backed tests skip (~30)
-and the suite reports fewer ran with `OK (skipped=...)` — expected, not a
+Expected on the maintained machine: `884 tests, OK`, exit 0. On a fresh
+clone, tests backed by the raw SAM fixtures under `Smoke/results/` (which stay
+local) skip, and the suite reports fewer ran with `OK (skipped=...)` — expected, not a
 failure: the byte pins compare against outputs recorded on the machine
-that owns the media. One environment-dependent live-bind skip is possible
+that owns the media. The demo clip (`Smoke/test_3.mp4`) ships, so media_check, the
+demo chains, and the UI module run everywhere. One environment-dependent live-bind skip is possible
 on some machines. The UI test module requires `node` on PATH.
 
 Byte pins are same-platform determinism: on a different OS C library
