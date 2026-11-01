@@ -31,7 +31,7 @@ Full test suite (~17-20 minutes, blocking):
 python -m unittest
 ```
 
-Expected on the maintained machine: `875 tests, OK`, exit 0. On a fresh
+Expected on the maintained machine: `878 tests, OK`, exit 0. On a fresh
 clone without the local `Smoke/` media the Smoke-backed tests skip (~30)
 and the suite reports fewer ran with `OK (skipped=...)` — expected, not a
 failure: the byte pins compare against outputs recorded on the machine

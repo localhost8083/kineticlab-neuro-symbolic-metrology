@@ -17,9 +17,9 @@ this file. New rows below the freeze line are marked explicitly.
 
 | ID | Claim | Label | Evidence | Status |
 |---|---|---|---|---|
-| C-001 | Repository has P-001 package/config/smoke/test/CLI foundation. | `verified_fact` | `TASKS.md`, `WHITEBOARD.md`, `README.md` | reviewed |
+| C-001 | Repository has P-001 package/config/smoke/test/CLI foundation. | `verified_fact` | `kineticlab/`, `scripts/media_check.py`, `python -m kineticlab --help` output; `README.md` quickstart | reviewed |
 | C-002 | `python scripts/media_check.py` passes the pinned `test_3` structural fixture. | `verified_fact` | command output; `fixtures/*.json` | reviewed |
-| C-003 | `python -m unittest` passes 875 tests. | `verified_fact` | command output 2026-11-02 (KL-10.21 adversarial-audit repairs; the UI test module requires `node` on PATH); `tests/` | reviewed |
+| C-003 | `python -m unittest` passes 878 tests. | `verified_fact` | command output 2026-11-02 (KL-10.21 repairs + KL-10.22 third-audit response: number-word gate extension, provenance wording corrected; the UI test module requires `node` on PATH); `tests/` | reviewed |
 | C-004 | `python -m kineticlab --help` exits 0. | `verified_fact` | command output; `kineticlab/cli/` | reviewed |
 | C-005 | `test_3.mp4` is 1024×576 with 234 frames and non-uniform MP4 `stts` timing. | `measured` | `fixtures/test_3.json`; `scripts/media_check.py` output | structural only; not source PTS proof |
 | C-006 | SAM response fixtures contain continuous bob/card frame records for `test_3`. | `verified_fact` | `Smoke/results/test_3_*_raw.txt`; KL-3.1 adapter parses 234/234 lines per file | KL-3.2 decode DONE: 234/234 records valid per file with mask-derived centroid/area |
@@ -31,7 +31,7 @@ this file. New rows below the freeze line are marked explicitly.
 | C-011 | Gravity requires independent length or independently validated metric scale; otherwise report identifiable `g/L_eff`. | `assumption` / design rule | project plan; locked app plan | implemented 2026-11-01 (KL-10.15/10.17; see C-031/C-032) |
 | C-012 | P-001 used no network or API calls. | `verified_fact` | handoff record; command log | reviewed |
 | C-013 | `pytest`, FFmpeg/bash harness, and lockfile resolution are verified locally. | — | unavailable in sandbox | do not claim |
-| C-015 | Two live SAM 3.1 calls on `Smoke/test_3.mp4` (prompts `ball`, `card`) were recorded 2026-10-28 via a user-run transport; redacted raw artifacts + `run_metadata.json` are in `fixtures/live/`; `Docs/Meta_Tooling_Evidence.md` carries the LIVE-RUN label. | `verified_fact` | console facts + SHA-256 hashes (clip `a98a5324…be5875ce`, bob `b216815f…fb3ad7`, card `d3fe9a7e…57473d1`); usage/cost null (transport does not capture it) | reviewed |
+| C-015 | Two live SAM 3.1 calls on `Smoke/test_3.mp4` (prompts `ball`, `card`) were recorded 2026-10-28 via a user-run transport; redacted raw artifacts + `run_metadata.json` are in `fixtures/live/` and are the live-run record. | `verified_fact` | console facts + SHA-256 hashes (clip `a98a5324…be5875ce`, bob `b216815f…fb3ad7`, card `d3fe9a7e…57473d1`); usage/cost null (transport does not capture it) | reviewed |
 | C-016 | Both live SAM responses replay through the unchanged offline pipeline to 234/234 valid `observation.v1` records each, frames 0..233, zero missing PTS. | `verified_fact` | independent replay 2026-10-28 (records, validity, PTS joins recomputed); `fixtures/live/` | reviewed |
 | C-017 | The live SAM artifacts contain no key material: committed hygiene patterns give 0 hits; the single case-insensitive `Sk-` substring is base85 mask-payload data, not a credential. | `verified_fact` | `tests/test_key_hygiene.py` 5/5 on tree incl. `fixtures/live/` | reviewed |
 | C-018 | The M-2 advisory layer is built and tested offline: the five setup-review flags surface only as `W_ASSUMPTION_UNVERIFIED`, and advisory application is never-less-conservative (240-case matrix: 48 flag combinations x 5 result states; warnings only grow, states never upgrade). | `verified_fact` | `tests/test_advisory.py`; mapping in `kineticlab/advisory/setup_review.py` | reviewed |
