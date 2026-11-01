@@ -210,6 +210,28 @@ class SyntheticSampleTableTest(unittest.TestCase):
         self.assertEqual([entry["valid"] for entry in entries], [True, True])
         self.assertGreater(entries[1]["pts_seconds"], entries[0]["pts_seconds"])
 
+    def test_many_single_sample_chunks_stay_fast(self):
+        # KL-10.21 regression: the chunk-extent check used to rescan
+        # every sample for every chunk (O(chunks × samples)); a
+        # 12k-sample one-sample-per-chunk table stalled the ingest
+        # chain for seconds. The precomputed totals keep it linear —
+        # this finishes in well under a second, where the old loop
+        # needed several.
+        import time
+        sample_count = 12000
+        runs = tuple((i, 1, 1) for i in range(1, sample_count + 1))
+        offsets = tuple(8 * (i + 1) for i in range(sample_count))
+        payload = synthetic_mp4(sample_count=sample_count,
+                                sizes=(4,) * sample_count,
+                                stsc_runs=runs, chunk_offsets=offsets,
+                                with_mvhd=True,
+                                stts_entries=((sample_count, 40),))
+        started = time.perf_counter()
+        entries = self.extract(payload)
+        elapsed = time.perf_counter() - started
+        self.assertEqual(len(entries), sample_count)
+        self.assertLess(elapsed, 1.0)
+
 
 class FrameTimingFailureTest(unittest.TestCase):
     def extract_path(self, payload):

@@ -508,9 +508,19 @@ class _Handler(BaseHTTPRequestHandler):
             verdict = build_upload_verdict(saved, filename, digest,
                                            len(data))
         except ContractError as error:
+            # KL-10.21: rejected uploads leave no residue — the store
+            # is content-addressed, so identical bytes re-upload and
+            # re-verify identically.
+            saved.unlink(missing_ok=True)
             first = error.errors[0]
             raise UiError(first.code, first.field,
                           f"{first.field}: {first.message}")
+        except BaseException:
+            # ponytail: deliberately broad and re-raising — inspect_media
+            # can surface ProbeError subclasses; tighten to an explicit
+            # tuple if a new exception type ever needs to skip cleanup.
+            saved.unlink(missing_ok=True)
+            raise
         self._send_json(verdict)
 
     def _route_demo(self, chain: str) -> None:
@@ -665,11 +675,26 @@ class _Handler(BaseHTTPRequestHandler):
         # victim domain as Host — an absent header carries no attack
         # origin. A PRESENT foreign Host fails closed with the
         # registered origin-misuse code.
+        # KL-10.21: a cross-site POST (a malicious page fetching
+        # http://127.0.0.1:8137) presents a loopback Host but a
+        # foreign Origin, so the Origin header is checked the same
+        # way. Absent Origin (curl, HTTP/1.0, same-box tools) passes;
+        # present foreign Origin — including "null" from sandboxed
+        # frames — fails closed. Browsers send Origin on same-origin
+        # POSTs, and that origin is this loopback, so the UI keeps
+        # working.
         host = self.headers.get("Host")
-        if host is None or _host_is_loopback(host):
+        if host is not None and not _host_is_loopback(host):
+            _fail("E_WRONG_TYPE", "Host",
+                  f"Host {host!r} is not this loopback server "
+                  "(127.0.0.1 / localhost only)")
+        origin = self.headers.get("Origin")
+        if origin is None:
             return
-        _fail("E_WRONG_TYPE", "Host",
-              f"Host {host!r} is not this loopback server "
+        if _host_is_loopback(origin.partition("://")[2]):
+            return
+        _fail("E_WRONG_TYPE", "Origin",
+              f"Origin {origin!r} is not this loopback server "
               "(127.0.0.1 / localhost only)")
 
     def _dispatch_post(self) -> None:

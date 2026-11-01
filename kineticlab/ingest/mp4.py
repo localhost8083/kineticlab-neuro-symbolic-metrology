@@ -414,10 +414,16 @@ def extract_sample_timing(data: bytes) -> dict:
         if stsc is None:
             raise ProbeError("no stsc box: sample-to-chunk mapping unknown")
         chunks = _read_sample_chunks(data, *stsc, len(chunk_offsets), sample_count)
-        for chunk_number, offset in enumerate(chunk_offsets, start=1):
-            extent = offset + sum(size for size, chunk in zip(sizes, chunks)
-                                  if chunk == chunk_number)
-            if extent > len(data):
+        # KL-10.21: per-chunk byte totals in ONE pass. The previous
+        # per-chunk rescan was O(chunks × samples); a hostile
+        # stsz/stsc pair with one sample per chunk made a ~256 KB
+        # upload stall the single-threaded server for minutes.
+        chunk_totals = [0] * len(chunk_offsets)
+        for size, chunk in zip(sizes, chunks):
+            chunk_totals[chunk - 1] += size
+        for chunk_number, (offset, total) in enumerate(
+                zip(chunk_offsets, chunk_totals), start=1):
+            if offset + total > len(data):
                 raise ProbeError(f"chunk {chunk_number} extends beyond end of file")
         samples = []
         decoding_time = 0

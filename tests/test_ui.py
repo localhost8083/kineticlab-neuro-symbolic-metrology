@@ -1173,17 +1173,63 @@ class UploadTests(DispatchCase):
         self.assertEqual(status, 400)
         self.assertRegex(payload["error"]["code"], r"^E_[A-Z_]+$")
 
+    def test_rejected_upload_leaves_no_file(self):
+        # KL-10.21: a rejected upload is unlinked — the uploads store
+        # keeps only verdict-passing bytes, so hostile bodies cannot
+        # fill the scratch disk.
+        import hashlib
+        data = b"\x00\x00\x00\x20ftypmp42" + b"\x00" * 64
+        digest = hashlib.sha256(data).hexdigest()
+        content_type, body = _multipart("clip", "broken.mp4",
+                                        "video/mp4", data)
+        status, _ = self._upload(body, content_type)
+        self.assertEqual(status, 400)
+        self.assertFalse(
+            (Path(self.work) / "uploads" / f"{digest}.mp4").is_file())
+
 
 class HostValidationTests(DispatchCase):
     """POST Host allowlist: loopback forms only (KL-9.6 M7)."""
 
-    def upload_with_host(self, host):
+    def upload_with_host(self, host, origin=None):
         content_type, body = _multipart("clip", "clip.mp4",
                                         "video/mp4", b"x" * 16)
         headers = {"Content-Type": content_type}
         if host is not None:
             headers["Host"] = host
+        if origin is not None:
+            headers["Origin"] = origin
         return self.post("/api/upload", headers, body)
+
+    def test_foreign_origin_rejected_with_registered_code(self):
+        # KL-10.21: a cross-site POST shows a loopback Host but a
+        # foreign Origin (browser CSRF); the guard fails closed.
+        for origin in ("http://evil.example", "https://evil.example:8443",
+                       "http://localhost.evil.example", "null"):
+            with self.subTest(origin=origin):
+                status, _, raw = self.upload_with_host(
+                    "127.0.0.1:8137", origin)
+                self.assertEqual(status, 400)
+                payload = json.loads(raw.decode("utf-8"))
+                self.assertEqual(payload["error"]["code"],
+                                 "E_WRONG_TYPE")
+                self.assertEqual(payload["error"]["field"], "Origin")
+
+    def test_loopback_origin_passes_guard(self):
+        for origin in ("http://127.0.0.1:8137", "http://localhost:8137"):
+            with self.subTest(origin=origin):
+                status, _, raw = self.upload_with_host(
+                    "127.0.0.1:8137", origin)
+                payload = json.loads(raw.decode("utf-8"))
+                # b"x"*16 has no MP4 magic: reaching the media gate
+                # proves the Origin guard passed the request through.
+                self.assertEqual(payload["error"]["code"],
+                                 "E_NOT_AN_OBJECT")
+
+    def test_absent_origin_still_passes(self):
+        status, _, raw = self.upload_with_host("127.0.0.1:8137")
+        payload = json.loads(raw.decode("utf-8"))
+        self.assertEqual(payload["error"]["code"], "E_NOT_AN_OBJECT")
 
     def test_foreign_host_rejected_with_registered_code(self):
         for host in ("evil.example.com", "evil.example.com:8137",

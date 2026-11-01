@@ -392,6 +392,37 @@ class EchoAuditTests(unittest.TestCase):
         passed, _ = audit_narrative(self.result, narrative)
         self.assertFalse(passed)
 
+    def test_spelled_out_number_discarded(self):
+        # KL-10.21: digits are not the only number spelling a model
+        # can try; words fail closed too.
+        narrative = parse_narrative(valid_narrative_dict(
+            "g over L is fifteen point two 1/s^2."))
+        passed, problems = audit_narrative(self.result, narrative)
+        self.assertFalse(passed)
+        self.assertTrue(any(p.startswith("unjustified-number-word:fifteen")
+                            for p in problems))
+
+    def test_multiplier_word_discarded(self):
+        narrative = parse_narrative(valid_narrative_dict(
+            "The result is double the expected gravity."))
+        passed, problems = audit_narrative(self.result, narrative)
+        self.assertFalse(passed)
+        self.assertTrue(any(p.startswith("unjustified-number-word:double")
+                            for p in problems))
+
+    def test_non_ascii_digits_discarded(self):
+        narrative = parse_narrative(valid_narrative_dict(
+            "The value is \u0661\u0665.2 1/s^2."))
+        passed, problems = audit_narrative(self.result, narrative)
+        self.assertFalse(passed)
+        self.assertTrue(any(p == "non-ascii-digit" for p in problems))
+
+    def test_plain_prose_without_numbers_still_passes(self):
+        narrative = parse_narrative(valid_narrative_dict(
+            "The bounded fit converged cleanly on this clip."))
+        passed, problems = audit_narrative(self.result, narrative)
+        self.assertEqual((passed, problems), (True, []))
+
     def test_observations_count_passes(self):
         narrative = parse_narrative(valid_narrative_dict(
             "Kept 452 observations valid."))

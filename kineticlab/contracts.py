@@ -1213,6 +1213,12 @@ class CalibrationRecord:
         if valid and (same_plane is None or camera_fixed is None):
             collector.add("E_INCOHERENT_VALUE", "valid",
                           "valid calibration must state both plane assumptions explicitly")
+        # ponytail: a scale alongside dimension_source="not_provided"
+        # still parses valid here. Locking the schema would rewrite the
+        # entire pinned fixture corpus; the only pipeline producer
+        # (geometry.calibration) always emits user_confirmed, which is
+        # the working enforcement point (KL-10.21 triage). Revisit when
+        # the fixture corpus is next regenerated.
         collector.raise_if_errors()
         assert reference_type is not None and dimension_source is not None
         assert valid is not None and warnings is not None
@@ -1831,6 +1837,16 @@ class ResultContract:
         if is_success and fit is not None and fit.observation_count <= 0:
             collector.add("E_INCOHERENT_STATE", "fit.observation_count",
                           f"{status.value} requires positive observation_count")
+        # KL-10.21: adversarial-audit hardening — a success verdict must
+        # never carry a non-physical magnitude. Deliberately NOT a
+        # calibration-validity rule: g/L (1/s^2) comes from masks and
+        # timing alone, so success with an invalid calibration record
+        # is the pipeline's honest shape (gravity m/s^2 is guarded
+        # separately below via the user-supplied pivot length).
+        if is_success and value is not None and value <= 0:
+            collector.add("E_INCOHERENT_STATE", "value",
+                          f"{status.value} cannot report a non-positive "
+                          "magnitude (g/L and gravity are positive)")
         if value is not None and fit is not None and unit in RESULT_UNITS:
             if "g_over_l" not in fit.parameters:
                 collector.add("E_INCOHERENT_STATE", "fit",

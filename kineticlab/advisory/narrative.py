@@ -77,6 +77,16 @@ assert all(code in ERROR_CODES for code in (
 
 _NUMBER_TOKEN = re.compile(
     r"(?<![\w.])([+-]?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?)")
+# KL-10.21: the audit also fails closed on spelled-out numbers. A
+# model can bypass the digit scan with words ("fifteen", "double",
+# "percent"); any of these forces the template. Strict by design —
+# harmless prose like "one of the frames" is discarded too.
+_NUMBER_WORDS = re.compile(
+    r"(?<![\w-])(zero|one|two|three|four|five|six|seven|eight|nine|ten|"
+    r"eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|"
+    r"nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|"
+    r"hundred|thousand|million|billion|half|quarter|double|triple|dozen|"
+    r"percent)\b", re.IGNORECASE)
 _WORD_AFTER = re.compile(r"[A-Za-z%][A-Za-z0-9_.%]*")
 _WORD_BEFORE = re.compile(r"[A-Za-z%][A-Za-z0-9_.%]*$")
 _MASK_CHAR = "#"
@@ -299,6 +309,16 @@ def audit_narrative(result_json: dict, narrative: Narrative) -> tuple[bool, list
         word = _governing_word(text, match.start(1), match.end(1))
         if word is None or word not in UNIT_VOCABULARY or word not in words:
             problems.append(f"unjustified-unit:{token}:{word}")
+    # KL-10.21: digit tokens are not the only way to state a number —
+    # spelled-out words and non-ASCII digits bypassed the scan above.
+    word_hit = _NUMBER_WORDS.search(text)
+    if word_hit is not None:
+        problems.append(
+            f"unjustified-number-word:{word_hit.group(1).lower()}")
+    for character in text:
+        if character.isdigit() and not character.isascii():
+            problems.append("non-ascii-digit")
+            break
     return (not problems, problems)
 
 

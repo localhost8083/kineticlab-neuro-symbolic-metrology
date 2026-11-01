@@ -226,5 +226,50 @@ class RequireSmokeTests(unittest.TestCase):
             self.assertIn("nope.mp4", str(raised.exception))
 
 
+class ResultCoherenceTest(unittest.TestCase):
+    """KL-10.21: adversarial-audit hardening on result.v1 coherence.
+
+    A success verdict must never carry a non-physical magnitude and
+    must never rest on an invalid calibration record."""
+
+    @staticmethod
+    def _with_value(data, value):
+        data["value"] = value
+        data["fit"]["g_over_l_per_s2"] = value
+        data["fit"]["parameters"]["g_over_l"] = value
+        data["identifiable_quantity"]["value"] = value
+        return data
+
+    def test_negative_value_rejected(self):
+        data = self._with_value(valid_result(), -5.0)
+        with self.assertRaises(ContractError) as raised:
+            ResultContract.from_dict(data)
+        self.assertIn("E_INCOHERENT_STATE", raised.exception.codes)
+
+    def test_zero_value_rejected(self):
+        data = self._with_value(valid_result(), 0.0)
+        with self.assertRaises(ContractError) as raised:
+            ResultContract.from_dict(data)
+        self.assertIn("E_INCOHERENT_STATE", raised.exception.codes)
+
+    def test_invalid_calibration_with_success_stays_valid(self):
+        # KL-10.21 triage reversal: the battery proved the live pipeline
+        # legitimately emits success with an invalid calibration record
+        # (g/L is masks+timing; the card never enters it). No
+        # calibration-validity rule exists at result level.
+        data = valid_result()
+        data["calibration"]["valid"] = False
+        record = ResultContract.from_dict(data)
+        self.assertFalse(record.calibration.valid)
+
+    def test_extreme_value_stays_schema_valid(self):
+        # Contracts enforce coherence, not physical plausibility: a
+        # huge but self-consistent magnitude still parses (KL-10.21
+        # triage of the adversarial audit's 1e9 probe).
+        record = ResultContract.from_dict(
+            self._with_value(valid_result(), 1e9))
+        self.assertEqual(record.value, 1e9)
+
+
 if __name__ == "__main__":
     unittest.main()
