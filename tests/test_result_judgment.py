@@ -217,7 +217,7 @@ class HandComputedAssessmentTest(unittest.TestCase):
                         {"frame_index": 0, "flagged": False, "reason": None},
                         {"frame_index": 1, "flagged": True,
                          "reason": ("confidence null; absence flagged, "
-                                    "values unjudged")},
+                                    "values unassessed")},
                     ],
                     "flagged_count": 1,
                 },

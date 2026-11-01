@@ -12,7 +12,7 @@
 #     is preserved in this comment so tests/test_ci_docs.py can pin it.
 # (c) After the suite, `python -m kineticlab demo --chain success` and
 #     `python -m kineticlab demo --chain rejection` must both exit 0. The
-#     Quickstart does not include these, but a judge-facing CI proving the
+#     Quickstart does not include these, but a public CI proving the
 #     demos run offline is the point.
 #
 # No pip installs, no dependency caching: there is nothing to install

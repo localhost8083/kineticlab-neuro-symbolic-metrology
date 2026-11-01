@@ -89,7 +89,7 @@ stays gitignored and append-only.
 ## 2026-10-28 — KL-6-G6 — PASS
 
 - Stage: P-006 geometry + calibration + M-3 diagnostics. 447
-  tests OK. Gate criterion judged: dimensions caller-confirmed;
+  tests OK. Gate criterion checked: dimensions caller-confirmed;
   plane assumptions explicit; g null everywhere (byte-verified);
   taxonomy 9+32 held; U-3 bound + M-3e limitation stated in
   record, report, and docstrings. P-006 and M-3 closed.
@@ -151,7 +151,7 @@ stays gitignored and append-only.
   ordering, usable counts/card gate, M2 overflow, provenance
   identity) plus runbook truth and a truthful demo front door.
 
-## 2026-10-29 — KL-7.5 — VERIFIED + KL-7-G7 RE-JUDGED: PASSED
+## 2026-10-29 — KL-7.5 — VERIFIED + KL-7-G7 RE-VERIFIED: PASSED
 
 - 535 tests OK x2. All six release-blocking findings closed and
   code-confirmed; pins regenerated with parsed diff limited to
@@ -174,7 +174,7 @@ stays gitignored and append-only.
 
 ## 2026-10-29 — KL-8.3 — VERIFIED
 
-- Judge-facing presentation pass. 597 tests OK. Fitted curve
+- Presentation pass. 597 tests OK. Fitted curve
   derived as observed-minus-residual (period verbatim from
   pins); additive advisory payload (one-line server delta);
   zero timers/markup sinks; design-review items confirmed.

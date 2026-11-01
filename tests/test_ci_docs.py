@@ -1,6 +1,6 @@
 """README/CI drift-lock tests (KL-10.8).
 
-Pins the judge-facing contract together with plain-text assertions
+Pins the public contract together with plain-text assertions
 (stdlib only, no YAML parser): every README Quickstart command must appear
 in .github/workflows/ci.yml, the workflow must keep its promised shape
 (matrix OS pair, timeout floor, triggers), and the five suite-count tokens

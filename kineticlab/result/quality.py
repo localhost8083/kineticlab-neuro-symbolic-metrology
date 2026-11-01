@@ -1,7 +1,7 @@
 """Observation quality reporting: coverage, gaps, jumps, shape (KL-4.1).
 
 REPORT ONLY — this module derives plain-data facts from a chain
-(ingest frame table + observation records) and judges nothing: no
+(ingest frame table + observation records) and assesses nothing: no
 thresholds, no good/bad labels, no rejection decisions, no smoothing.
 Those are KL-4.2 with rationale-backed thresholds.
 

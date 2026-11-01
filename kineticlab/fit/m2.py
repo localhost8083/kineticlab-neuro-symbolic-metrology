@@ -81,7 +81,7 @@ machinery instead of escaping.
 
 Warnings are the deliverable. Every warning uses a REGISTERED
 code only — no invented codes. The mapping (reviewable here so
-the gate can judge it): ``W_UNCERTAINTY_UNAVAILABLE`` always
+the gate can act on it): ``W_UNCERTAINTY_UNAVAILABLE`` always
 (uncertainty is KL-5.4); every situational warning uses
 ``W_ASSUMPTION_UNVERIFIED`` ("a required assumption is stated but
 not independently verified"), because each situation disconfirms

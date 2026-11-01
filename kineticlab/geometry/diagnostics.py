@@ -29,7 +29,7 @@ from typing import Any
 from kineticlab.contracts import ContractError, FieldError
 
 STATIONARY_BANDS_PX = (1.0, 2.0)
-"""Descriptive stillness bins for jitter (reported, never judged)."""
+"""Descriptive stillness bins for jitter (reported, never assessed)."""
 
 TOP_RANK_COUNT = 10
 """Descriptive rank width for elongation lists, never a verdict."""

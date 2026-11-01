@@ -247,7 +247,7 @@ def _assess_confidence(section: dict[str, Any] | None) -> dict[str, Any]:
             "frame_index": _frame_id(item.get("frame_index"),
                                      f"{where}.frame_index"),
             "flagged": value is None,
-            "reason": ("confidence null; absence flagged, values unjudged"
+            "reason": ("confidence null; absence flagged, values unassessed"
                        if value is None else None),
         })
     return {"assessable": True, "reason": None, "flags": flags,

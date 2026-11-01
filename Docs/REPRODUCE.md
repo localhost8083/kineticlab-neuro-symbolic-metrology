@@ -1,6 +1,6 @@
 # KineticLab reproduction guide
 
-Judge-facing steps to reproduce the verified offline checks and one live capture.
+Steps to reproduce the verified offline checks and one live capture.
 Source of truth for the live transcript: `Docs/Review_Log_Public.md`, entries
 "2026-10-29 - KL-8.4 - VERIFIED" and "2026-10-29 - KL-8.4 - LIVE VERIFIED".
 

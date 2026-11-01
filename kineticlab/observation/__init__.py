@@ -90,7 +90,7 @@ vendor records in, zero observation records out. Blank lines carry no
 record and are skipped, never failed.
 
 This adapter decodes masks and derives geometry (KL-3.2) but does
-NOT judge quality or anomalies (KL-4), calibrate (KL-6), or fit
+not assess quality or anomalies (KL-4), calibrate (KL-6), or fit
 physics (KL-5).
 """
 

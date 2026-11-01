@@ -237,7 +237,8 @@ AGENTS.md
 CLAUDE.md
 OG_AUDIT_*.md
 Docs/OG_Audit_*.md
-Docs/RUTHLESS_AUDIT_*.md
+Docs/*AUDIT*.md
+/BRUTAL_AUDIT.md
 Docs/Review_Log.md
 Docs/Claims_Register.md
 Docs/Decision_Log.md

@@ -17,7 +17,7 @@ exists, else PTS = DTS. Edit lists (``elst``) are not applied: times are
 track-timeline values, never shifted, clamped, or re-zeroed, so finite
 negative PTS (preroll) is preserved as-is.
 
-Validity is judged on exact integer PTS units, before float conversion: a
+Validity is decided on exact integer PTS units, before float conversion: a
 frame is valid only when its PTS is strictly after the previous valid
 frame's PTS. Out-of-order frames (B-frame reorder in decode order) are
 withdrawn from the monotonic run but retained in the table with their
@@ -255,7 +255,7 @@ def extract_frame_times(path: str | Path) -> list[dict]:
     Each entry maps processing ``frame_index`` (0-based) to
     ``source_frame_index``, ``pts_seconds`` (exact PTS units over the
     ``mdhd`` timescale), and the ``valid`` monotonic-run flag. Validity
-    is judged on integer PTS units before float conversion. Raises
+    is decided on integer PTS units before float conversion. Raises
     ``ContractError`` with a registered code on any failure.
     """
     display, data, _digest = _read_source_bytes(path)

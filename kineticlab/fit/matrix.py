@@ -15,7 +15,7 @@ clean 80-point/dt-0.04/omega-2.2/gamma-0.15 config stalls at
 ~2.6e-4 with converged:true regardless of budget, while a
 200-point config recovers to 1e-11 and grid density correlates).
 The stall boundary the matrix measures is reported in the
-KL-5.4 completion log and handoff; ``KL-5-G5`` judges "seeded
+KL-5.4 completion log and handoff; ``KL-5-G5`` verifies "seeded
 recovery within documented tolerance" against that matrix, not
 against chosen configs.
 
