@@ -11,6 +11,8 @@ measured numbers are in the pipeline's own exports.
 | **Meta SAM 3.1** (`sam-3.1`) | Perception core: text-prompted segmentation of the pendulum bob and the reference card, per frame, mask encoding `one_bit` | Masks are stored **verbatim** (byte-pinned), decoded by a canonical codec, and treated as **untrusted telemetry**. Every downstream number is computed by deterministic stdlib-Python from decoded masks and source PTS timestamps. |
 | **Spark** (advisory layer) | Offline-cached setup-review and narrative advisories | The narrative layer passes a **number-echo audit**: any narrative number not exactly justified by the run's own JSON is discarded and replaced. Advisories surface only as registered `W_ASSUMPTION_UNVERIFIED` warnings. |
 
+Spark is an optional cached sidecar: it never participates in measurement assembly. Narrative advisories are replayed from hash-checked offline cache and audited so any number not justified by the run's JSON is discarded.
+
 The measurement itself is deterministic. Meta AI does the seeing and the
 explaining; no language model ever authors a number.
 

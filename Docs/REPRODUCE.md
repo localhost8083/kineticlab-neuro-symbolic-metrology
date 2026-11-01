@@ -1,7 +1,7 @@
 # KineticLab reproduction guide
 
 Steps to reproduce the verified offline checks and one live capture.
-Source of truth for the live transcript: `Docs/Review_Log_Public.md`, entries
+Source of truth for the live transcript: `Docs/Review_Log_Public.md`, entries (historical evidence — re-verify with the commands above)
 "2026-10-29 - KL-8.4 - VERIFIED" and "2026-10-29 - KL-8.4 - LIVE VERIFIED".
 
 ## 1. Prerequisites
@@ -46,7 +46,7 @@ Structural media check (fast):
 python scripts/media_check.py
 ```
 
-Expected: both pinned fixtures PASS, exit 0. This is a media structure check,
+Expected: the pinned fixture (Smoke/test_3.mp4) PASSes, exit 0. This is a media structure check,
 not a SAM replay.
 
 CLI overview:
@@ -72,7 +72,7 @@ python -m kineticlab demo
 ```
 
 Expected: exit 0. Replays the pinned SAM + advisory artifacts, assembles one
-chain, prints the written exports under `demo_out/`.
+chain, prints the written exports under `demo_out/`. Re-running replaces the existing demo_out/<chain> exports with byte-identical output — that replacement is itself the determinism proof, and demo_out/ is git-ignored scratch.
 
 Local web UI (blocking; leave running):
 

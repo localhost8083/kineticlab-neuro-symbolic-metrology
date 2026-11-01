@@ -44,7 +44,7 @@ The rule that shapes the whole project: **no language model ever authors a numbe
 Five stages, each one leaving evidence:
 
 1. **Upload** — your clip, or the pinned demo. Variable-frame-rate video is parsed with source PTS preserved, never resynthesized.
-2. **Detect** — Meta SAM 3.1 produces text-prompted bob/card masks per frame. Masks are stored verbatim and hash-pinned.
+2. **Detect** — Meta SAM 3.1 produces text-prompted bob/card masks per frame. Masks are stored verbatim and hash-pinned (the rail's optional Structure validation is a client-side pre-flight; Detect re-validates everything server-side).
 3. **Confirm** — you review the masks before anything is measured.
 4. **Measure** — deterministic calibration and fit: angles from the arc-fit pivot, ω via the pre-registered M1 estimator, uncertainty from a seeded block bootstrap.
 5. **Results** — verdict, charts, exact-byte exports (`angles.csv`, `diagnostics.json`, `result.json`, `summary.md`), full provenance.
@@ -54,7 +54,7 @@ Five stages, each one leaving evidence:
 | Model | Role | Guardrail |
 |---|---|---|
 | **Meta SAM 3.1** | Perception core: text-prompted bob/card masks per frame | Masks stored verbatim, hash-pinned, decoded by a canonical codec |
-| **Spark (advisory layer)** | Offline-cached setup-review + narrative advisories | Number-echo audit: any narrative number not exactly justified by the JSON is discarded |
+| **Spark (advisory layer)** | Offline-cached setup-review + narrative advisories | Number-echo audit: any narrative number not exactly justified by the JSON is discarded; never part of measurement assembly |
 
 Meta AI does the seeing and the explaining. The **measurement itself stays deterministic** — that's the design. Full inventory with labeled live-run evidence: [`Docs/META_USAGE.md`](Docs/META_USAGE.md).
 
