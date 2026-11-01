@@ -14,6 +14,17 @@
 
 </div>
 
+## Contents
+
+| | |
+|---|---|
+| [What is KineticLab?](#what-is-kineticlab) | [Highlights](#highlights) |
+| [How it works](#how-it-works) | [Meta models in the loop](#meta-models-in-the-loop) |
+| [What a run looks like](#what-a-run-looks-like) | [What a run gives you](#what-a-run-gives-you) |
+| [Why this is different](#why-this-is-different) | [Quickstart](#quickstart) |
+| [Fields this touches](#fields-this-touches) | [Audit trail](#audit-trail) |
+| [Docs](#docs) | [License](#license) |
+
 ## What is KineticLab?
 
 KineticLab turns an ordinary video clip into an **auditable measurement of a pendulum**. Meta **SAM 3.1** segments the bob and a reference card frame by frame; you confirm the masks; then a deterministic, **stdlib-only** Python engine fits the motion and reports `g/L_eff = ω²` (scale-free, `1/s²`) with a seeded block-bootstrap interval for ω. Nothing is hidden between the pixels and the report: every stage keeps hashes, and every export carries full provenance.
