@@ -32,7 +32,6 @@ from tests.test_frame_times import write_temp_bytes
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TEST_3 = REPO_ROOT / "Smoke/test_3.mp4"
-GEMINI = REPO_ROOT / "Smoke/gemini_generated_video_8eaef52c.mp4"
 
 
 def make_record(index, **overrides):
@@ -181,13 +180,6 @@ class TimingGateTest(unittest.TestCase):
         report = check_frame_table(extract_frame_records(TEST_3))
         self.assertEqual(report, {"total_frames": 234, "usable_frames": 234,
                                  "withdrawn_frames": 0, "missing_frames": 0,
-                                 "minimum_usable_frames": 2})
-
-    def test_gemini_table_passes_with_withdrawals_acknowledged(self):
-        require_smoke(GEMINI)
-        report = check_frame_table(extract_frame_records(GEMINI))
-        self.assertEqual(report, {"total_frames": 240, "usable_frames": 62,
-                                 "withdrawn_frames": 178, "missing_frames": 0,
                                  "minimum_usable_frames": 2})
 
 

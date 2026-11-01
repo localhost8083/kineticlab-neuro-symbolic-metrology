@@ -2,7 +2,7 @@
 
 `build_quality_report` must derive coverage/gaps/jumps/area/shape/
 confidence/identity facts as plain data over real chains (test_3
-ball/card, gemini) plus constructed anomalies — no thresholds, no
+ball/card) plus constructed anomalies — no thresholds, no
 verdicts. Every number is pinned as a measured fact; the small
 hand-computed case below re-derives each formula independently.
 
@@ -27,13 +27,10 @@ from tests import require_smoke
 
 BALL_DISPLAY = "Smoke/results/test_3_yellow_ball_raw.txt"
 CARD_DISPLAY = "Smoke/results/test_3_white_card_raw.txt"
-GEMINI_DISPLAY = "Smoke/results/card_raw.txt"
 TEST_3_DISPLAY = "Smoke/test_3.mp4"
-GEMINI_MEDIA_DISPLAY = "Smoke/gemini_generated_video_8eaef52c.mp4"
 
 BALL_REPORT_SHA = "e81b234630649ecad51173f5a11329de73098d8d0069fe66a17ef63550f6a756"
 CARD_REPORT_SHA = "d2f65047cb0729711bdf162b23d2884e0c24b88014e0dcac2611db6947c39a54"
-GEMINI_REPORT_SHA = "5cd33163293a10243e0f8d7900286220ba216e6c8a8deb0ce3bfde6834dcfc45"
 
 
 def make_frame(index, pts):
@@ -76,10 +73,8 @@ def make_observation(frame_index, pts, confidence, bbox, centroid, area,
 class ChainReportTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        require_smoke(TEST_3_DISPLAY, GEMINI_MEDIA_DISPLAY,
-                      BALL_DISPLAY, CARD_DISPLAY, GEMINI_DISPLAY)
+        require_smoke(TEST_3_DISPLAY, BALL_DISPLAY, CARD_DISPLAY)
         test_3_table = extract_frame_records(TEST_3_DISPLAY)
-        gemini_table = extract_frame_records(GEMINI_MEDIA_DISPLAY)
         cls.test_3_table = test_3_table
         cls.ball = parse_raw_fixture(BALL_DISPLAY, object_role="bob",
                                      object_id="yellow-ball",
@@ -88,11 +83,6 @@ class ChainReportTest(unittest.TestCase):
                                      object_role="reference_card",
                                      object_id="white-card",
                                      frame_table=test_3_table)
-        cls.gemini_table = gemini_table
-        cls.gemini = parse_raw_fixture(GEMINI_DISPLAY,
-                                       object_role="reference_card",
-                                       object_id="card",
-                                       frame_table=gemini_table)
 
     def check_report(self, table, records, expected_sha):
         report = build_quality_report(table, records)
@@ -152,22 +142,6 @@ class ChainReportTest(unittest.TestCase):
                           "max": 0.9659111721611722,
                           "mean": 0.9273837450574174})
         self.assertEqual(report["confidence"]["min"], 0.8947368264198303)
-
-    def test_gemini_chain_reports_ingest_context(self):
-        report = self.check_report(self.gemini_table, self.gemini,
-                                   GEMINI_REPORT_SHA)
-        self.assertEqual(report["frame_table"]["size"], 240)
-        self.assertEqual(report["frame_table"]["valid_count"], 62)
-        self.assertEqual(report["frame_table"]["invalid_count"], 178)
-        self.assertEqual(report["frame_table"]["null_pts_count"], 0)
-        self.assertEqual(report["coverage"]["observed_count"], 238)
-        self.assertEqual(report["coverage"]["valid_count"], 60)
-        self.assertEqual(report["coverage"]["invalid_count"], 178)
-        self.assertEqual(len(report["coverage"]["invalid_retained"]), 178)
-        self.assertEqual(report["span"],
-                         {"first_frame_index": 2, "last_frame_index": 239})
-        self.assertEqual(report["gaps"]["count"], 0)
-        self.assertEqual(len(report["jumps"]), 237)
 
 
 class HandComputedReportTest(unittest.TestCase):

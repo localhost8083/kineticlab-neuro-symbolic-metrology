@@ -41,7 +41,6 @@ from tests.test_ingest_gates import make_record, missing_record, withdrawn_recor
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TEST_3 = REPO_ROOT / "Smoke/test_3.mp4"
-GEMINI = REPO_ROOT / "Smoke/gemini_generated_video_8eaef52c.mp4"
 ARTIFACT = REPO_ROOT / "fixtures/ingest/test_3_frame_table.json"
 TEST_3_PIN = REPO_ROOT / "fixtures/test_3.json"
 
@@ -57,8 +56,6 @@ MEDIA_CELLS = [
     ("real-test3-vfr-audio", ("file", TEST_3),
      ("ok", {"frames": 234, "audio": 1, "codec": "h264",
              "warnings": ["W_VFR_TIMING"]})),
-    ("real-gemini-cfr-audio", ("file", GEMINI),
-     ("ok", {"frames": 240, "audio": 1, "codec": "h264", "warnings": []})),
     ("synth-cfr-noaudio", ("synthetic", dict(FULL_MEDIA)),
      ("ok", {"frames": 2, "audio": 0, "codec": "h264", "width": 320,
              "height": 240, "duration": 0.08, "time_base": "1/1000",
@@ -94,7 +91,6 @@ MEDIA_CELLS = [
 # (name, source, expectation): ("ok", (count, valid)) or ("raise", [codes]).
 TIMING_CELLS = [
     ("real-test3", ("file", TEST_3), ("ok", (234, 234))),
-    ("real-gemini", ("file", GEMINI), ("ok", (240, 62))),
     ("synth-uniform", ("synthetic", {}), ("ok", (2, 2))),
     ("synth-vfr", ("synthetic", {"stts_entries": ((1, 40), (1, 80), (1, 40)),
                                           "sample_count": 3, "sizes": (10, 10, 10),
@@ -152,10 +148,6 @@ GATE_CELLS = [
     ("real-test3", ("file", TEST_3),
      ("report", {"total_frames": 234, "usable_frames": 234,
                  "withdrawn_frames": 0, "missing_frames": 0,
-                 "minimum_usable_frames": 2})),
-    ("real-gemini", ("file", GEMINI),
-     ("report", {"total_frames": 240, "usable_frames": 62,
-                 "withdrawn_frames": 178, "missing_frames": 0,
                  "minimum_usable_frames": 2})),
     ("synth-reorder-chain", ("synthetic", {"stts_entries": ((3, 40),),
                                                   "ctts_entries": ((1, 80), (1, 0), (1, 40)),

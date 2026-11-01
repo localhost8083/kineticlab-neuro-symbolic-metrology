@@ -30,18 +30,13 @@ from tests import require_smoke
 
 BALL_DISPLAY = "Smoke/results/test_3_yellow_ball_raw.txt"
 CARD_DISPLAY = "Smoke/results/test_3_white_card_raw.txt"
-GEMINI_DISPLAY = "Smoke/results/card_raw.txt"
 TEST_3_DISPLAY = "Smoke/test_3.mp4"
-GEMINI_MEDIA_DISPLAY = "Smoke/gemini_generated_video_8eaef52c.mp4"
 TEST_3_DIMS = (1024, 576)
-GEMINI_DIMS = (1280, 720)
 
 BALL_TRAJ_SHA = "f079b1215729b8510ec9f278ab9031845952e6ecfd16e67f2f206a662d9692d1"
 BALL_SVG_SHA = "e4733c82b41c55637acb949b03bb37594be74c9498ddee174101b4e1d93a33ad"
 CARD_TRAJ_SHA = "140a5487c8b2d3459bcfb9217a028e516ce2d868013726571dc093760a012714"
 CARD_SVG_SHA = "afcf69951302ef084221d1f7307525728e507cd1a28da1cfd88ae65c442922a1"
-GEMINI_TRAJ_SHA = "1c8ed630ea72d4da45c73590b757cd609d1794cb106a3c7f36389ec0b94cda88"
-GEMINI_SVG_SHA = "fbc926c97a91a7dd697da6d8dc9e394bbdfb9d59afceb092a131e4080fbc9508"
 
 
 def make_frame(index, pts):
@@ -84,10 +79,8 @@ def make_observation(frame_index, pts, confidence, bbox, centroid, area,
 class ChainJudgmentTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        require_smoke(TEST_3_DISPLAY, GEMINI_MEDIA_DISPLAY,
-                      BALL_DISPLAY, CARD_DISPLAY, GEMINI_DISPLAY)
+        require_smoke(TEST_3_DISPLAY, BALL_DISPLAY, CARD_DISPLAY)
         test_3_table = extract_frame_records(TEST_3_DISPLAY)
-        gemini_table = extract_frame_records(GEMINI_MEDIA_DISPLAY)
         cls.ball = parse_raw_fixture(BALL_DISPLAY, object_role="bob",
                                      object_id="yellow-ball",
                                      frame_table=test_3_table)
@@ -95,13 +88,8 @@ class ChainJudgmentTest(unittest.TestCase):
                                      object_role="reference_card",
                                      object_id="white-card",
                                      frame_table=test_3_table)
-        cls.gemini = parse_raw_fixture(GEMINI_DISPLAY,
-                                       object_role="reference_card",
-                                       object_id="card",
-                                       frame_table=gemini_table)
         cls.ball_report = build_quality_report(test_3_table, cls.ball)
         cls.card_report = build_quality_report(test_3_table, cls.card)
-        cls.gemini_report = build_quality_report(gemini_table, cls.gemini)
 
     def check_fit_worthy(self, records, report, dims, label,
                          traj_sha, svg_sha):
@@ -143,26 +131,6 @@ class ChainJudgmentTest(unittest.TestCase):
         self.check_fit_worthy(self.card, self.card_report, TEST_3_DIMS,
                               "card", CARD_TRAJ_SHA, CARD_SVG_SHA)
 
-    def test_gemini_flagged_not_fit_worthy_with_pins(self):
-        # KL-7.5 F2: 178 withdrawn-sourced records are invalid, so the
-        # gemini chain is honestly flagged and not fit-worthy — the
-        # complete-but-warning counterpart to the fit-worthy chains.
-        assessment = assess_chain(self.gemini_report, self.gemini)
-        self.assertTrue(assessment["assessable"])
-        self.assertTrue(assessment["flagged"])
-        self.assertFalse(assessment["fit_worthy"])
-        self.assertEqual(assessment["reasons"],
-                         ["178 retained invalid row(s)"])
-        for dimension in assessment["dimensions"].values():
-            self.assertTrue(dimension["assessable"])
-            self.assertEqual(dimension["flagged_count"], 0)
-        text = export_trajectory_csv(self.gemini, assessment)
-        art = export_overlay_svg(self.gemini, GEMINI_DIMS[0], GEMINI_DIMS[1],
-                                 assessment, label="gemini")
-        self.assertEqual(hashlib.sha256(text.encode("utf-8")).hexdigest(),
-                         GEMINI_TRAJ_SHA)
-        self.assertEqual(hashlib.sha256(art).hexdigest(), GEMINI_SVG_SHA)
-        self.assertEqual(len(text.splitlines()), 239)
 
 class OverlaySyntheticTest(unittest.TestCase):
     # KL-9.6 B1: pure-synthetic empty-chain check, moved out of

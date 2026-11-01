@@ -32,7 +32,6 @@ from tests.contract_samples import valid_frame
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TEST_3 = REPO_ROOT / "Smoke/test_3.mp4"
-GEMINI = REPO_ROOT / "Smoke/gemini_generated_video_8eaef52c.mp4"
 
 
 def write_temp_bytes(payload):
@@ -138,24 +137,8 @@ class RealFixtureTimingTest(unittest.TestCase):
             self.assertEqual(entry["frame_index"], index)
             self.assertEqual(entry["source_frame_index"], index)
 
-    def test_gemini_yields_240_frames_with_reorder_withdrawals(self):
-        require_smoke(GEMINI)
-        entries = extract_frame_times(GEMINI)
-        # Structural pins: 240 samples, timescale 12288, ctts present.
-        self.assertEqual(len(entries), 240)
-        pts = [entry["pts_seconds"] for entry in entries]
-        self.assertEqual(pts[0], 0.08333333333333333)  # 1024 / 12288
-        self.assertEqual(pts[-1], 10.0)  # 122880 / 12288
-        self.assertEqual(max(pts), 10.041666666666666)
-        valid_pts = [entry["pts_seconds"] for entry in entries if entry["valid"]]
-        self.assertEqual(len(valid_pts), 62)  # B-frame reorder withdraws the rest
-        self.assertTrue(all(later > earlier
-                            for earlier, later in zip(valid_pts, valid_pts[1:])))
-        for index, entry in enumerate(entries):
-            self.assertEqual(entry["frame_index"], index)
-
     def test_frame_count_agrees_with_media_record(self):
-        for path in (TEST_3, GEMINI):
+        for path in (TEST_3,):
             with self.subTest(path=path.name):
                 require_smoke(path)
                 media = inspect_media(path)
@@ -184,17 +167,6 @@ class FrameRecordTableTest(unittest.TestCase):
     def test_test3_table_fully_valid(self):
         records = self.check_table(TEST_3, 234)
         self.assertTrue(all(list(record.warnings) == [] for record in records))
-
-    def test_gemini_withdrawn_frames_retained_with_values_and_warning(self):
-        records = self.check_table(GEMINI, 62)
-        withdrawn = [record for record in records if not record.valid]
-        self.assertTrue(withdrawn)
-        for record in withdrawn:
-            # Measured values stay for audit; only the valid flag is withdrawn.
-            self.assertIsNotNone(record.source_frame_index)
-            self.assertIsNotNone(record.pts_seconds)
-            self.assertEqual([warning.code for warning in record.warnings],
-                             ["W_MISSING_FRAMES_RETAINED"])
 
 
 class SyntheticSampleTableTest(unittest.TestCase):

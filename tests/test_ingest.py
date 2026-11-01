@@ -19,7 +19,6 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 PINNED = {
     "test_3": "fixtures/test_3.json",
-    "gemini_clean": "fixtures/gemini_clean.json",
 }
 
 
@@ -59,10 +58,6 @@ class IngestPinAgreementTest(unittest.TestCase):
     def test_test3_matches_pins(self):
         record = self.check_against_pins("test_3")
         self.assertEqual([warning.code for warning in record.warnings], ["W_VFR_TIMING"])
-
-    def test_gemini_matches_pins(self):
-        record = self.check_against_pins("gemini_clean")
-        self.assertEqual(list(record.warnings), [])
 
     def test_source_path_recorded_as_given(self):
         require_smoke(Path("Smoke/test_3.mp4"))

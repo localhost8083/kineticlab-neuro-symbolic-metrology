@@ -197,12 +197,14 @@ live_out/
 # KL-8.7 cleanup 2026-10-29: retained-but-uncommitted evidence + user media.
 battery_86_final.out.txt
 battery_final.out.txt
-# KL-10.6 BLOCKER-1: the two hash-pinned demo clips SHIP so a fresh clone
+# KL-10.6 BLOCKER-1: the hash-pinned demo clip SHIPS so a fresh clone
 # can run media_check, the demo chains, and the full suite (README
-# Quickstart); the rest of Smoke/ stays local.
+# Quickstart); the rest of Smoke/ stays local. KL-10.19 (2026-11-02):
+# the second shipped clip (gemini-generated footage) was removed on
+# user order -- an AI-fabricated clip has no place in a repo whose
+# selling point is that nothing is AI-authored.
 Smoke/*
 !Smoke/test_3.mp4
-!Smoke/gemini_generated_video_8eaef52c.mp4
 Demos/
 
 battery_87_final.out.txt

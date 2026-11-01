@@ -3,14 +3,14 @@
 All numeric values here are synthetic test constants, not measurements.
 """
 
-GEMINI_SHA256 = "192ae2b5f280e3957952882c73bb9b03d4db7df2229747d86c88f779149647be"
+SAMPLE_SHA256 = "192ae2b5f280e3957952882c73bb9b03d4db7df2229747d86c88f779149647be"
 
 
 def valid_provenance():
     return {
         "software_name": "kineticlab-test",
         "software_version": "0.1.0",
-        "input_sha256": GEMINI_SHA256,
+        "input_sha256": SAMPLE_SHA256,
         "model_name": None,
         "model_version": None,
         "raw_refs": [],

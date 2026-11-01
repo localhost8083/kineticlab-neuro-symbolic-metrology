@@ -36,20 +36,15 @@ from tests import require_smoke
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TEST_3 = REPO_ROOT / "Smoke/test_3.mp4"
-GEMINI = REPO_ROOT / "Smoke/gemini_generated_video_8eaef52c.mp4"
 BALL_RAW = REPO_ROOT / "Smoke/results/test_3_yellow_ball_raw.txt"
 CARD_RAW = REPO_ROOT / "Smoke/results/test_3_white_card_raw.txt"
-GEMINI_CARD_RAW = REPO_ROOT / "Smoke/results/card_raw.txt"
 BALL_DISPLAY = "Smoke/results/test_3_yellow_ball_raw.txt"
 CARD_DISPLAY = "Smoke/results/test_3_white_card_raw.txt"
-GEMINI_DISPLAY = "Smoke/results/card_raw.txt"
 
 BALL_JSON_SHA = "2e9bc70332139ef922e44755950bb7ba717d7c271d4411d5b73ba2d699d8630b"
 BALL_CSV_SHA = "28142b39bfb98ef612716e535012b0fa9cf2f0c335d5e7eb8314b933e71d3e96"
 CARD_JSON_SHA = "93ccfef76e3d8ec96026defaf82c0d2c4ab61f07f9750ff448d068928f2f2ab4"
 CARD_CSV_SHA = "1b31f7c8a7cf31d0242de7e9cbe5d6f9c658b265ad55adbff254aa19f084031c"
-GEMINI_JSON_SHA = "628b50d4377cbcd4cd49f82e78e52b5eb864f6010a8a69d70e80c320168b7785"
-GEMINI_CSV_SHA = "d92cc454906f81a6160b6d36fed5e0638c25a807d9b646bc5ea1b397ac19194c"
 
 
 def sha256_hex(data: bytes) -> str:
@@ -59,10 +54,8 @@ def sha256_hex(data: bytes) -> str:
 class ChainExportTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        require_smoke(TEST_3, GEMINI, BALL_RAW, CARD_RAW,
-                      GEMINI_CARD_RAW)
+        require_smoke(TEST_3, BALL_RAW, CARD_RAW)
         test_3_table = extract_frame_records(TEST_3)
-        gemini_table = extract_frame_records(GEMINI)
         cls.ball = parse_raw_fixture(BALL_DISPLAY, object_role="bob",
                                      object_id="yellow-ball",
                                      frame_table=test_3_table)
@@ -70,10 +63,6 @@ class ChainExportTest(unittest.TestCase):
                                      object_role="reference_card",
                                      object_id="white-card",
                                      frame_table=test_3_table)
-        cls.gemini = parse_raw_fixture(GEMINI_DISPLAY,
-                                       object_role="reference_card",
-                                       object_id="card",
-                                       frame_table=gemini_table)
 
     def check_chain(self, records, count, json_sha, csv_sha):
         self.assertEqual(len(records), count)
@@ -102,29 +91,6 @@ class ChainExportTest(unittest.TestCase):
         self.assertEqual(first["mask_area_px"], 41572.0)
         self.assertEqual(first["centroid_x_px"], 260.29820552294814)
         self.assertEqual(first["centroid_y_px"], 377.77715770229963)
-
-    def test_gemini_chain_counts(self):
-        # Measured outcome, documented deliberately: record validity
-        # follows the source row's ingest decision (KL-7.5 F2), so
-        # the 62-valid / 178-withdrawn table split surfaces here as
-        # 60 valid + 178 retained-invalid observations (frames 0/1
-        # valid but undetected). Withdrawn rows keep measured PTS.
-        payload, _ = self.check_chain(self.gemini, 238, GEMINI_JSON_SHA,
-                                      GEMINI_CSV_SHA)
-        self.assertEqual(sum(1 for record in self.gemini if record.valid),
-                         60)
-        self.assertEqual([record.frame_index for record in self.gemini],
-                         list(range(2, 240)))
-        for record in self.gemini:
-            if record.valid:
-                self.assertEqual(record.warnings, ())
-            else:
-                self.assertIsNotNone(record.pts_seconds)
-                self.assertEqual([warning.code for warning in record.warnings],
-                                 ["W_MISSING_FRAMES_RETAINED"])
-        first = json.loads(payload.decode("utf-8"))[0]
-        self.assertEqual(first["frame_index"], 2)
-        self.assertEqual(first["mask_area_px"], 49852.0)
 
     def test_csv_column_contract(self):
         text = export_observations_csv(self.ball[:2])

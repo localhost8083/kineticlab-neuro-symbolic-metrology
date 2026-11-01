@@ -43,9 +43,6 @@ class MediaCheckTest(unittest.TestCase):
     def test_test3_fixture_passes(self):
         self.check_fixture("fixtures/test_3.json")
 
-    def test_gemini_fixture_passes(self):
-        self.check_fixture("fixtures/gemini_clean.json")
-
     def test_missing_video_fails_explicitly(self):
         fixture = {"name": "missing", "video": "Smoke/does_not_exist.mp4",
                    "provenance": "negative test", "expect": {}}

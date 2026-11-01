@@ -33,10 +33,8 @@ from tests import require_smoke
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TEST_3 = REPO_ROOT / "Smoke/test_3.mp4"
-GEMINI = REPO_ROOT / "Smoke/gemini_generated_video_8eaef52c.mp4"
 BALL_RAW = REPO_ROOT / "Smoke/results/test_3_yellow_ball_raw.txt"
 CARD_RAW = REPO_ROOT / "Smoke/results/test_3_white_card_raw.txt"
-GEMINI_CARD_RAW = REPO_ROOT / "Smoke/results/card_raw.txt"
 
 BALL_CONFIDENCE = 0.9532163739204407
 CARD_CONFIDENCE = 0.8947368264198303
@@ -65,8 +63,7 @@ def first_ball_line():
 class RealFixtureAdapterTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        require_smoke(TEST_3, BALL_RAW, CARD_RAW, GEMINI,
-                      GEMINI_CARD_RAW)
+        require_smoke(TEST_3, BALL_RAW, CARD_RAW)
         cls.table = extract_frame_records(TEST_3)
 
     def check_real_file(self, path, role, object_id, confidence):
@@ -141,33 +138,6 @@ class RealFixtureAdapterTest(unittest.TestCase):
         for record in records:
             self.assertEqual(record.provenance.model_name, "sam-3.1")
             self.assertEqual(record.provenance.model_version, "smoke-2026-10-27")
-
-    def test_gemini_geometry_card_joins_gemini_table(self):
-        table = extract_frame_records(GEMINI)
-        records = parse_raw_fixture(GEMINI_CARD_RAW, object_role="reference_card",
-                                    object_id="card", frame_table=table)
-        # Structural pins: 238 contiguous frames 2..239 (0/1 not detected).
-        self.assertEqual(len(records), 238)
-        self.assertEqual(records[0].frame_index, 2)
-        self.assertEqual(records[-1].frame_index, 239)
-        for record in records:
-            self.assertEqual(record.pts_seconds,
-                             table[record.frame_index].pts_seconds)
-            # Validity follows the source row's ingest decision (F2).
-            self.assertEqual(record.valid,
-                             table[record.frame_index].valid)
-        # 60 valid + 178 withdrawn-invalid (the table holds 62 valid
-        # rows; frames 0/1 are valid but undetected, so absent here).
-        self.assertEqual(sum(1 for record in records if record.valid), 60)
-        for record in records:
-            if record.valid:
-                self.assertEqual(record.warnings, ())
-            else:
-                self.assertIsNotNone(record.pts_seconds)
-                self.assertEqual([warning.code for warning in record.warnings],
-                                 ["W_MISSING_FRAMES_RETAINED"])
-                self.assertIn("withdrawn", record.warnings[0].detail)
-        self.assertEqual(records[0].mask_area_px, 49852.0)
 
     def test_null_pts_retained_invalid_with_geometry(self):
         row = self.table[0].to_dict()
