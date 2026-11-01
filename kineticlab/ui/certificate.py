@@ -199,10 +199,12 @@ def render_certificate(result: dict, diagnostics: dict | None,
     reject_codes = ""
     reasons = result.get("reject_reasons")
     if status in _FAILURE_STATES and isinstance(reasons, list) and reasons:
-        items = "".join(f"<li><code>{_e(reason.get('code')
-                                        if isinstance(reason, dict)
-                                        else reason)}</code></li>\n"
-                        for reason in reasons)
+        items = "".join(
+            "<li><code>"
+            + _e(reason.get('code') if isinstance(reason, dict)
+                 else reason)
+            + "</code></li>\n"
+            for reason in reasons)
         reject_codes = (f"<h2>Reject reasons (fired codes, verbatim)</h2>\n"
                         f"<ul>\n{items}</ul>\n")
 

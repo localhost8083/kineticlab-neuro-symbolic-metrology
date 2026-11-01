@@ -99,3 +99,30 @@ class CiDocsLockTests(unittest.TestCase):
         self.assertEqual(
             len(set(counts)), 1,
             f"suite-count tokens disagree across docs: {counts}")
+
+    def test_no_pep701_fstrings(self):
+        """Python floor is 3.11: no multi-line expressions inside
+        single-quoted f-string braces (PEP 701 relaxed this in
+        3.12; the 3.11 CI floor raises SyntaxError at import)."""
+        import ast
+        offenders = []
+        for path in sorted((ROOT / "kineticlab").rglob("*.py")):
+            text = _read(path)
+            tree = ast.parse(text, filename=str(path))
+            for node in ast.walk(tree):
+                if not isinstance(node, ast.JoinedStr):
+                    continue
+                segment = ast.get_source_segment(text, node)
+                if segment is None or segment.startswith(('f"""',
+                                                          "f'''")):
+                    continue
+                for value in node.values:
+                    if (isinstance(value, ast.FormattedValue)
+                            and value.end_lineno > value.lineno):
+                        offenders.append(
+                            f"{path.relative_to(ROOT)}:"
+                            f"{value.lineno}")
+        self.assertEqual(
+            offenders, [],
+            "PEP 701 f-strings break the 3.11 CI floor: "
+            + ", ".join(offenders))
