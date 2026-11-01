@@ -4,7 +4,8 @@
 OG F8b) runs the pinned SAM -> advisory -> assemble replay through
 the shared ``kineticlab.demo`` entry surface; `capture` (KL-8.4) runs
 one live SAM capture + measure chain (bring-your-own-key via
-``MODEL_API_KEY``); `serve` starts the local web UI on 127.0.0.1.
+``MODEL_API_KEY``); `serve` starts the local web UI on 127.0.0.1;
+`doctor` reports environment/fixture health one line per check.
 No scientific logic lives here.
 """
 
@@ -171,6 +172,112 @@ def cmd_serve(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_doctor(args: argparse.Namespace) -> int:
+    """Environment doctor (KL-10.24): one line per check, then a summary.
+
+    Exit 0 when no check FAILs, 1 otherwise. The model API key is
+    reported as present/absent only — the value is never printed.
+    """
+    import hashlib
+    import shutil
+
+    from kineticlab.contracts import ResultContract
+
+    root = find_repo_root(Path.cwd()) or Path.cwd()
+    passed = skipped = failed = 0
+
+    def line(status: str, detail: str) -> None:
+        nonlocal passed, skipped, failed
+        if status == "PASS":
+            passed += 1
+        elif status == "SKIP":
+            skipped += 1
+        else:
+            failed += 1
+        print(f"[{status}] {detail}")
+
+    # 1. Python version.
+    if sys.version_info >= (3, 11):
+        line("PASS", f"Python {sys.version_info.major}."
+             f"{sys.version_info.minor} >= 3.11")
+    else:
+        line("FAIL", f"Python {sys.version_info.major}."
+             f"{sys.version_info.minor} < 3.11 (required)")
+
+    # 2. Package import + contract self-check (a valid result.v1
+    # built from the shared test builders must parse).
+    try:
+        import kineticlab  # noqa: F401 — the import itself is the check
+        from tests.contract_samples import valid_result
+
+        ResultContract.from_dict(valid_result())
+        line("PASS", "kineticlab imports; contracts load; valid "
+             "result.v1 self-check parses")
+    except Exception as error:  # noqa: BLE001 — doctor reports, never crashes
+        line("FAIL", f"contract self-check: {type(error).__name__}: {error}")
+
+    # 3. Fixture integrity: pinned expectations + clip sha256.
+    fixture_path = root / "fixtures" / "test_3.json"
+    if not fixture_path.is_file():
+        line("SKIP", f"fixtures/test_3.json absent under {root}; "
+             "fixture integrity not checkable")
+    else:
+        try:
+            fixture = json.loads(
+                fixture_path.read_text(encoding="utf-8"))
+            video = fixture["video"]
+            pin = fixture["expect"]["sha256"]
+            clip = root / video
+            if not clip.is_file():
+                line("FAIL", f"{video} absent but pinned in "
+                     "fixtures/test_3.json")
+            else:
+                digest = hashlib.sha256(clip.read_bytes()).hexdigest()
+                if digest == pin:
+                    line("PASS", f"{video} sha256 matches the "
+                         "fixtures/test_3.json pin")
+                else:
+                    line("FAIL", f"{video} sha256 {digest} != pinned "
+                         f"{pin}")
+        except (OSError, ValueError, KeyError) as error:
+            line("FAIL", f"fixture integrity: {type(error).__name__}: "
+                 f"{error}")
+
+    # 4. Node (informational; tests.test_ui page proofs need it).
+    if shutil.which("node") is not None:
+        line("PASS", "node on PATH")
+    else:
+        line("SKIP", "node not on PATH; tests.test_ui page-execution "
+             "proofs need it (informational, not a failure)")
+
+    # 5. Key hygiene: presence only, never the value; .env* files
+    # must not exist in the tree root (M-0).
+    key_present = bool(os.environ.get("MODEL_API_KEY"))
+    env_files = sorted(item.name for item in root.glob(".env*"))
+    detail = ("MODEL_API_KEY " + ("present" if key_present else "absent")
+              + " in environment (value never printed); "
+              + (".env* in tree root: " + ", ".join(env_files)
+                 if env_files else "no .env* file in tree root"))
+    if env_files:
+        line("FAIL", detail + " — keys live in the environment only")
+    else:
+        line("PASS", detail)
+
+    # 6. Config parse (when present).
+    if (root / CONFIG_FILENAME).is_file():
+        try:
+            load_config(root)
+            line("PASS", f"{CONFIG_FILENAME} parses")
+        except (OSError, tomllib.TOMLDecodeError) as error:
+            line("FAIL", f"{CONFIG_FILENAME} parse: "
+                 f"{type(error).__name__}: {error}")
+    else:
+        line("SKIP", f"{CONFIG_FILENAME} absent; nothing to parse")
+
+    print(f"doctor: {passed} pass, {skipped} skip, {failed} fail")
+    return 1 if failed else 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="kineticlab",
@@ -239,6 +346,13 @@ def build_parser() -> argparse.ArgumentParser:
         help="localhost port to bind (default: 8137)",
     )
     serve_parser.set_defaults(func=cmd_serve)
+    doctor_parser = subparsers.add_parser(
+        "doctor",
+        help="check environment, contracts, fixtures, key hygiene, "
+             "and config (one line per check); exits 0 when no check "
+             "fails, 1 otherwise",
+    )
+    doctor_parser.set_defaults(func=cmd_doctor)
     return parser
 
 

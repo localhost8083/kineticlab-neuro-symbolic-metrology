@@ -276,6 +276,9 @@ details.uploadwrap summary{font-size:12px;font-weight:700;cursor:pointer}
 .legend{display:inline-flex;align-items:center;gap:6px}
 .legend .swatch{width:22px;height:0;border-top:2px solid var(--blue)}
 .legend .swatch.fit{border-top:2px dashed var(--violet)}
+/* KL-10.24: the omega CI band legend shows a low-opacity filled box
+   matching the drawn SVG band behind the fitted curve. */
+.legend .swatch.band{width:14px;height:10px;border:0;background:var(--violet);opacity:.3}
 .rms-chip{font-family:var(--mono);font-size:11px;color:var(--green);border:1px solid color-mix(in srgb,var(--green) 45%,var(--border));border-radius:999px;padding:2px 10px}
 /* Scientific Analysis card (KL-10.5): results explorer with an
    honest state chip, per-tab captions, replay controls, and a
@@ -356,6 +359,10 @@ pre.summary{background:var(--surface-2);color:var(--text);border:1px solid var(-
    highlighted at the top of the results. Elevated surface + bold
    heading carry the emphasis; no accent border needed. */
 .reports-card{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:0 15px 12px}
+/* KL-10.24: measurement-certificate download; hidden until a live
+   full run (the only payload with a run id + result.json) renders. */
+#certificateLink{display:inline-block;margin-top:6px;font-size:13px;color:var(--blue);transition:color .16s}
+#certificateLink:hover{color:var(--cyan)}
 .reports-head{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}
 .reports-head strong{font-size:13px}
 .reports-row{display:inline-flex;align-items:center;gap:2px}
@@ -672,6 +679,7 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
           <div class="chart-meta">
             <span class="legend"><span class="swatch"></span>observed θ(t)</span>
             <span class="legend"><span class="swatch fit"></span><span id="fitLegend">fitted θ(t)</span></span>
+            <span class="legend hidden" id="bandLegendWrap"><span class="swatch band"></span><span id="bandLegend"></span></span>
             <span class="t-chip hidden" id="periodChip"></span>
             <span id="chartMeta" class="mono"></span>
           </div>
@@ -752,6 +760,7 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
           <div class="reports-card hidden" id="reportsCard">
             <div class="reports-head"><strong>Reports</strong><span class="subtle">exact written bytes</span></div>
             <div class="exports" id="reportLinks"></div>
+            <a id="certificateLink" class="hidden" href="#" download>Download certificate</a>
           </div>
           <div class="tabs" role="tablist" aria-label="Result views">
             <button class="tab" role="tab" id="tabTrajectory" aria-controls="panelTrajectory" aria-selected="true">Trajectory</button>
@@ -1892,6 +1901,25 @@ function paintOmegaInterval(diagnosticsDoc) {
     method + " n=" + (fu.n_boot === undefined ? "?" : fu.n_boot);
 }
 
+/* KL-10.24: legend line for the drawn omega band on the trajectory
+   chart; wording matches the Key Results omega sub-line. Hidden
+   when no band was drawn (fit_uncertainty absent). */
+function paintBandLegend(band, diagnosticsDoc) {
+  const wrap = el("bandLegendWrap");
+  if (!band) {
+    el("bandLegend").textContent = "";
+    hide(wrap);
+    return;
+  }
+  const fu = diagnosticsDoc && diagnosticsDoc.fit_uncertainty
+    ? diagnosticsDoc.fit_uncertainty : null;
+  const method = fu && fu.method === "block_bootstrap"
+    ? "block bootstrap" : String(fu && fu.method ? fu.method : "unknown");
+  el("bandLegend").textContent = "ω band · " + method +
+    " (fit_uncertainty)";
+  show(wrap);
+}
+
 function paintGravity(result, modeLabel) {
   const title = el("gravityTitle");
   const body = el("gravityBody");
@@ -2134,6 +2162,7 @@ async function renderDemo(payload) {
   paintProvSummary(payload.mode ? "live-" + payload.mode : "demo-" + payload.chain,
     result, null, files);
   el("fitLegend").textContent = "fitted θ(t) — observed minus pipeline residual";
+  paintCertificateLink(payload);
 }
 
 function paintEvidence(result, advisory) {
@@ -2264,6 +2293,25 @@ function paintReportsCard() {
   else hide(el("reportsCard"));
 }
 
+/* KL-10.24: the measurement-certificate download. Only a live full
+   run carries a run id plus a stored result.json — the only payload
+   the certificate route serves — so demos and motion runs hide the
+   link instead of pointing it at nothing. */
+function paintCertificateLink(payload) {
+  const link = el("certificateLink");
+  const runId = payload && typeof payload.run_id === "string"
+    ? payload.run_id : null;
+  const files = payload && payload.files ? payload.files : null;
+  if (runId && files && files["result.json"]) {
+    link.setAttribute("href", "/api/runs/" + runId + "/certificate");
+    link.setAttribute("download", "certificate-" + runId + ".html");
+    show(link);
+  } else {
+    link.setAttribute("href", "#");
+    hide(link);
+  }
+}
+
 async function paintSummary(files) {
   const pre = el("summaryPre");
   pre.textContent = "";
@@ -2337,6 +2385,8 @@ function clearVisuals(message) {
   el("scrub").max = "0";
   el("scrub").value = "0";
   seriesData = null;
+  /* KL-10.24: the band legend parks with the cleared run. */
+  paintBandLegend(null, null);
   /* KL-10.9-B: the sim parks its seed + underlay with the cleared
      run (after the null above, so it reads the cleared state). */
   simOnClear();
@@ -2368,12 +2418,77 @@ function svgTitle(svg, text) {
   svg.appendChild(title);
 }
 
-function buildTheta(svg, points, fitted, period_s) {
+/* __KL_BAND_MODULE_BEGIN__ */
+/* KL-10.24: the drawn omega CI band behind the fitted curve. The
+   envelope of A*sin(omega*t+phi) over omega in [low, high] is
+   computed exactly: at each sampled t the extreme sits at an
+   interval endpoint or at sin's turning omega
+   (omega*t + phi = pi/2 + k*pi), so those interior candidates join
+   the endpoints before min/max. Every input comes from the
+   diagnostics.json the page already fetched (fit_uncertainty +
+   m1.fitted); when either is absent or non-finite the band is null
+   and nothing is drawn (null semantics, no invented numbers).
+   ponytail: 240 fixed samples across the observed time span and a
+   64-candidate cap per sample; an adaptive grid is the upgrade path
+   if a band ever visibly aliases. */
+function bandEnvelope(doc, points) {
+  const fu = doc && doc.fit_uncertainty ? doc.fit_uncertainty : null;
+  const fitted = doc && doc.m1 && doc.m1.fitted ? doc.m1.fitted : null;
+  const band = fu && fu.omega_per_s ? fu.omega_per_s : null;
+  const amp = fitted ? fitted.amplitude_rad : null;
+  const phi = fitted ? fitted.phase_rad : null;
+  const low = band ? band.low : null;
+  const high = band ? band.high : null;
+  const finite = (v) => typeof v === "number" && Number.isFinite(v);
+  if (!finite(amp) || !finite(phi) || !finite(low) || !finite(high)
+      || !(high >= low) || points.length === 0) {
+    return null;
+  }
+  let minT = Infinity, maxT = -Infinity;
+  for (const pt of points) {
+    if (pt[0] < minT) minT = pt[0];
+    if (pt[0] > maxT) maxT = pt[0];
+  }
+  if (!(maxT > minT)) maxT = minT + 1;
+  const STEPS = 240;
+  const rows = [];
+  for (let i = 0; i <= STEPS; i++) {
+    const t = minT + ((maxT - minT) * i) / STEPS;
+    const omegas = [low, high];
+    if (t !== 0) {
+      const k0 = Math.floor((low * t + phi - Math.PI / 2) / Math.PI);
+      const k1 = Math.ceil((high * t + phi - Math.PI / 2) / Math.PI);
+      if (k1 - k0 <= 64) {
+        for (let k = k0; k <= k1; k++) {
+          const omega = (Math.PI / 2 + k * Math.PI - phi) / t;
+          if (omega >= low && omega <= high) omegas.push(omega);
+        }
+      }
+    }
+    let lo = Infinity, hi = -Infinity;
+    for (const omega of omegas) {
+      const y = amp * Math.sin(omega * t + phi);
+      if (y < lo) lo = y;
+      if (y > hi) hi = y;
+    }
+    rows.push([t, lo, hi]);
+  }
+  return rows;
+}
+/* __KL_BAND_MODULE_END__ */
+
+const CHART_ARIA = "Angle series chart: observed and fitted";
+const CHART_ARIA_BAND =
+  "Angle series chart: observed, fitted, and omega uncertainty band";
+
+function buildTheta(svg, points, fitted, period_s, band) {
   hide(el("chartEmpty"));
   show(el("chartWrap"));
   const pal = chartPalette();
   svg.replaceChildren();
-  svgTitle(svg, points.length + " observed samples with a pipeline-fitted overlay; playhead follows the scrubber.");
+  svgTitle(svg, points.length + " observed samples with a pipeline-fitted overlay; playhead follows the scrubber."
+    + (band ? " Shaded band: omega resampling interval from fit_uncertainty." : ""));
+  svg.setAttribute("aria-label", band ? CHART_ARIA_BAND : CHART_ARIA);
   const W = 720, H = 340, padL = 64, padR = 18, padT = 16, padB = 44;
   const frame = svgEl("rect", { x: "0.5", y: "0.5", width: String(W - 1),
     height: String(H - 1), fill: "none", stroke: pal.frame });
@@ -2389,6 +2504,14 @@ function buildTheta(svg, points, fitted, period_s) {
     for (const [t, v] of fitted) {
       if (v < minY) minY = v;
       if (v > maxY) maxY = v;
+    }
+  }
+  if (band) {
+    /* KL-10.24: the band participates in the fit so it can never
+       leave the drawn window. */
+    for (const row of band) {
+      if (row[1] < minY) minY = row[1];
+      if (row[2] > maxY) maxY = row[2];
     }
   }
   if (!(maxT > minT)) { maxT = minT + 1; }
@@ -2445,6 +2568,18 @@ function buildTheta(svg, points, fitted, period_s) {
     svg.appendChild(svgEl("circle", { cx: String(X(pt[0])), cy: String(Y(pt[1])),
       r: String(r), fill: color }));
   };
+  /* KL-10.24: the omega resampling band draws BEHIND the fitted
+     line — one path, upper edge forward + reversed lower edge,
+     low-opacity fill so the dots and curve stay dominant. */
+  if (band && band.length > 1) {
+    const upper = band.map((row, i) =>
+      (i === 0 ? "M" : "L") + X(row[0]).toFixed(1) + " " +
+      Y(row[2]).toFixed(1)).join(" ");
+    const lower = band.slice().reverse().map((row) =>
+      " L" + X(row[0]).toFixed(1) + " " + Y(row[1]).toFixed(1)).join(" ");
+    svg.appendChild(svgEl("path", { d: upper + lower + " Z",
+      fill: pal.fitted, opacity: "0.15", stroke: "none" }));
+  }
   /* The fitted series draws as a dashed curve through the same
      fitted points (observed minus pipeline residual) — no formula is
      recomputed here; this only connects the payload's own values so
@@ -3442,17 +3577,20 @@ async function paintChart(files, result, report, modeLabel) {
   if (residuals.length === points.length) {
     fitted = points.map((pt, i) => [pt[0], points[i][1] - residuals[i][1]]);
   }
+  const band = bandEnvelope(diagnostics.doc, points);
   const thetaSvg = el("chartSvg");
-  const geo = buildTheta(thetaSvg, points, fitted, diagnostics.period);
+  const geo = buildTheta(thetaSvg, points, fitted, diagnostics.period, band);
   const times = points.map((pt) => pt[0]);
   const stripGeo = residuals.length === points.length
     ? buildStrip(el("stripSvg"), times, residuals)
     : (clearStripOnly("No residuals in this payload."), null);
   seriesData = { geo, trailGeo: null, stripGeo, points, trail, order,
     fitted, period: diagnostics.period, times, residuals,
+    band,
     pivot: null, replayGeo: null,
     trailStart: 0, trailFlags: excludedTrailRows(order, report,
       diagnostics.doc) };
+  paintBandLegend(band, diagnostics.doc);
   renderTrailWindow();
   paintReplayArm(pivotFromPayload(diagnostics.doc));
   /* KL-10.9-B: seed the model toy from this run (numbers only,
@@ -3729,10 +3867,10 @@ function paintSciDiagnostics(ctx) {
 /* Rebuild charts with the active theme palette after a toggle. */
 function repaintCharts() {
   if (!seriesData) return;
-  const { points, order, fitted, period, times, residuals } = seriesData;
+  const { points, order, fitted, period, times, residuals, band } = seriesData;
   const scrubber = el("scrub");
   const idx = Math.max(0, Math.min(order.length - 1, Number(scrubber.value) || 0));
-  seriesData.geo = buildTheta(el("chartSvg"), points, fitted, period);
+  seriesData.geo = buildTheta(el("chartSvg"), points, fitted, period, band);
   renderTrailWindow();
   if (residuals && residuals.length === points.length) {
     seriesData.stripGeo = buildStrip(el("stripSvg"), times, residuals);
@@ -4181,6 +4319,7 @@ async function renderLiveMotion(payload) {
   if (complete) paintVerdictBadge("is-success", "verdict: motion complete");
   else paintVerdictBadge("is-warn", "verdict: incomplete");
   paintMotionEvidence(report);
+  paintCertificateLink(payload);
   await paintSummary(files);
   const anglesOk = await paintMotionChart(files, report, "live motion");
   paintMotionStepper(report, files, anglesOk);

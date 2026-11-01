@@ -290,13 +290,28 @@ class PageTests(unittest.TestCase):
         self.assertEqual(script.count(begin), 1)
         self.assertEqual(script.count(end), 1)
         outside = script.split(begin)[0] + script.split(end)[1]
+        # KL-10.24 adds the band sentinels the same way: the omega-CI
+        # envelope is exact trig over copied diagnostics numbers.
+        band_begin = "/* __KL_BAND_MODULE_BEGIN__ */"
+        band_end = "/* __KL_BAND_MODULE_END__ */"
+        self.assertEqual(script.count(band_begin), 1)
+        self.assertEqual(script.count(band_end), 1)
+        outside = (outside.split(band_begin)[0]
+                   + outside.split(band_end)[1])
         for token in ("Math.cos", "Math.sin", "Math.exp",
                       "Math.tan"):
             with self.subTest(token=token):
                 self.assertNotIn(token, outside)
-        # "amplitude" stays banned page-wide (the sim module
-        # never needed the word).
-        self.assertNotIn("amplitude", script)
+        # "amplitude" stays banned outside the band module: the sim
+        # module never needed the word, and KL-10.24's envelope only
+        # reads fitted amplitude_rad from the copied diagnostics.
+        band_begin = "/* __KL_BAND_MODULE_BEGIN__ */"
+        band_end = "/* __KL_BAND_MODULE_END__ */"
+        self.assertEqual(script.count(band_begin), 1)
+        self.assertEqual(script.count(band_end), 1)
+        outside_band = (script.split(band_begin)[0]
+                        + script.split(band_end)[1])
+        self.assertNotIn("amplitude", outside_band)
 
     def test_chart_reads_csv_columns(self):
         script = self.page.split("<script>", 1)[1]
@@ -2908,10 +2923,17 @@ class ReplayAnimationTests(unittest.TestCase):
         # timers, textContent-only DOM writes. KL-10.9-B scopes
         # the trig ban to outside the sim sentinels (updated
         # per the KL-10.9-B brief, which owns this invariant).
+        # KL-10.24 adds the band sentinels the same way: the
+        # omega-CI envelope is exact trig over copied diagnostics
+        # numbers, owned inside __KL_BAND_MODULE_*.
         begin = "/* __KL_SIM_MODULE_BEGIN__ */"
         end = "/* __KL_SIM_MODULE_END__ */"
         outside = (self.script.split(begin)[0]
                    + self.script.split(end)[1])
+        band_begin = "/* __KL_BAND_MODULE_BEGIN__ */"
+        band_end = "/* __KL_BAND_MODULE_END__ */"
+        outside = (outside.split(band_begin)[0]
+                   + outside.split(band_end)[1])
         for token in ("Math.sin", "Math.cos", "Math.tan",
                       "Math.exp"):
             self.assertNotIn(token, outside)

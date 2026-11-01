@@ -23,7 +23,9 @@ behind the real work instead of colliding on it):
   server env.
 - ``GET /api/runs/<run-id>/<name>`` — one live-run export's bytes
   (run id pattern-validated, name on a fixed allowlist; requires
-  the key like all live routes).
+  the key like all live routes). ``name`` ``certificate`` renders
+  the run's stored exports into a standalone HTML measurement
+  certificate download (KL-10.24).
 
 HTTP-to-taxonomy map (locked codes only, zero new): unknown
 route -> 404 ``E_MISSING_FIELD`` naming the path; wrong method
@@ -79,6 +81,7 @@ from kineticlab.capture.chain import (
 from kineticlab.contracts import ContractError, validate_frame_table
 from kineticlab.demo import EXPORT_FILENAMES, run_demo_chain
 from kineticlab.ingest import extract_frame_records, inspect_media
+from kineticlab.ui.certificate import render_certificate
 
 BIND_HOST = "127.0.0.1"
 """The only interface this server ever binds (never 0.0.0.0)."""
@@ -385,12 +388,46 @@ class _Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def _send_bytes(self, body: bytes, content_type: str) -> None:
+    def _send_bytes(self, body: bytes, content_type: str,
+                    disposition: str | None = None) -> None:
         self.send_response(200)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(body)))
+        if disposition:
+            self.send_header("Content-Disposition", disposition)
         self.end_headers()
         self.wfile.write(body)
+
+    def _send_certificate(self, run_id: str, result_path: Path) -> None:
+        """Render a stored run's exports into a certificate download.
+
+        Reads only files the run itself wrote (``result.json`` plus the
+        optional ``diagnostics.json`` sidecar); every rendered value is
+        copied from them. The digest table comes from the stored
+        provenance ``artifact_hashes`` — the same bytes the export
+        links serve.
+        """
+        try:
+            result = json.loads(
+                result_path.read_text(encoding="utf-8"))
+            diagnostics = None
+            diag_path = result_path.parent / "diagnostics.json"
+            if diag_path.is_file():
+                diagnostics = json.loads(
+                    diag_path.read_text(encoding="utf-8"))
+        except ValueError:
+            _fail("E_MALFORMED_JSON", "result.json",
+                  "stored export is not parseable JSON", status=500)
+            raise AssertionError("unreachable")
+        hashes = result.get("provenance") if isinstance(result, dict) \
+            else None
+        hashes = hashes.get("artifact_hashes") if isinstance(hashes, dict) \
+            else None
+        page = render_certificate(result, diagnostics,
+                                  hashes).encode("utf-8")
+        self._send_bytes(
+            page, "text/html; charset=utf-8",
+            disposition=f'attachment; filename="certificate-{run_id}.html"')
 
     def _send_error(self, error: UiError) -> None:
         self._send_json({"error": {"code": error.code,
@@ -479,15 +516,25 @@ class _Handler(BaseHTTPRequestHandler):
             except ContractError:
                 _fail("E_MISSING_FIELD", "path",
                       f"unknown run export: {path!r}", status=404)
-            if not separator or name not in RUN_CONTENT_TYPES:
+            if not separator or (name != "certificate"
+                                 and name not in RUN_CONTENT_TYPES):
                 _fail("E_MISSING_FIELD", "path",
                       f"unknown run export: {path!r}", status=404)
             root = (self._work / LIVE_OUT_DIRNAME).resolve()
-            target = (self._work / LIVE_OUT_DIRNAME / run_id
-                      / name).resolve()
+            if name == "certificate":
+                # KL-10.24: the certificate is rendered from the run's
+                # stored exports, so the guarded file is result.json.
+                target = (self._work / LIVE_OUT_DIRNAME / run_id
+                          / "result.json").resolve()
+            else:
+                target = (self._work / LIVE_OUT_DIRNAME / run_id
+                          / name).resolve()
             if not target.is_relative_to(root) or not target.is_file():
                 _fail("E_MISSING_FIELD", "path",
                       f"unknown run export: {path!r}", status=404)
+            if name == "certificate":
+                self._send_certificate(run_id, target)
+                return
             self._send_bytes(target.read_bytes(),
                              RUN_CONTENT_TYPES[name])
         else:
