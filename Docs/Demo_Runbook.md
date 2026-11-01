@@ -17,7 +17,7 @@ one track (Indie / Startup); scoring Impact 30 / Technical Execution
 python -m unittest
 ```
 
-Say: "904 tests pass [C-003] on the maintained machine" — on a fresh clone some Smoke-results-backed tests skip, which REPRODUCE documents as expected. Say hygiene is enforced by 5 of them
+Say: "905 tests pass [C-003] on the maintained machine" — on a fresh clone some Smoke-results-backed tests skip, which REPRODUCE documents as expected. Say hygiene is enforced by 5 of them
 (no key material in tree, fixtures, or history [C-017]).
 
 ## 1. Structural media check — NOT a SAM replay
