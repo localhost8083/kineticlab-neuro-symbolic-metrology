@@ -31,8 +31,12 @@ Full test suite (~17-20 minutes, blocking):
 python -m unittest
 ```
 
-Expected: `862 tests, OK`, exit 0. One environment-dependent live-bind skip
-is possible on some machines. The UI test module requires `node` on PATH.
+Expected on the maintained machine: `875 tests, OK`, exit 0. On a fresh
+clone without the local `Smoke/` media the Smoke-backed tests skip (~30)
+and the suite reports fewer ran with `OK (skipped=...)` — expected, not a
+failure: the byte pins compare against outputs recorded on the machine
+that owns the media. One environment-dependent live-bind skip is possible
+on some machines. The UI test module requires `node` on PATH.
 
 Byte pins are same-platform determinism: on a different OS C library
 (glibc vs UCRT) floats drift in the last ulp, so CI runs the suite with
