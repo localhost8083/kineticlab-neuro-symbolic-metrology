@@ -845,7 +845,7 @@ class RefinementTests(unittest.TestCase):
             self.style,
             r"\.shell\{[^}]*grid-template-columns:minmax\(300px",
             "left rail width must be 300–329px")
-        self.assertIn("minmax(0,2.1fr) minmax(320px,1fr)", self.style)
+        self.assertIn("minmax(0,2.45fr) minmax(320px,.95fr)", self.style)
 
     def test_advanced_diagnostics_collapsed(self):
         # Collapsed by default (no open attribute) and owning the
@@ -872,7 +872,7 @@ class RefinementTests(unittest.TestCase):
         # KL-8.11 touch-up: caps raised 280/260/300 -> 600 and width
         # capped + centered, so charts fill their cards instead of
         # letterboxing to a ~594px island on wide screens.
-        for rule in ("#chartSvg.plot{max-height:600px;max-width:1150px;"
+        for rule in ("#chartSvg.plot{max-height:680px;max-width:1150px;"
                      "margin:0 auto}",
                      "#stripSvg.plot{max-height:600px;max-width:1150px;"
                      "margin:0 auto}",
@@ -1714,9 +1714,13 @@ class TouchUp811Tests(unittest.TestCase):
         self.assertIn("Number.isFinite(order[safe])", self.page)
 
     def test_charts_fill_cards(self):
+        # KL-10.25: the trajectory chart grows taller (680px cap);
+        # strip + trail keep the 600px cap.
         self.assertEqual(
             self.page.count("max-height:600px;max-width:1150px;"
-                            "margin:0 auto"), 3)
+                            "margin:0 auto"), 2)
+        self.assertIn("max-height:680px;max-width:1150px;"
+                      "margin:0 auto", self.page)
 
     def test_stepper_demo_title(self):
         self.assertIn("Stages reflect the most recent run", self.page)
@@ -3014,6 +3018,9 @@ class SimulationTests(unittest.TestCase):
         "simAngle", "simGVal", "simGammaVal", "simAngleVal",
         "simThetaReadout", "simClockReadout", "simCaption",
         "simArm", "simBob", "simSeedTile",
+        # KL-10.25 mockup round: theta chip overlay, degree annotation,
+        # and the model-parameters readouts.
+        "simThetaChip", "simAngleDeg", "simParamG", "simParamGamma",
     ])
 
     @classmethod
@@ -3403,11 +3410,12 @@ class SimulationTests(unittest.TestCase):
         self.assertIn('class="sim-panel"', block)
         self.assertIn(
             ".sim-layout{display:grid;"
-            "grid-template-columns:minmax(0,1fr) 320px;",
+            "grid-template-columns:minmax(0,2fr) minmax(260px,340px);",
             self.page)
         self.assertIn(
             "@media(max-width:1250px)"
-            "{.sim-layout{grid-template-columns:minmax(0,1fr) 320px}}",
+            "{.sim-layout{grid-template-columns:"
+            "minmax(0,2fr) minmax(260px,340px)}}",
             self.page)
         self.assertLess(
             self.page.index('id="viewSimulation"'),
@@ -4026,8 +4034,10 @@ class Fidelity1016Tests(unittest.TestCase):
             "  process.exit(1);\n"
             "}\n")
         out = run_page_driver(self.script, check, {})
+        # KL-10.25: the label centers over the bracket span but still
+        # sits BELOW the dashed T-line (y > 22 = padT + 6).
         self.assertTrue(out["text"].startswith("T = "))
-        self.assertEqual(out["anchor"], "start")
+        self.assertEqual(out["anchor"], "middle")
         self.assertGreater(out["y"], 22)
 
     def test_template_palette(self):
@@ -4254,14 +4264,18 @@ class ViewportFit1017Tests(unittest.TestCase):
                         "no flex row may forbid wrapping")
 
     def test_top_row_alignment(self):
-        # KL-10.18: the center column opens with the workflow stepper,
-        # then the Analysis|Playground tab strip, then the hero; the
-        # left rail opens with the demo scenarios; .shell keeps
+        # KL-10.25: the stepper moved into the topbar (compact pills,
+        # brand left / stepper center / pills right); the center
+        # column opens with the tab strip then the hero; the left
+        # rail opens with the demo scenarios; .shell keeps
         # top-aligned tracks.
+        self.assertLess(self.page.index('class="stepper"'),
+                        self.page.index('class="tabs view-tabs"'))
+        stepper = self.page[self.page.index('class="stepper"'):]
+        self.assertLess(stepper.index('class="top-spacer"'),
+                        stepper.index('id="verdictBadge"'))
         main_at = self.page.index('<main class="main"')
         center = self.page[main_at:main_at + 4000]
-        self.assertLess(center.index('class="stepper"'),
-                        center.index('class="tabs view-tabs"'))
         self.assertLess(center.index('class="tabs view-tabs"'),
                         center.index('id="sciCard"'))
         rail = self.page.split('<aside class="sidebar"', 1)[1].split(

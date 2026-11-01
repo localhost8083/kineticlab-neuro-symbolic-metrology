@@ -13,7 +13,9 @@ behind the real work instead of colliding on it):
   run the pinned chains through ``kineticlab.demo`` (same code
   as the CLI) and return the result + export links.
 - ``GET /api/exports/<chain>/<name>`` — written export bytes
-  (strict allowlist, no path traversal possible).
+  (strict allowlist, no path traversal possible); ``name``
+  ``certificate`` (success chain only) renders ``demo_out`` exports
+  into the same standalone HTML measurement certificate (KL-10.25).
 - ``GET /api/overlay`` — the pinned ball-trajectory overlay SVG.
 - ``POST /api/live`` — live capture stages (KL-8.4): multipart
   ``stage=detect`` (clip + mode + prompts -> run id + confirm
@@ -23,9 +25,11 @@ behind the real work instead of colliding on it):
   server env.
 - ``GET /api/runs/<run-id>/<name>`` — one live-run export's bytes
   (run id pattern-validated, name on a fixed allowlist; requires
-  the key like all live routes). ``name`` ``certificate`` renders
-  the run's stored exports into a standalone HTML measurement
-  certificate download (KL-10.24).
+  the key, because it reaches into live_out). ``name``
+  ``certificate`` renders the run's stored exports into a standalone
+  HTML measurement certificate download (KL-10.24) and is the one
+  run export served WITHOUT the key (KL-10.25): the key gates live
+  capture, never the certificate of stored JSON.
 
 HTTP-to-taxonomy map (locked codes only, zero new): unknown
 route -> 404 ``E_MISSING_FIELD`` naming the path; wrong method
@@ -429,6 +433,39 @@ class _Handler(BaseHTTPRequestHandler):
             page, "text/html; charset=utf-8",
             disposition=f'attachment; filename="certificate-{run_id}.html"')
 
+    def _send_demo_certificate(self, chain: str, result_path: Path) -> None:
+        """KL-10.25: certificate for the pinned success demo replay.
+
+        Same renderer as ``_send_certificate``; reads only the
+        ``demo_out/<chain>/`` files the demo itself wrote. The digest
+        table hashes each on-disk export byte-for-byte (deterministic
+        per demo_out contents), so no digest ever reads "unknown"
+        while the file exists.
+        """
+        try:
+            result = json.loads(
+                result_path.read_text(encoding="utf-8"))
+            diagnostics = None
+            diag_path = result_path.parent / "diagnostics.json"
+            if diag_path.is_file():
+                diagnostics = json.loads(
+                    diag_path.read_text(encoding="utf-8"))
+        except ValueError:
+            _fail("E_MALFORMED_JSON", "result.json",
+                  "stored export is not parseable JSON", status=500)
+            raise AssertionError("unreachable")
+        exports: dict[str, str] = {}
+        for name in EXPORT_FILENAMES:
+            export = result_path.parent / name
+            if export.is_file():
+                exports[name] = hashlib.sha256(
+                    export.read_bytes()).hexdigest()
+        page = render_certificate(result, diagnostics,
+                                  exports).encode("utf-8")
+        self._send_bytes(
+            page, "text/html; charset=utf-8",
+            disposition=f'attachment; filename="certificate-{chain}.html"')
+
     def _send_error(self, error: UiError) -> None:
         self._send_json({"error": {"code": error.code,
                                    "field": error.field,
@@ -496,19 +533,28 @@ class _Handler(BaseHTTPRequestHandler):
         elif path.startswith("/api/exports/"):
             rest = path[len("/api/exports/"):]
             chain, separator, name = rest.partition("/")
+            # KL-10.25: "certificate" is a computed export for the
+            # success chain only — the same renderer as the live
+            # route, pointed at demo_out bytes.
+            known_name = name in EXPORT_CONTENT_TYPES or (
+                chain == "success" and name == "certificate")
             if not separator or chain not in ("success", "rejection") \
-                    or name not in EXPORT_CONTENT_TYPES:
+                    or not known_name:
                 _fail("E_MISSING_FIELD", "path",
                       f"unknown export: {path!r}", status=404)
-            target = (self._work / "demo_out" / chain / name)
+            target = (self._work / "demo_out" / chain /
+                      ("result.json" if name == "certificate"
+                       else name))
             if not target.is_file():
                 _fail("E_MISSING_FIELD", "path",
                       f"not written yet — run the {chain} demo first",
                       status=404)
+            if name == "certificate":
+                self._send_demo_certificate(chain, target)
+                return
             self._send_bytes(target.read_bytes(),
                              EXPORT_CONTENT_TYPES[name])
         elif path.startswith("/api/runs/"):
-            self._require_live_key()
             rest = path[len("/api/runs/"):]
             run_id, separator, name = rest.partition("/")
             try:
@@ -520,6 +566,11 @@ class _Handler(BaseHTTPRequestHandler):
                                  and name not in RUN_CONTENT_TYPES):
                 _fail("E_MISSING_FIELD", "path",
                       f"unknown run export: {path!r}", status=404)
+            if name != "certificate":
+                # KL-10.25: the key gates live capture, not the
+                # certificate download of a run's already-stored
+                # exports. Every other live export stays gated.
+                self._require_live_key()
             root = (self._work / LIVE_OUT_DIRNAME).resolve()
             if name == "certificate":
                 # KL-10.24: the certificate is rendered from the run's

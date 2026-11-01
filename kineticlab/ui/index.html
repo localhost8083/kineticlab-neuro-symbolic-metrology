@@ -28,9 +28,9 @@
 html[data-theme="light"]{
   color-scheme:light;
   --bg:#F6F8FC;--surface:#FFFFFF;--surface-2:#f1f5fb;--surface-3:#eaf0fa;
-  --text:#17243A;--muted:#64748B;--border:#E2E8F0;
-  --blue:#3468F5;--blue-2:#2454dc;--violet:#7957F5;
-  --green:#10B981;--amber:#F59E0B;--red:#EF4444;
+  --text:#17243A;--muted:#5B6B80;--border:#E2E8F0;
+  --blue:#2B57D4;--blue-2:#2454dc;--violet:#7957F5;
+  --green:#047857;--amber:#B45309;--red:#B91C1C;
   --cyan:#0E7C86;--danger-text:#B91C1C;
   --shadow:0 8px 28px rgba(26,47,84,.055);--grid:#e7edf6;
 }
@@ -66,7 +66,7 @@ input:disabled,select:disabled,textarea:disabled{opacity:.55;cursor:not-allowed}
 .icon-btn:hover{background:var(--surface-2)}
 /* ---- shell + rails (KL-10.14 3-column instrument dashboard:
    left rail 310px, dominant center, persistent 320px sim column) ---- */
-.shell{display:grid;grid-template-columns:minmax(300px,.9fr) minmax(0,2.1fr) minmax(320px,1fr);gap:var(--space-4);padding:var(--space-4);max-width:1920px;width:100%;margin:0 auto;min-height:0;align-items:start}
+.shell{display:grid;grid-template-columns:minmax(300px,.72fr) minmax(0,2.45fr) minmax(320px,.95fr);gap:var(--space-4);padding:var(--space-4);max-width:1920px;width:100%;margin:0 auto;min-height:0;align-items:start}
 .sidebar{border:0;background:transparent;padding:0;display:flex;flex-direction:column;gap:var(--space-4);min-width:0;transition:background .22s}
 .rail-util{display:flex;flex-direction:column;gap:var(--space-2)}
 .rail-navrow{display:flex;gap:var(--space-2)}
@@ -93,19 +93,28 @@ details.demo-card summary::-webkit-details-marker{color:var(--muted)}
 .main{padding:0;min-width:0;width:100%;margin:0;display:flex;flex-direction:column;gap:var(--space-4)}
 .rightcol{display:flex;flex-direction:column;gap:var(--space-4);min-width:0}
 .stepper{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));column-gap:var(--space-4);background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:var(--radius-lg);padding:var(--space-4);margin-bottom:var(--space-4)}
-.step{position:relative;display:grid;grid-template-columns:30px minmax(0,1fr);gap:9px;align-items:start;min-width:0}
-.step:not(:last-child):after{content:"";position:absolute;top:14px;left:calc(100% + 3px);right:-13px;height:2px;background:var(--border)}
+/* KL-10.25: the stepper moved into the header as compact pills —
+   same ids/states/aria, smaller chrome. Base rules above keep the
+   state colors and connector geometry for any non-header use. */
+.topbar .stepper{display:flex;align-items:center;gap:13px;background:none;border:0;box-shadow:none;border-radius:0;padding:0;margin:0;min-width:0;overflow-x:auto}
+.topbar .step{display:flex;align-items:center;gap:6px}
+.topbar .step:not(:last-child):after{display:none}
+.topbar .step-number{width:22px;height:22px;font-size:11px;flex:none}
+.topbar .step-title{font-size:12px;margin:0;white-space:nowrap}
+.topbar .step-desc{display:none}
+.step{position:relative;display:grid;grid-template-columns:34px minmax(0,1fr);gap:9px;align-items:start;min-width:0}
+.step:not(:last-child):after{content:"";position:absolute;top:17px;left:calc(100% + 3px);right:-13px;height:2px;background:var(--border)}
 .step.done:not(:last-child):after{background:var(--blue)}
 .step.failed:not(:last-child):after{background:var(--red)}
-.step-number{position:relative;z-index:1;width:29px;height:29px;border-radius:50%;display:grid;place-items:center;background:var(--surface-3);color:var(--muted);font-weight:700;font-size:12px;border:1px solid var(--border);transition:background .22s,border-color .22s,color .22s,box-shadow .22s}
+.step-number{position:relative;z-index:1;width:33px;height:33px;border-radius:50%;display:grid;place-items:center;background:var(--surface-3);color:var(--muted);font-weight:750;font-size:14px;border:1px solid var(--border);transition:background .22s,border-color .22s,color .22s,box-shadow .22s}
 .step.processing .step-number{background:var(--blue);color:#fff;border-color:var(--blue);animation:pulse-ring 1.4s ease-in-out infinite}
 @keyframes pulse-ring{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--blue) 45%,transparent)}50%{box-shadow:0 0 0 7px transparent}}
 .step.failed .step-title{color:var(--red)}
 .step.active .step-number{background:var(--blue);color:#fff;border-color:var(--blue)}
 .step.done .step-number{background:var(--blue);color:#fff;border-color:var(--blue)}
 .step.failed .step-number{background:var(--red);color:#fff;border-color:var(--red)}
-.step-title{font-size:13px;font-weight:750;margin:2px 0 3px}
-.step-desc{font-size:12px;color:var(--muted)}
+.step-title{font-size:14px;font-weight:750;margin:2px 0 3px}
+.step-desc{font-size:13px;color:var(--muted)}
 details.rail-fold 
 details.rail-fold .step:not(:last-child):after{display:none}
 .pipeline-strip{background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);max-width:1920px;width:100%;margin:0 auto var(--space-4)}
@@ -121,8 +130,8 @@ details.rail-fold .step:not(:last-child):after{display:none}
 .panel-title{font-weight:760;font-size:16px;letter-spacing:-.025em;color:var(--cyan);display:flex;align-items:center;gap:12px;min-width:0;overflow-wrap:anywhere}
 .panel-title::before{content:"";width:12px;height:12px;flex:none;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px color-mix(in srgb,var(--cyan) 25%,transparent)}
 .panel[aria-label="Video analysis"] .panel-title{color:var(--text)}
-.subtle{color:var(--muted);font-size:12px}
-.sub{color:var(--muted);font-size:12px;line-height:1.55}
+.subtle{color:var(--muted);font-size:13px}
+.sub{color:var(--muted);font-size:13px;line-height:1.55}
 .tag{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border-radius:8px;background:var(--surface-2);color:var(--muted);font-size:11px;font-weight:650;white-space:nowrap}
 .tag.blue{color:var(--blue);background:color-mix(in srgb,var(--blue) 10%,var(--surface))}
 .tag.green{color:var(--green);background:color-mix(in srgb,var(--green) 11%,var(--surface))}
@@ -215,29 +224,29 @@ details.uploadwrap summary{font-size:12px;font-weight:700;cursor:pointer}
 .right-column{display:flex;flex-direction:column;gap:var(--space-4);min-width:0}
 .status-ring{display:flex;align-items:center;gap:12px;padding:4px 15px 10px}
 .status-ring svg{flex:none}
-.status-title{font-weight:750;font-size:13px}
+.status-title{font-weight:750;font-size:14px}
 .fact-list{padding:0 15px 12px}
-.fact-row{display:flex;align-items:center;gap:8px;padding:7px 0;font-size:12px;border-bottom:1px solid var(--border)}
+.fact-row{display:flex;align-items:center;gap:8px;padding:7px 0;font-size:13px;border-bottom:1px solid var(--border)}
 .fact-row:last-child{border-bottom:0}
 .fact-row .k{color:var(--muted)}
-.fact-row .v{margin-left:auto;font-family:var(--mono);font-size:12px;text-align:right;overflow-wrap:anywhere}
+.fact-row .v{margin-left:auto;font-family:var(--mono);font-size:13px;text-align:right;overflow-wrap:anywhere}
 .result-list{padding:var(--space-3) var(--space-4) 0;display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
 .metric{display:flex;flex-direction:column;gap:var(--space-1);border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface-2);padding:var(--space-3);min-width:0}
 .metric:last-child{border-bottom:1px solid var(--border)}
-.interval-line{margin:var(--space-3) var(--space-4) 0;font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.5}
-.metric-name{font-family:var(--mono);font-size:12px;color:var(--muted)}
-.metric-value{font-family:var(--mono);font-weight:760;font-size:22px;line-height:1.35;letter-spacing:-.05em;color:var(--green);overflow-wrap:anywhere;min-width:0}
-.metric-value small{font-size:11px;color:var(--muted);font-weight:500}
-.metric-value.na{color:var(--muted);font-weight:500;font-size:12px}
-.metric-why{font-size:11px;color:var(--muted);line-height:1.5}
+.interval-line{margin:var(--space-3) var(--space-4) 0;font-family:var(--mono);font-size:12px;color:var(--muted);line-height:1.5}
+.metric-name{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.metric-value{font-family:var(--mono);font-weight:760;font-size:24px;line-height:1.35;letter-spacing:-.05em;color:var(--green);overflow-wrap:anywhere;min-width:0}
+.metric-value small{font-size:12px;color:var(--muted);font-weight:500}
+.metric-value.na{color:var(--muted);font-weight:500;font-size:13px}
+.metric-why{font-size:12px;color:var(--muted);line-height:1.5}
 .info-box{margin:var(--space-3) var(--space-4) var(--space-4);padding:11px;border:1px solid color-mix(in srgb,var(--blue) 22%,var(--border));background:color-mix(in srgb,var(--blue) 5%,var(--surface));border-radius:10px;display:flex;gap:9px}
 .info-symbol{color:var(--blue);font-size:15px;font-weight:800}
 .info-box strong{font-size:11px}
 .info-box p{font-size:10px;color:var(--muted);margin:3px 0 0}
 .prov-list{padding:4px 15px 12px}
-.prov-row{display:flex;align-items:center;gap:8px;padding:7px 0;font-size:12px;color:var(--muted);border-bottom:1px solid var(--border)}
+.prov-row{display:flex;align-items:center;gap:8px;padding:7px 0;font-size:13px;color:var(--muted);border-bottom:1px solid var(--border)}
 .prov-row:last-child{border-bottom:0}
-.prov-row .hash{margin-left:auto;color:var(--text);font-family:var(--mono);font-size:11px;text-align:right}
+.prov-row .hash{margin-left:auto;color:var(--text);font-family:var(--mono);font-size:12px;text-align:right}
 .prov-row .st{flex:none}
 /* ---- verdict + results ---- */
 .verdict{border-radius:10px;padding:12px 18px;font-weight:650;font-size:17px;margin:12px 15px;border:1px solid var(--border)}
@@ -267,7 +276,7 @@ details.uploadwrap summary{font-size:12px;font-weight:700;cursor:pointer}
 .chart-wrap svg.plot{width:100%;height:auto;display:block}
 /* Bounded visualization heights: the SVGs keep their aspect ratio
    (meet-fit letterboxes) but never stretch the page on wide screens. */
-#chartSvg.plot{max-height:600px;max-width:1150px;margin:0 auto}
+#chartSvg.plot{max-height:680px;max-width:1150px;margin:0 auto}
 #stripSvg.plot{max-height:600px;max-width:1150px;margin:0 auto}
 #trailSvg.plot{max-height:600px;max-width:1150px;margin:0 auto}
 #advDiag img.overlay{max-height:320px;object-fit:contain}
@@ -302,55 +311,62 @@ select.trail-window{background:var(--surface-2);color:var(--text);border:1px sol
 input[type="range"].scrub{width:100%;accent-color:var(--blue);margin:6px 0 2px}
 .scrubrow{display:flex;gap:12px;align-items:center;font-size:12px;color:var(--muted);padding:2px 0;flex-wrap:wrap}
 .tabpanel-pad{padding:4px 15px 12px}
-/* KL-10.14 persistent sim column (was the KL-10.12 two-column
-   tab interior): the whole playground lives in the right rail, stage
-   stacked over controls. Sim-scoped only; colors resolve from the
-   page theme tokens, accents alias blue-2 and green. */
-#viewSimulation{--sim-accent:var(--blue-2);--sim-mint:var(--green)}
-.sim-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:var(--space-4);align-items:start}
+/* KL-10.14/10.25 persistent sim pane (was the KL-10.12 two-column
+   tab interior): the Playground lives in the center column — stage
+   dominates the center width, controls keep a narrow dedicated
+   column. Sim-scoped only; colors resolve from the page theme
+   tokens, accents alias blue-2 and green. */
+#viewSimulation{--sim-accent:var(--blue-2)}
+.sim-layout{display:grid;grid-template-columns:minmax(0,2fr) minmax(260px,340px);gap:var(--space-4);align-items:start}
 .sim-stage-col{min-width:0}
-.sim-intro{margin:0 0 10px}
-.sim-stage{background:linear-gradient(145deg,var(--surface-2),var(--surface));border-radius:14px}
+.sim-card{border:1px solid var(--border);border-radius:15px;background:linear-gradient(145deg,var(--surface-2),var(--surface));box-shadow:var(--shadow);padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.sim-card-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sim-card-icon{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:color-mix(in srgb,var(--sim-accent) 14%,var(--surface));border:1px solid color-mix(in srgb,var(--sim-accent) 40%,var(--border));color:var(--sim-accent);font-size:15px;flex:none}
+.sim-card-brand{display:flex;flex-direction:column;gap:2px;min-width:0}
+.sim-card-title{font-weight:800;font-size:15px}
+.sim-card-controls{margin-left:auto;display:flex;align-items:center;gap:8px}
+.sim-card-controls .sim-select{width:auto}
+.sim-stage{position:relative;background:linear-gradient(145deg,var(--surface-2),var(--surface));border-radius:14px}
+.sim-theta-chip{position:absolute;top:10px;left:10px;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text);background:color-mix(in srgb,var(--sim-accent) 14%,var(--surface));border:1px solid color-mix(in srgb,var(--sim-accent) 45%,var(--border));border-radius:999px;padding:3px 10px;pointer-events:none}
+.sim-canvas-legend{position:absolute;bottom:10px;left:10px;display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap;font-size:12px;color:var(--muted);background:color-mix(in srgb,var(--surface) 85%,transparent);border:1px solid var(--border);border-radius:9px;padding:5px 10px;pointer-events:none}
+.sim-canvas-legend .lg{display:inline-block;width:22px;border-top:2px dashed var(--green);margin-right:6px;vertical-align:middle}
+.sim-canvas-legend .lg-model{border-top:3px solid var(--cyan)}
+.sim-banner{margin:0;border:1px solid color-mix(in srgb,var(--sim-accent) 30%,var(--border));background:color-mix(in srgb,var(--sim-accent) 8%,var(--surface));color:var(--text);border-radius:10px;padding:9px 12px;font-size:13px;line-height:1.5}
 .sim-panel{border:1px solid var(--border);border-radius:15px;background:linear-gradient(145deg,var(--surface-2),var(--surface));padding:15px;box-shadow:var(--shadow);min-width:0}
-.sim-kicker{color:var(--sim-accent);font-size:10px;font-weight:800;letter-spacing:.18em;margin-bottom:8px}
-.sim-badge{display:inline-flex;border:1px solid color-mix(in srgb,var(--sim-accent) 45%,var(--border));background:color-mix(in srgb,var(--sim-accent) 12%,var(--surface));color:var(--text);border-radius:999px;padding:3px 9px;font-size:10px;font-weight:700;letter-spacing:.04em;margin:0 0 12px}
-.sim-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.sim-stat{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:10px 10px 9px;min-width:0;min-height:88px}
+.sim-kicker{color:var(--sim-accent);font-size:10px;font-weight:800;letter-spacing:.18em;margin:0}
+.sim-badge{display:inline-flex;border:1px solid color-mix(in srgb,var(--sim-accent) 45%,var(--border));background:color-mix(in srgb,var(--sim-accent) 12%,var(--surface));color:var(--text);border-radius:999px;padding:4px 12px;font-size:12px;font-weight:700;letter-spacing:.04em;margin:0 0 12px}
+.sim-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.sim-stat{border:1px solid color-mix(in srgb,var(--sim-accent) 30%,var(--border));background:var(--surface);border-radius:10px;padding:10px 10px 9px;min-width:0;min-height:88px}
 .sim-stat-label{display:block;color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sim-stat-value{display:block;font-family:var(--mono);font-weight:760;font-size:20px;line-height:1.3;letter-spacing:-.04em;margin-top:6px;white-space:nowrap}
-.sim-stat small{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+.sim-stat small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
 .sim-stat:first-child .sim-stat-value{color:#d7f978}
-.sim-stat small{display:block;color:var(--muted);font-size:9px;margin-top:2px}
+html[data-theme="light"] .sim-stat:first-child .sim-stat-value{color:#15803d}
 .sim-control{margin:12px 0}
 .sim-control-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:5px}
 .sim-control-head label{font-size:12px;color:var(--text)}
 .sim-out{color:var(--sim-accent);font-family:var(--mono);font-size:11px;white-space:nowrap}
+.sim-deg{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:right;margin-top:3px}
 .sim-range{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:999px;background:var(--surface-3);cursor:pointer;margin:2px 0;outline-offset:3px}
 .sim-range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:var(--sim-accent);border:2px solid var(--surface);box-shadow:0 0 0 1px var(--border)}
 .sim-range::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--sim-accent);border:2px solid var(--surface)}
 .sim-range::-moz-range-track{height:6px;border-radius:999px;background:var(--surface-3)}
-.sim-buttons{display:grid;grid-template-columns:1.1fr .9fr;gap:11px;margin:27px 0 15px}
-#simPlayBtn{background:linear-gradient(110deg,#b6ff82,#72ed9c);border:1px solid #92ff8b;color:#082319;font-size:15px;font-weight:760;min-height:50px;border-radius:9px}
-#simPlayBtn:hover:not(:disabled){background:linear-gradient(110deg,#c4ff97,#82f4a8);filter:brightness(1.05)}
-#simResetBtn{background:transparent;border:1px solid var(--green);color:var(--green);font-size:15px;font-weight:760;min-height:50px;border-radius:9px}
-#simResetBtn:hover:not(:disabled){background:color-mix(in srgb,var(--green) 10%,transparent)}
-#simPlayBtn{background:var(--sim-accent);border-color:transparent;color:#fff}
 #simPlayBtn:disabled{opacity:.45}
-html[data-theme="light"] .sim-stat:first-child .sim-stat-value{color:#15803d}
-html[data-theme="light"] #simPlayBtn{background:linear-gradient(110deg,#86efac,#4ade80);border-color:#22c55e;color:#052e16}
-#simResetBtn{background:color-mix(in srgb,var(--sim-mint) 13%,var(--surface));border-color:color-mix(in srgb,var(--sim-mint) 40%,var(--border));color:var(--text)}
 .sim-select{width:100%}
-.sim-formula{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:10px;color:var(--text);font-family:var(--mono);font-size:12px;overflow-wrap:anywhere;margin-top:14px}
-.sim-formula-sub{color:var(--muted);font-size:10px;margin-top:4px}
+.sim-formula{background:var(--surface);border:1px solid color-mix(in srgb,var(--sim-accent) 30%,var(--border));border-radius:10px;padding:10px 10px 9px;font-family:var(--mono);font-size:13px;line-height:1.5;color:var(--text);overflow-wrap:anywhere;min-height:88px}
+.sim-formula-sub{color:var(--muted);font-size:11px;margin-top:4px}
+.sim-params{display:flex;flex-direction:column;gap:5px;min-height:88px}
+.sim-param{display:flex;align-items:baseline;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);min-width:0}
+.sim-param-v{color:var(--sim-accent);font-family:var(--mono);font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sim-seed{margin:10px 0 0}
 .sim-note{margin:6px 0 0}
 .sim-caption{margin:6px 0 0}
-.sim-footer{color:var(--muted);font-size:10px;line-height:1.5;margin:10px 0 0;border-top:1px solid var(--border);padding-top:8px}
-@media(max-width:1250px){.sim-layout{grid-template-columns:minmax(0,1fr) 320px}}
+.sim-footer{color:var(--muted);font-size:11px;line-height:1.5;margin:10px 0 0;border-top:1px solid var(--border);padding-top:8px}
+@media(max-width:1250px){.sim-layout{grid-template-columns:minmax(0,2fr) minmax(260px,340px)}} @media(max-width:1250px){.sim-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 table.kv{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
 table.kv th,table.kv td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--border);vertical-align:top}
 table.kv th{width:190px;color:var(--muted);font-weight:600}
-table.kv td.mono{font-family:var(--mono);font-size:12px}
+table.kv td.mono{font-family:var(--mono);font-size:13px}
 ul.tight{margin:6px 0;padding-left:20px;font-size:13px}
 ul.tight li{margin-bottom:5px}
 pre.summary{background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-size:12px;line-height:1.6;overflow:auto;max-height:440px;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
@@ -373,7 +389,7 @@ h3.sub:first-child{margin-top:0}
 .empty{text-align:center;padding:28px 20px;color:var(--muted)}
 .empty strong{display:block;color:var(--text);font-size:16px;margin-bottom:6px}
 /* ---- footer / toast / modal / skeleton ---- */
-.footer{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:0 var(--space-4) var(--space-4);padding:12px 18px;border:1px solid var(--border);border-radius:11px;background:var(--surface);font-size:12px;color:var(--muted)}
+.footer{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:0 var(--space-4) var(--space-4);padding:12px 18px;border:1px solid var(--border);border-radius:11px;background:var(--surface);font-size:13px;color:var(--muted)}
 .footer strong{color:var(--text)}
 .toast-wrap{position:fixed;top:78px;right:var(--space-5);z-index:50;display:flex;flex-direction:column;gap:var(--space-2);max-width:340px;width:calc(100vw - var(--space-6))}
 .toast{padding:var(--space-3) var(--space-4);border:1px solid var(--border);border-left:3px solid var(--border);border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow);opacity:0;transform:translateY(-4px);transition:opacity .18s,transform .18s}
@@ -458,10 +474,10 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
 .idle-compact .btn{margin-left:auto;flex:none}
 #statusArc{transition:stroke .22s,stroke-dashoffset .3s}
 /* ---- responsive ---- */
-@media(min-width:1600px){.shell{grid-template-columns:minmax(300px,.82fr) minmax(0,2.05fr) minmax(340px,1.05fr)}} @media(max-width:640px){.step{grid-template-columns:minmax(0,1fr);gap:5px}.step-number{width:24px;height:24px;font-size:11px}}
+@media(min-width:1600px){.shell{grid-template-columns:minmax(300px,.68fr) minmax(0,2.4fr) minmax(340px,1fr)}} @media(max-width:640px){.step{grid-template-columns:minmax(0,1fr);gap:5px}.step-number{width:24px;height:24px;font-size:11px}}
 @media(max-width:1250px){.shell{grid-template-columns:minmax(0,.9fr) minmax(0,1.8fr)}.rightcol{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}.brand-sub{display:none}.result-list{grid-template-columns:1fr 1fr}}
 @media(max-width:1200px){.topbar .pill{display:none}.brand-kicker{display:none}.brand-tagline{display:none}}
-@media(max-width:900px){.topbar{padding:0 16px}.brand-kicker{font-size:10px}.brand-tagline{font-size:11px}}
+@media(max-width:900px){.topbar{padding:0 16px}.brand-kicker{font-size:10px}.brand-tagline{font-size:11px}.topbar .step-title{display:none}}
 @media(max-width:760px){.app{grid-template-rows:60px auto minmax(0,1fr) auto}.topbar{height:60px;padding:0 12px;gap:10px}.brand-name{font-size:17px}.topbar .pill{display:none}.brand-kicker{font-size:9px}.shell{grid-template-columns:minmax(0,1fr);padding:var(--space-3)}.rail-navrow{flex-wrap:wrap}.sim-layout{grid-template-columns:minmax(0,1fr)}.rightcol{display:flex;flex-direction:column}.underbar .pipeline-strip .pipeline{flex-wrap:wrap}.result-list{grid-template-columns:1fr 1fr}.footer{padding:8px 12px;flex-wrap:wrap;gap:6px;margin:0 var(--space-3) var(--space-3)}.footer .footer-host{display:none}.sim-layout{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:560px){.chart-tabs .tab{flex-direction:column;gap:3px;font-size:10px;padding:8px 4px}.tab svg{width:16px;height:16px}.sim-stats{gap:6px}.sim-stat-value{font-size:16px}.metric-value{font-size:18px}.footer{font-size:10px}.verdict-badge{font-size:10px;padding:4px 9px}.brand-name{display:none}.brand-divider{display:none}.topbar{gap:8px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}.spinner{animation:none;border-top-color:var(--border)}[role="tabpanel"]{animation:none}}
@@ -478,18 +494,27 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
     <div><div class="brand-kicker">KINETICLAB · PENDULUM METROLOGY</div><div class="brand-tagline">Measure. Verify. Reproduce.</div></div>
   </div>
   <div class="top-spacer"></div>
+  <section class="stepper" aria-label="Analysis workflow" title="Stages reflect the most recent run - a demo run genuinely completes every stage on your machine.">
+    <div class="step" id="stepUpload" data-stage="upload"><div class="step-number">1</div><div><div class="step-title">Upload</div><div class="step-desc">Load your video</div></div></div>
+    <div class="step" id="stepDetect" data-stage="detect"><div class="step-number">2</div><div><div class="step-title">Detect</div><div class="step-desc">AI finds objects (SAM 3.1)</div></div></div>
+    <div class="step" id="stepConfirm" data-stage="confirm"><div class="step-number">3</div><div><div class="step-title">Confirm</div><div class="step-desc">Review and approve</div></div></div>
+    <div class="step" id="stepMeasure" data-stage="measure"><div class="step-number">4</div><div><div class="step-title">Measure</div><div class="step-desc">Compute physics</div></div></div>
+    <div class="step" id="stepResults" data-stage="results"><div class="step-number">5</div><div><div class="step-title">Results</div><div class="step-desc">View &amp; export</div></div></div>
+  </section>
+  <div class="top-spacer"></div>
   <span class="verdict-badge is-neutral" id="verdictBadge">No run yet</span>
   <span class="pill" id="serverPill"><span class="dot" id="serverDot"></span><span id="serverPillText">Local server</span></span>
   
   <span class="pill" id="versionChip">v__KL_VERSION__</span>
   <button class="icon-btn" id="themeToggle" type="button" aria-label="Toggle theme">Light mode</button>
 </header>
+
 <section class="pipeline-strip" aria-label="Pipeline stages">
       <p class="explainer">Phone video in, auditable physics out. SAM 3.1 sees, deterministic math computes.</p>
       <div class="pipeline">
-        <div class="pstage">SAM 3.1 masks<span class="tag">live capture & replay</span></div>
-        <div class="pstage">Deterministic calibration + fit<span class="tag">live capture & replay</span></div>
-        <div class="pstage">Muse Spark advisory<span class="tag">live capture & replay</span></div>
+        <div class="pstage">SAM 3.1 masks<span class="tag">model output · recorded & replayed</span></div>
+        <div class="pstage">Deterministic calibration + fit<span class="tag">deterministic — no model</span></div>
+        <div class="pstage">Muse Spark advisory<span class="tag">advisory replayed verbatim</span></div>
       </div>
     </section>
 <div class="shell">
@@ -558,8 +583,9 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
           <div class="subtle" id="liveRecordNote" style="margin-top:8px">Or record in-browser (MP4 requested); the recording waits here until you press Detect.</div>
         </div>
         <section class="panel hidden" id="livePanel" aria-label="Live capture and measure">
-          <div class="liveblock" aria-label="Detection setup">
-            <h3>Setup &amp; Detect</h3>
+          <details class="acc" style="margin:0">
+            <summary style="font-size:13px;font-weight:750">Setup &amp; Detect</summary>
+            <div class="liveblock" aria-label="Detection setup">
             <details class="acc" open style="margin:0 0 10px">
               <summary>Prompts (defaults usually fine)</summary>
               <div class="accbody fieldgrid">
@@ -581,7 +607,8 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
             </div>
             <p class="sub" id="liveDetectHint" style="margin:8px 0 0">Typical for a 237-frame clip: ~2 min vision model, then ~5 min local encoding with no progress bar — keep this tab open.</p>
             <div id="liveErr" class="errorbox hidden"></div>
-          </div>
+            </div>
+          </details>
         </section>
         <section class="panel hidden" id="liveResultsPanel" aria-label="Detected objects and measure">
           <div class="liveblock" aria-label="Detected objects">
@@ -642,13 +669,6 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
     </section>
   </aside>
   <main class="main" id="main">
-    <section class="stepper" aria-label="Analysis workflow" title="Stages reflect the most recent run - a demo run genuinely completes every stage on your machine.">
-      <div class="step" id="stepUpload" data-stage="upload"><div class="step-number">1</div><div><div class="step-title">Upload</div><div class="step-desc">Load your video</div></div></div>
-      <div class="step" id="stepDetect" data-stage="detect"><div class="step-number">2</div><div><div class="step-title">Detect</div><div class="step-desc">AI finds objects (SAM 3.1)</div></div></div>
-      <div class="step" id="stepConfirm" data-stage="confirm"><div class="step-number">3</div><div><div class="step-title">Confirm</div><div class="step-desc">Review and approve</div></div></div>
-      <div class="step" id="stepMeasure" data-stage="measure"><div class="step-number">4</div><div><div class="step-title">Measure</div><div class="step-desc">Compute physics</div></div></div>
-      <div class="step" id="stepResults" data-stage="results"><div class="step-number">5</div><div><div class="step-title">Results</div><div class="step-desc">View &amp; export</div></div></div>
-    </section>
     <section class="opsbar" id="opsBar" aria-label="Operations" data-state="Ready for analysis">
       <span class="ops-state" id="opState" data-state="Ready for analysis"><span class="ops-dot" aria-hidden="true"></span><span id="opStateText">Ready for analysis</span></span>
       <div class="ops-activity"><strong id="opActivity">Idle — no operation running.</strong><span id="opDetail">Indeterminate progress: the backend reports completion, never percentages.</span></div>
@@ -675,7 +695,7 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
       <div role="tabpanel" id="viewTrajectory" aria-labelledby="ctabTrajectory">
         <div class="chart-empty" id="chartEmpty"><span class="empty-icon" aria-hidden="true">◷</span><strong>No trajectory yet</strong><p>Observed angles plot here after a demo or measurement. Nothing is drawn from guesses.</p></div>
         <div class="chart-wrap hidden" id="chartWrap">
-          <svg id="chartSvg" class="plot" viewBox="0 0 720 340" role="img" aria-label="Angle series chart: observed and fitted"></svg>
+          <svg id="chartSvg" class="plot" viewBox="0 0 720 460" role="img" aria-label="Angle series chart: observed and fitted"></svg>
           <div class="chart-meta">
             <span class="legend"><span class="swatch"></span>observed θ(t)</span>
             <span class="legend"><span class="swatch fit"></span><span id="fitLegend">fitted θ(t)</span></span>
@@ -820,52 +840,65 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
     <div role="tabpanel" id="viewSimulation" class="hidden" aria-label="Simulation playground">
       <button class="tab hidden" role="tab" id="ctabSimulation" aria-controls="viewSimulation" aria-selected="false" tabindex="-1" hidden>Simulation</button>
       <div class="sim-layout">
-        <aside class="sim-panel" aria-label="Simulation controls">
-          <div class="sim-kicker">SIMULATION PLAYGROUND</div>
+        <div class="sim-stage-col">
           <p class="sim-badge" id="simLabel"></p>
-          <div class="sim-stats">
-            <div class="sim-stat"><span class="sim-stat-label">Simulated θ</span><strong class="sim-stat-value" id="simThetaReadout">—</strong><small>model only</small></div>
-            <div class="sim-stat"><span class="sim-stat-label">Simulated t</span><strong class="sim-stat-value" id="simClockReadout">—</strong><small>simulated clock</small></div>
-            <div class="sim-stat"><span class="sim-stat-label">Seed g/L_eff</span><strong class="sim-stat-value" id="simSeedTile">—</strong><small>1/s² · measured seed</small></div>
+          <div class="sim-card">
+            <div class="sim-card-head">
+              <span class="sim-card-icon" aria-hidden="true">◈</span>
+              <div class="sim-card-brand">
+                <span class="sim-card-title">Physics Simulation — Pendulum Model</span>
+                <span class="sim-kicker">SIMULATION PLAYGROUND</span>
+              </div>
+              <div class="sim-card-controls">
+                <button id="simPlayBtn" type="button" class="btn small" disabled>Play</button>
+                <button id="simResetBtn" type="button" class="btn small">Reset</button>
+                <select class="trail-window sim-select" id="simScale" title="Time scale multiplies simulated time only — never the measured timebase" aria-label="Simulation time scale">
+                  <option value="0.25">0.25×</option>
+                  <option value="0.5">0.5×</option>
+                  <option value="1" selected>1×</option>
+                  <option value="2">2×</option>
+                  <option value="4">4×</option>
+                </select>
+              </div>
+            </div>
+            <div class="chart-wrap sim-stage" id="simWrap">
+              <svg id="simSvg" class="plot" viewBox="0 0 720 460" role="img" aria-label="Simulation stage: model arm over measured trail"></svg>
+              <div class="sim-theta-chip mono" id="simThetaChip">θ = —</div>
+              <div class="sim-canvas-legend"><span><span class="lg lg-ref" aria-hidden="true"></span>Measured (reference)</span><span><span class="lg lg-model" aria-hidden="true"></span>Simulated (model)</span></div>
+            </div>
+            <div class="sim-stats">
+              <div class="sim-stat"><span class="sim-stat-label">Simulated θ</span><strong class="sim-stat-value" id="simThetaReadout">—</strong><small>model-only</small></div>
+              <div class="sim-stat"><span class="sim-stat-label">Simulated time</span><strong class="sim-stat-value" id="simClockReadout">—</strong><small>simulated clock · model-only</small></div>
+              <div class="sim-formula">θ'' + γθ' + (g/L_eff)·sinθ = 0<small class="sim-formula-sub">integrated by RK4 — model, not fit to your data</small></div>
+              <div class="sim-stat sim-params">
+                <span class="sim-stat-label">Model Parameters</span>
+                <span class="sim-param"><span>g / L_eff (model ratio)</span><strong class="sim-param-v mono" id="simParamG">—</strong></span>
+                <span class="sim-param"><span>gamma (not measured)</span><strong class="sim-param-v mono" id="simParamGamma">—</strong></span>
+                <span class="sim-param"><span>seed g/L_eff (1/s²)</span><strong class="sim-param-v" id="simSeedTile">—</strong></span>
+              </div>
+            </div>
+            <p class="sim-banner">Measured trail is shown as a reference overlay. This playground uses the physics model (not new data).</p>
+          </div>
+        </div>
+        <aside class="sim-panel" aria-label="Simulation controls">
+          <div class="sim-control">
+            <div class="sim-control-head"><label for="simAngle">Initial angle (rad)</label><span id="simAngleVal" class="sim-out mono"></span></div>
+            <input type="range" class="sim-range" id="simAngle" min="0" max="0.6" value="0.3" step="0.01" aria-label="Simulated start angle">
+            <div class="sim-deg" id="simAngleDeg">—</div>
           </div>
           <div class="sim-control">
-            <div class="sim-control-head"><label for="simG">g/L_eff (1/s²)</label><span id="simGVal" class="sim-out mono"></span></div>
+            <div class="sim-control-head"><label for="simG">g / L_eff (model ratio, 1/s²)</label><span id="simGVal" class="sim-out mono"></span></div>
             <input type="range" class="sim-range" id="simG" min="15" max="25" value="20" step="0.01" aria-label="Simulated g over L">
           </div>
           <div class="sim-control">
-            <div class="sim-control-head"><label for="simGamma">gamma (diagnostic cross-check, not measured)</label><span id="simGammaVal" class="sim-out mono"></span></div>
+            <div class="sim-control-head"><label for="simGamma">Gamma (diagnostic cross-check, not measured)</label><span id="simGammaVal" class="sim-out mono"></span></div>
             <input type="range" class="sim-range" id="simGamma" min="0" max="0.5" value="0" step="0.005" aria-label="Simulated damping gamma">
           </div>
-          <div class="sim-control">
-            <div class="sim-control-head"><label for="simAngle">start angle (rad)</label><span id="simAngleVal" class="sim-out mono"></span></div>
-            <input type="range" class="sim-range" id="simAngle" min="0" max="0.6" value="0.3" step="0.01" aria-label="Simulated start angle">
-          </div>
-          <div class="sim-buttons">
-            <button id="simPlayBtn" type="button" class="btn small" disabled>Play</button>
-            <button id="simResetBtn" type="button" class="btn small">Reset</button>
-          </div>
-          <div class="sim-control">
-            <div class="sim-control-head"><label for="simScale" title="Time scale multiplies simulated time only — never the measured timebase">time scale</label></div>
-            <select class="trail-window sim-select" id="simScale" aria-label="Simulation time scale">
-              <option value="0.25">0.25×</option>
-              <option value="0.5">0.5×</option>
-              <option value="1" selected>1×</option>
-              <option value="2">2×</option>
-              <option value="4">4×</option>
-            </select>
-          </div>
-          <div class="sim-formula">θ'' = −(g/L) sin(θ) − γ θ'<div class="sim-formula-sub">model, not fit to your data</div></div>
           <p class="sub mono sim-seed" id="simSeedLine"></p>
           <p class="sub sim-note" id="simTrailNote"></p>
           <p class="sub sim-caption" id="simCaption"></p>
           <p class="sim-footer">Simulated clock never touches the measured timebase.</p>
         </aside>
-        <div class="sim-stage-col">
-          <p class="sub sim-intro">Model arm over the measured trail. Dragging g/L_eff from the seed shows the divergence.</p>
-          <div class="chart-wrap sim-stage" id="simWrap">
-            <svg id="simSvg" class="plot" viewBox="0 0 720 340" role="img" aria-label="Simulation stage: model arm over measured trail"></svg>
-          </div>
-        </div>
       </div>
     </div>
   </main>
@@ -884,7 +917,7 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
           </div>
     </section>
     <section class="panel" aria-label="Key results">
-          <div class="panel-head"><div class="panel-title">Key Results (when ready)</div></div>
+          <div class="panel-head"><div class="panel-title" id="keyResultsTitle">Key Results (when ready)</div></div>
           <div class="result-list">
             <div class="metric"><div class="metric-name">Angular frequency (ω)</div><div class="metric-value na" id="metricOmega">Not available</div><div class="metric-why" id="metricOmegaWhy">No measurement yet.</div></div>
             <div class="metric"><div class="metric-name">Period (T)</div><div class="metric-value na" id="metricPeriod">Not available</div><div class="metric-why" id="metricPeriodWhy">No measurement yet.</div></div>
@@ -1482,6 +1515,8 @@ function setWorkflowStage(stage, state) {
     confirm: "stepConfirm", measure: "stepMeasure",
     results: "stepResults" }[stage]);
   if (!node) return;
+  if (state) node.setAttribute("aria-current", "step");
+  else node.removeAttribute("aria-current");
   node.classList.remove("done", "active", "processing", "failed");
   if (state) node.classList.add(state);
   const badge = node.querySelector(".step-number");
@@ -1630,7 +1665,9 @@ function renderUpload(verdict) {
   mediaRows.appendChild(row("Duration (reported)",
     fmt(media.duration_seconds, 3) + " s"));
   mediaRows.appendChild(row("Audio", media.has_audio ? "yes" : "no"));
-  mediaRows.appendChild(row("Cell size", String(media.cell_size_mb) + " MB"));
+  mediaRows.appendChild(row("Cell size",
+    media.cell_size_mb === undefined || media.cell_size_mb === null
+      ? "—" : String(media.cell_size_mb) + " MB"));
   ptsRows.appendChild(row("Samples", String(verdict.pts.samples)));
   ptsRows.appendChild(row("Null PTS", String(verdict.pts.null_pts)));
   ptsRows.appendChild(row("Healthy", verdict.pts.healthy ? "yes" : "no"));
@@ -1853,6 +1890,9 @@ function paintMetrics(result, report, diagnosticsDoc, modeLabel) {
     : fitted ? fitted.omega_per_s : null;
   const period = report ? report.period_s
     : fitted ? fitted.period_s : null;
+  el("keyResultsTitle").textContent =
+    omega !== null && omega !== undefined
+    ? "Key Results" : "Key Results (when ready)";
   metricValue("metricOmega", "metricOmegaWhy", omega, "rad/s",
     omega === null || omega === undefined
       ? "No fitted frequency in this payload."
@@ -1897,8 +1937,11 @@ function paintOmegaInterval(diagnosticsDoc) {
   }
   const method = fu.method === "block_bootstrap" ? "block bootstrap"
     : String(fu.method);
-  node.textContent = "ω ∈ [" + part.low + ", " + part.high + "] 1/s · " +
-    method + " n=" + (fu.n_boot === undefined ? "?" : fu.n_boot);
+  node.textContent = "ω ∈ [" + part.low.toPrecision(4) + ", " +
+    part.high.toPrecision(4) + "] 1/s · " +
+    method + " n=" + (fu.n_boot === undefined ? "unknown" : fu.n_boot);
+  node.setAttribute("title", "exact band: [" + part.low + ", " +
+    part.high + "] 1/s");
 }
 
 /* KL-10.24: legend line for the drawn omega band on the trajectory
@@ -2007,8 +2050,9 @@ function paintProvSummary(kind, result, report, files) {
     rowNode.className = "prov-row";
     const mark = document.createElement("span");
     mark.className = "st";
-    mark.textContent = item.hash || item.state.indexOf("missing") !== 0 ? "✓" : "—";
-    mark.style.color = item.hash || item.state.indexOf("missing") !== 0
+    mark.textContent = (item.hash || item.state.indexOf("missing") !== 0)
+      ? "✓" : "—";
+    mark.style.color = (item.hash || item.state.indexOf("missing") !== 0)
       ? "var(--green)" : "var(--muted)";
     rowNode.appendChild(mark);
     const label = document.createElement("span");
@@ -2025,7 +2069,7 @@ function paintProvSummary(kind, result, report, files) {
       copy.className = "copybtn";
       copy.textContent = "copy";
       copy.addEventListener("click", () => {
-        navigator.clipboard.writeText(String(item.hash));
+        navigator.clipboard.writeText(String(item.hash)).catch(() => {});
       });
       value.appendChild(copy);
     } else {
@@ -2097,7 +2141,7 @@ function hashRow(key, sha) {
   copy.className = "copybtn";
   copy.textContent = "copy";
   copy.addEventListener("click", () => {
-    navigator.clipboard.writeText(digest);
+    navigator.clipboard.writeText(digest).catch(() => {});
   });
   td.appendChild(copy);
   tr.appendChild(th);
@@ -2284,7 +2328,7 @@ function paintReportsCard() {
     copy.textContent = "copy";
     copy.setAttribute("aria-label", "Copy link to " + name);
     copy.addEventListener("click", () => {
-      navigator.clipboard.writeText(url);
+      navigator.clipboard.writeText(url).catch(() => {});
     });
     rowNode.appendChild(copy);
     box.appendChild(rowNode);
@@ -2293,10 +2337,11 @@ function paintReportsCard() {
   else hide(el("reportsCard"));
 }
 
-/* KL-10.24: the measurement-certificate download. Only a live full
-   run carries a run id plus a stored result.json — the only payload
-   the certificate route serves — so demos and motion runs hide the
-   link instead of pointing it at nothing. */
+/* KL-10.24/10.25: the measurement-certificate download. Two payloads
+   carry it: a live full run (run id + stored result.json under
+   live_out/) and the pinned success demo replay (demo_out/success/
+   result.json via the /api/exports route). Rejections and motion
+   runs hide the link instead of pointing it at nothing. */
 function paintCertificateLink(payload) {
   const link = el("certificateLink");
   const runId = payload && typeof payload.run_id === "string"
@@ -2305,6 +2350,11 @@ function paintCertificateLink(payload) {
   if (runId && files && files["result.json"]) {
     link.setAttribute("href", "/api/runs/" + runId + "/certificate");
     link.setAttribute("download", "certificate-" + runId + ".html");
+    show(link);
+  } else if (payload && payload.chain === "success" && files
+      && files["result.json"]) {
+    link.setAttribute("href", "/api/exports/success/certificate");
+    link.setAttribute("download", "certificate-success.html");
     show(link);
   } else {
     link.setAttribute("href", "#");
@@ -2489,7 +2539,7 @@ function buildTheta(svg, points, fitted, period_s, band) {
   svgTitle(svg, points.length + " observed samples with a pipeline-fitted overlay; playhead follows the scrubber."
     + (band ? " Shaded band: omega resampling interval from fit_uncertainty." : ""));
   svg.setAttribute("aria-label", band ? CHART_ARIA_BAND : CHART_ARIA);
-  const W = 720, H = 340, padL = 64, padR = 18, padT = 16, padB = 44;
+  const W = 720, H = 460, padL = 64, padR = 18, padT = 16, padB = 44;
   const frame = svgEl("rect", { x: "0.5", y: "0.5", width: String(W - 1),
     height: String(H - 1), fill: "none", stroke: pal.frame });
   svg.appendChild(frame);
@@ -2530,9 +2580,9 @@ function buildTheta(svg, points, fitted, period_s, band) {
     svg.appendChild(line);
     const text = svgEl("text", horizontal
       ? { x: String(padL - 8), y: String(Y(value) + 4), "text-anchor": "end",
-        fill: pal.muted, "font-size": "11" }
+        fill: pal.muted, "font-size": "13" }
       : { x: String(X(value)), y: String(H - padB + 18),
-        "text-anchor": "middle", fill: pal.muted, "font-size": "11" });
+        "text-anchor": "middle", fill: pal.muted, "font-size": "13" });
     text.textContent = label;
     svg.appendChild(text);
   };
@@ -2545,22 +2595,22 @@ function buildTheta(svg, points, fitted, period_s, band) {
     grid(value, false, value.toFixed(1));
   }
   const yLabel = svgEl("text", { x: "16", y: String(H / 2),
-    "text-anchor": "middle", fill: pal.muted, "font-size": "12",
+    "text-anchor": "middle", fill: pal.muted, "font-size": "14",
     transform: "rotate(-90 16 " + H / 2 + ")" });
   yLabel.textContent = "Angle (rad)";
   svg.appendChild(yLabel);
   const xLabel = svgEl("text", { x: String((W + padL) / 2), y: String(H - 6),
-    "text-anchor": "middle", fill: pal.muted, "font-size": "12" });
+    "text-anchor": "middle", fill: pal.muted, "font-size": "14" });
   xLabel.textContent = "Time (s)";
   svg.appendChild(xLabel);
   if (fitted && period_s) {
     const bracket = svgEl("line", { x1: String(X(minT)), y1: String(padT + 6),
       x2: String(X(minT + period_s)), y2: String(padT + 6),
-      stroke: pal.fitted, "stroke-dasharray": "4 3", "stroke-width": "1.5" });
+      stroke: pal.fitted, "stroke-dasharray": "4 3", "stroke-width": "2" });
     svg.appendChild(bracket);
-    const bracketLabel = svgEl("text", { x: String(X(minT) + 6),
-      y: String(padT + 20), "text-anchor": "start", fill: pal.fitted,
-      "font-size": "10" });
+    const bracketLabel = svgEl("text", {
+      x: String(X(minT + period_s / 2)), y: String(padT + 16),
+      "text-anchor": "middle", fill: pal.fitted, "font-size": "12" });
     bracketLabel.textContent = "T = " + period_s.toPrecision(4) + " s (pipeline)";
     svg.appendChild(bracketLabel);
   }
@@ -2589,12 +2639,12 @@ function buildTheta(svg, points, fitted, period_s, band) {
       (i === 0 ? "M" : "L") + X(pt[0]).toFixed(1) + " " +
       Y(pt[1]).toFixed(1)).join(" ");
     svg.appendChild(svgEl("path", { d: line, fill: "none",
-      stroke: pal.fitted, "stroke-width": "1.6",
+      stroke: pal.fitted, "stroke-width": "2.2",
       "stroke-dasharray": "5 3" }));
   }
-  for (const pt of points) dot(pt, pal.observed, 2.2);
+  for (const pt of points) dot(pt, pal.observed, 3);
   const head = svgEl("line", { id: "thetaView", x1: "0", y1: String(padT),
-    x2: "0", y2: String(H - padB), stroke: pal.text, "stroke-width": "1.5" });
+    x2: "0", y2: String(H - padB), stroke: pal.text, "stroke-width": "2" });
   svg.appendChild(head);
   return { X, count: points.length, span: [minT, maxT] };
 }
@@ -3146,6 +3196,10 @@ function simPaintVals() {
   el("simGVal").textContent = ctl.g + " 1/s²";
   el("simGammaVal").textContent = ctl.gamma + " 1/s";
   el("simAngleVal").textContent = ctl.angle + " rad";
+  el("simAngleDeg").textContent =
+    "≈ " + (ctl.angle * 180 / Math.PI).toFixed(1) + "°";
+  el("simParamG").textContent = ctl.g + " 1/s²";
+  el("simParamGamma").textContent = ctl.gamma + " 1/s";
 }
 
 function seedSimulationFromRun(g, gammaOrNull) {
@@ -3216,7 +3270,7 @@ function simBuildStage(hasTrail) {
   svgTitle(svg, "Simulation stage: model arm" +
     (hasTrail ? " over the dimmed measured trail."
       : ", no measured trail."));
-  const W = 720, H = 340, pad = 30;
+  const W = 720, H = 460, pad = 30;
   let minX, maxX, minY, maxY;
   if (hasTrail) {
     const pivot = simUnderlay.pivot;
@@ -3280,6 +3334,16 @@ function simBuildStage(hasTrail) {
   svg.appendChild(tick);
   simUnderlay.arc = arc;
   simUnderlay.tick = tick;
+  /* Degree scale along the swing arc: honest geometry labels from
+     the same coordinate mapping (no new math — simRadial + X/Y). */
+  for (const mark of [-60, -30, 0, 30, 60]) {
+    const pos = simRadial(mark * Math.PI / 180, 1.08);
+    const label = svgEl("text", { x: String(X(pos[0])),
+      y: String(Y(pos[1]) + 4), "text-anchor": "middle",
+      fill: pal.muted, "font-size": "12" });
+    label.textContent = (mark > 0 ? "+" : "") + mark + "°";
+    svg.appendChild(label);
+  }
   const barY = Math.max(6, Y(pivot[1]) - 20);
   svg.appendChild(svgEl("rect", { x: String(X(pivot[0]) - 72),
     y: String(barY), width: "144", height: "7", rx: "3.5",
@@ -3376,6 +3440,8 @@ function simPose(theta) {
     bob.setAttribute("cy", String(geo.Y(pos[1])));
   }
   el("simThetaReadout").textContent = theta.toFixed(3) + " rad";
+  el("simThetaChip").textContent =
+    "θ = " + (theta * 180 / Math.PI).toFixed(1) + "°";
   el("simClockReadout").textContent =
     simState.clock.toFixed(3) + " s";
 }

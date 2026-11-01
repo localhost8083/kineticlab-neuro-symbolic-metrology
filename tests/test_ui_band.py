@@ -165,9 +165,17 @@ class CertificateLinkTests(unittest.TestCase):
                          "/api/runs/live-20261028T120000Z-deadbeef"
                          "/certificate")
 
-    def test_demo_payload_hides_link(self):
+    def test_demo_success_payload_shows_export_route_link(self):
+        # KL-10.25: the pinned success demo replay now surfaces the
+        # certificate via the /api/exports route; rejection demos and
+        # unknown payloads still hide it.
         out = self.link_state(json.dumps(
             {"chain": "success", "files": {"result.json": "x"}}))
+        self.assertFalse(out["hidden"])
+        self.assertEqual(out["href"],
+                         "/api/exports/success/certificate")
+        out = self.link_state(json.dumps(
+            {"chain": "rejection", "files": {"result.json": "x"}}))
         self.assertTrue(out["hidden"])
         out = self.link_state("null")
         self.assertTrue(out["hidden"])

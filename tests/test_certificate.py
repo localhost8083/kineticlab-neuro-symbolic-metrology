@@ -7,6 +7,7 @@ tests/test_ui.py (direct handler dispatch, no sockets).
 
 import json
 import os
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -138,6 +139,95 @@ class CertificateRouteTest(unittest.TestCase):
         self.assertEqual(status, 404)
         payload = json.loads(raw.decode("utf-8"))
         self.assertEqual(payload["error"]["code"], "E_MISSING_FIELD")
+
+    def test_certificate_download_is_key_free(self):
+        # KL-10.25: the key gates live capture, not the certificate
+        # of a run's already-stored exports. Every other live export
+        # stays gated.
+        os.environ.pop("MODEL_API_KEY", None)
+        status, headers, _ = dispatch(
+            REPO_ROOT, self.work, "GET",
+            f"/api/runs/{RUN_ID}/certificate", {})
+        self.assertEqual(status, 200)
+        self.assertTrue(headers["Content-Disposition"].startswith(
+            "attachment"))
+        status, _, raw = dispatch(
+            REPO_ROOT, self.work, "GET",
+            f"/api/runs/{RUN_ID}/result.json", {})
+        self.assertEqual(status, 503)
+        payload = json.loads(raw.decode("utf-8"))
+        self.assertEqual(payload["error"]["field"], "MODEL_API_KEY")
+
+
+class DemoCertificateRouteTest(unittest.TestCase):
+    """KL-10.25: the pinned success demo replay serves the same
+    certificate from demo_out bytes — key-free, with digests computed
+    from the on-disk export bytes."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.work = Path(self.tmp.name)
+        demo_dir = self.work / "demo_out" / "success"
+        demo_dir.mkdir(parents=True)
+        asm = REPO_ROOT / "fixtures" / "assembly"
+        for name in ("result.json", "diagnostics.json", "angles.csv",
+                     "summary.md"):
+            shutil.copy(asm / name, demo_dir / name)
+        # The demo's own diagnostics.json carries the band, so the
+        # certificate's fit_uncertainty section must render numbers —
+        # not "unknown" (which is only honest when diagnostics is
+        # genuinely absent).
+        (demo_dir / "diagnostics.json").write_text(
+            json.dumps(diagnostics_with_uncertainty()),
+            encoding="utf-8")
+        result = json.loads(
+            (asm / "result.json").read_text(encoding="utf-8"))
+        self.g_over_l = repr(result["identifiable_quantity"]["value"])
+
+    def test_route_serves_demo_certificate_key_free(self):
+        os.environ.pop("MODEL_API_KEY", None)
+        status, headers, body = dispatch(
+            REPO_ROOT, self.work, "GET",
+            "/api/exports/success/certificate", {})
+        self.assertEqual(status, 200)
+        self.assertTrue(headers["Content-Type"].startswith("text/html"))
+        self.assertEqual(headers["Content-Disposition"],
+                         'attachment; filename="certificate-success.html"')
+        page = body.decode("utf-8")
+        self.assertTrue(page.startswith("<!DOCTYPE html>"))
+        self.assertIn(self.g_over_l, page)
+        # Diagnostics exist -> the fit_uncertainty band renders as
+        # values, never as the unknown row.
+        self.assertIn("block_bootstrap", page)
+        self.assertNotIn("<th>fit_uncertainty</th><td>unknown</td>",
+                         page)
+        # The digest table hashes the on-disk exports (hex digests),
+        # so the files' rows are present and deterministic.
+        for name in ("angles.csv", "diagnostics.json", "result.json",
+                     "summary.md"):
+            with self.subTest(export=name):
+                self.assertIn(f"<th>{name}</th>", page)
+
+    def test_rejection_chain_has_no_certificate_route(self):
+        status, _, raw = dispatch(
+            REPO_ROOT, self.work, "GET",
+            "/api/exports/rejection/certificate", {})
+        self.assertEqual(status, 404)
+        payload = json.loads(raw.decode("utf-8"))
+        self.assertEqual(payload["error"]["code"], "E_MISSING_FIELD")
+
+    def test_missing_demo_exports_is_registered_not_found(self):
+        # No demo run yet -> the not-written-yet 404, same as exports.
+        empty = tempfile.TemporaryDirectory()
+        try:
+            status, _, raw = dispatch(
+                REPO_ROOT, Path(empty.name), "GET",
+                "/api/exports/success/certificate", {})
+            self.assertEqual(status, 404)
+            payload = json.loads(raw.decode("utf-8"))
+            self.assertEqual(payload["error"]["code"], "E_MISSING_FIELD")
+        finally:
+            empty.cleanup()
 
 
 if __name__ == "__main__":
