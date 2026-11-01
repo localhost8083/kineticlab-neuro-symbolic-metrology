@@ -92,7 +92,15 @@ _NUMBER_WORDS = re.compile(
     r"billions|half|quarter|double|doubles|doubled|triple|triples|"
     r"tripled|dozen|dozens|percent|twice|first|second|third|fourth|"
     r"fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth|"
-    r"infinite)\b", re.IGNORECASE)
+    r"infinite|twofold|threefold|fourfold|fivefold|sixfold|tenfold|"
+    r"hundredfold|manifold|halved|halves|per\s+cent)\b", re.IGNORECASE)
+# KL-10.23: number-like text split by invisible characters ("tw\u200belve",
+# "1\u00ad5") must not slip the scans; the audit strips these before
+# scanning. Multiplier notation ("x2", "2x") bypasses the digit
+# lookbehind and gets its own fail-closed pattern.
+_INVISIBLE_CHARS = re.compile("[\u200b-\u200f\u2060-\u2064\ufeff\u00ad]")
+_MULTIPLIER = re.compile(
+    r"(?i)(?<![a-z0-9.])[x\u00d7]\s*\d|\d\s*[x\u00d7](?![a-z0-9])")
 _WORD_AFTER = re.compile(r"[A-Za-z%][A-Za-z0-9_.%]*")
 _WORD_BEFORE = re.compile(r"[A-Za-z%][A-Za-z0-9_.%]*$")
 _MASK_CHAR = "#"
@@ -301,6 +309,9 @@ def audit_narrative(result_json: dict, narrative: Narrative) -> tuple[bool, list
     _walk_json_numbers_words(result_json, numbers, words)
     problems: list[str] = []
     text = narrative.text()
+    # KL-10.23: strip zero-width/soft-hyphen splitters before every
+    # scan; "1\u200b5.2" must audit as "15.2", not vanish between them.
+    text = _INVISIBLE_CHARS.sub("", text)
     masked = _masked_text(text)
     for match in _NUMBER_TOKEN.finditer(masked):
         token = match.group(1)
@@ -321,8 +332,17 @@ def audit_narrative(result_json: dict, narrative: Narrative) -> tuple[bool, list
     if word_hit is not None:
         problems.append(
             f"unjustified-number-word:{word_hit.group(1).lower()}")
+    if _MULTIPLIER.search(text) is not None:
+        problems.append("multiplier-notation")
+    # KL-10.23: isnumeric() covers every Unicode numeric class
+    # (Nd/Nl/No: Arabic-Indic, fullwidth, Roman numerals like
+    # \u216b, vulgar fractions like \u00bd) — isdigit() saw only Nd.
+    # Residual, accepted: ASCII Roman numerals ("XII") stay
+    # unscannable, because banning V/X/I/D/M/L/C would discard
+    # ordinary English prose; the fail-closed word list keeps the
+    # practical surface covered.
     for character in text:
-        if character.isdigit() and not character.isascii():
+        if not character.isascii() and character.isnumeric():
             problems.append("non-ascii-digit")
             break
     return (not problems, problems)

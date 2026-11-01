@@ -445,6 +445,69 @@ class EchoAuditTests(unittest.TestCase):
                 any(p.startswith("unjustified-number-word:")
                     for p in problems), word)
 
+    def test_unicode_numeric_codepoints_discarded(self):
+        # KL-10.23: isnumeric() covers all Unicode numeric classes
+        # (Roman numerals, vulgar fractions, CJK digits) — isdigit()
+        # was blind to Nl/No.
+        for sample in ("\u216b", "\u00bd", "\u4e09"):
+            narrative = parse_narrative(valid_narrative_dict(
+                f"Value {sample} reported here."))
+            passed, problems = audit_narrative(self.result, narrative)
+            self.assertFalse(passed, repr(sample))
+            self.assertIn("non-ascii-digit", problems, repr(sample))
+
+    def test_multiplier_notation_discarded(self):
+        # KL-10.23: "x2"/"2x" slips the digit-token lookbehind.
+        for sample in ("x2", "2x", "\u00d72"):
+            narrative = parse_narrative(valid_narrative_dict(
+                f"Signal grew {sample} after smoothing."))
+            passed, problems = audit_narrative(self.result, narrative)
+            self.assertFalse(passed, sample)
+            self.assertIn("multiplier-notation", problems, sample)
+
+    def test_invisible_character_splits_discarded(self):
+        # KL-10.23: zero-width/soft-hyphen splits must audit as the
+        # joined text, not vanish between the scans.
+        hidden_value = parse_narrative(valid_narrative_dict(
+            "Value 1\u200b7.0 1/s^2."))
+        passed, problems = audit_narrative(self.result, hidden_value)
+        self.assertFalse(passed)
+        self.assertTrue(any(p.startswith("unjustified-value:17.0")
+                            for p in problems))
+        hidden_word = parse_narrative(valid_narrative_dict(
+            "The drift is tw\u200belve units."))
+        passed, problems = audit_narrative(self.result, hidden_word)
+        self.assertFalse(passed)
+        self.assertTrue(
+            any(p.startswith("unjustified-number-word:twelve")
+                for p in problems))
+
+    def test_fold_and_halved_words_discarded(self):
+        # KL-10.23: "twofold"/"halved" were absent from the word list.
+        for word in ("twofold", "halved"):
+            narrative = parse_narrative(valid_narrative_dict(
+                f"The residual shrank {word} after refitting."))
+            passed, problems = audit_narrative(self.result, narrative)
+            self.assertFalse(passed, word)
+            self.assertTrue(
+                any(p.startswith("unjustified-number-word:")
+                    for p in problems), word)
+
+    def test_per_cent_phrase_discarded(self):
+        narrative = parse_narrative(valid_narrative_dict(
+            "Uncertainty fell five per cent."))
+        passed, problems = audit_narrative(self.result, narrative)
+        self.assertFalse(passed)
+
+    def test_honest_echo_still_passes_after_stripping(self):
+        # KL-10.23 regression guard: stripping invisibles must not
+        # corrupt the honest echo path.
+        narrative = parse_narrative(valid_narrative_dict(
+            "The bounded M1 fit converged with g/L_eff = 15.2 1/s^2 "
+            "over 234 frames."))
+        passed, problems = audit_narrative(self.result, narrative)
+        self.assertEqual((passed, problems), (True, []))
+
     def test_non_ascii_digits_discarded(self):
         narrative = parse_narrative(valid_narrative_dict(
             "The value is \u0661\u0665.2 1/s^2."))

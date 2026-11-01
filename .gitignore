@@ -266,3 +266,13 @@ kl1014_layout.out.txt
 kl1015_gravity.out.txt
 kl1016_fidelity.out.txt
 kl1017_fit.out.txt
+
+# KL-10.23 (fourth audit): remaining local material, never staged --
+# belt-and-suspenders behind the never-`git add -A` rule.
+ABOUT_TEXT.md
+GIF_STORYBOARD.md
+VIDEO_PLAN.md
+New_Media/
+SAM/
+Simulator_Example/
+kl*_*.out.txt
