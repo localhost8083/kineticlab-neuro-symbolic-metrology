@@ -410,6 +410,41 @@ class EchoAuditTests(unittest.TestCase):
         self.assertTrue(any(p.startswith("unjustified-number-word:double")
                             for p in problems))
 
+    def test_inflected_number_words_discarded(self):
+        # KL-10.22: "doubled"/"tripled"/"dozens" slipped the \b boundary
+        # of the KL-10.21 word list; inflected forms fail closed too.
+        for word in ("doubled", "tripled", "dozens"):
+            narrative = parse_narrative(valid_narrative_dict(
+                f"The residual is {word} the tolerance allows."))
+            passed, problems = audit_narrative(self.result, narrative)
+            self.assertFalse(passed, word)
+            self.assertTrue(
+                any(p.startswith(f"unjustified-number-word:{word[:5]}")
+                    for p in problems), word)
+
+    def test_adverb_and_ordinal_number_words_discarded(self):
+        # KL-10.22: "twice" and ordinals ("second") were absent from
+        # the word list entirely.
+        for word in ("twice", "second", "tenth"):
+            narrative = parse_narrative(valid_narrative_dict(
+                f"Found {word} pass over the frames."))
+            passed, problems = audit_narrative(self.result, narrative)
+            self.assertFalse(passed, word)
+            self.assertTrue(
+                any(p.startswith("unjustified-number-word:")
+                    for p in problems), word)
+
+    def test_open_ended_magnitude_words_discarded(self):
+        # KL-10.22: plural magnitudes and open-ended "infinite".
+        for word in ("hundreds", "millions", "infinite"):
+            narrative = parse_narrative(valid_narrative_dict(
+                f"The clip spans {word} of samples."))
+            passed, problems = audit_narrative(self.result, narrative)
+            self.assertFalse(passed, word)
+            self.assertTrue(
+                any(p.startswith("unjustified-number-word:")
+                    for p in problems), word)
+
     def test_non_ascii_digits_discarded(self):
         narrative = parse_narrative(valid_narrative_dict(
             "The value is \u0661\u0665.2 1/s^2."))

@@ -36,7 +36,7 @@ COUNT_TOKENS = (
     (README, r"# (\d+) tests"),           # README Quickstart comment
     (REPRODUCE, r"`(\d+) tests, OK`"),    # REPRODUCE.md expectation
     (RUNBOOK, r'"(\d+) tests pass'),      # Demo_Runbook.md say-line
-    (OVERVIEW, r"a (\d+)-test suite"),    # OVERVIEW.md engineering shape
+    (OVERVIEW, r"(?:a|an) (\d+)-test suite"),  # OVERVIEW.md engineering shape
 )
 
 

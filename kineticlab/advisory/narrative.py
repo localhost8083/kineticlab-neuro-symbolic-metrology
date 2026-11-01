@@ -81,12 +81,18 @@ _NUMBER_TOKEN = re.compile(
 # model can bypass the digit scan with words ("fifteen", "double",
 # "percent"); any of these forces the template. Strict by design —
 # harmless prose like "one of the frames" is discarded too.
+# KL-10.22: inflected forms ("doubled", "tripled", "dozens") slipped
+# the \b boundary and ordinals/adverbs ("twice", "second") were
+# absent; inflected and open-ended forms are enumerated explicitly.
 _NUMBER_WORDS = re.compile(
     r"(?<![\w-])(zero|one|two|three|four|five|six|seven|eight|nine|ten|"
     r"eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|"
     r"nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|"
-    r"hundred|thousand|million|billion|half|quarter|double|triple|dozen|"
-    r"percent)\b", re.IGNORECASE)
+    r"hundred|hundreds|thousand|thousands|million|millions|billion|"
+    r"billions|half|quarter|double|doubles|doubled|triple|triples|"
+    r"tripled|dozen|dozens|percent|twice|first|second|third|fourth|"
+    r"fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth|"
+    r"infinite)\b", re.IGNORECASE)
 _WORD_AFTER = re.compile(r"[A-Za-z%][A-Za-z0-9_.%]*")
 _WORD_BEFORE = re.compile(r"[A-Za-z%][A-Za-z0-9_.%]*$")
 _MASK_CHAR = "#"
