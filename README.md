@@ -8,7 +8,7 @@
 
 <br>
 
-<img src="Docs/img/dashboard.png" width="860" alt="KineticLab dashboard: Upload / Detect / Confirm / Measure / Results stepper, measured trajectory with fitted overlay, key results (angular frequency, period, g/L_eff), evidence and provenance rail" />
+<img src="Docs/img/dashboard.png" width="860" alt="KineticLab full success run: Upload / Detect / Confirm / Measure / Results stepper complete, Scientific Analysis charts (trajectory with fitted overlay, residuals, centroid trail, synced replay deck), key results (angular frequency, period, g/L_eff), evidence and provenance rail, and the SUCCESS verdict with exact-byte exports" />
 
 *Shown: the built-in demo replay. Every chart is the run's own measured data — rendered from that run's `angles.csv`, never baked, never illustrative.*
 
@@ -64,14 +64,10 @@ Meta AI does the seeing and the explaining. The **measurement itself stays deter
 A successful run ends in a verdict, four exact-byte reports, and a provenance chain — input SHA-256, model name (`sam-3.1`), artifact digests, exports:
 
 <p align="center">
-  <img src="Docs/img/result_provenance.png" width="680" alt="SUCCESS verdict with n=234, exact written bytes for angles.csv, diagnostics.json, result.json, summary.md, and the provenance tab with input SHA-256 and artifact digests" />
+  <img src="Docs/img/trajectory.png" width="680" alt="Trajectory tab: 234 observed samples against the fitted sinusoid and the block-bootstrap omega band, with the legend observed theta(t), fitted theta(t) — observed minus pipeline residual, and T = 1.147 s" />
 </p>
 
-Advanced diagnostics replay the pinned mask overlay frame by frame, state the model's assumptions verbatim — including what the uncertainty interval does and does not cover — and show the advisory narrative, labeled as a template, never a measurement:
-
-<p align="center">
-  <img src="Docs/img/advanced_diagnostics.png" width="680" alt="Advanced diagnostics: pinned mask overlay replay, verbatim assumptions list, and advisory replay narrative" />
-</p>
+The full-page view above shows the rest of the deck: residuals against source-PTS time, the centroid trail, and a replay that reconstructs the arm from the pinned masks with every playhead synced on the source-PTS timebase. Advanced diagnostics replay the pinned mask overlay frame by frame, state the model's assumptions verbatim — including what the uncertainty interval does and does not cover — and show the advisory narrative, labeled as a template, never a measurement.
 
 The simulation playground unlocks only after a measurement seeds it: your measured `g/L_eff` drives a damped-pendulum toy over the measured trail, and the simulated clock never touches the measured timebase:
 
@@ -97,6 +93,11 @@ Every AI demo can show a number. KineticLab is built so it **can't fake one**:
 - **The card's millimeters are always human-typed** (`user_supplied`). The app never estimates mm from pixels.
 - **Locked taxonomy.** Exactly 32 error codes and 9 warning codes in `kineticlab/contracts.py`; nothing new can appear at runtime; the one documented exception is unclassified server faults, which answer `code: null` rather than an invented code.
 - **Rejection is never green.** Unsupported inputs fail loudly, with the same honesty as successes.
+
+<p align="center">
+  <img src="Docs/img/rejection.png" width="680" alt="Rejection run: the audit refuses to certify the input — REJECTED (unsupported_input) in red, the cause stated below, nothing smoothed or guessed; key results render Not available and the four exports are still written for inspection" />
+</p>
+
 - **Provenance on the result and summary exports:** `software_version`, `input_sha256`, `model_name`, artifact hashes of every written file — reproducible and auditable end-to-end; `angles.csv` and `diagnostics.json` are the exact-byte numeric exports.
 
 ## Roadmap
