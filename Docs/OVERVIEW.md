@@ -38,6 +38,10 @@ Two modes: **Full** (bob + reference card) and **Motion** (bob only — scale-fr
 - Works: upload → detect → confirm → measure, both modes, live-verified; results render with trajectory, residual, trail, and replay.
 - Known limits: full-mode measurement is slow (~20 min of local compute for a 237-frame clip; motion mode is fast), single-user local tool, Windows-first.
 
+## Roadmap
+
+The pendulum is the first instrument, not the scope. The architecture — locked contracts, verbatim hash-pinned model telemetry, canonical codec, deterministic fit, loud verdicts — is experiment-agnostic. Designed next steps, stated as intent rather than claims, none built today: multi-object SAM 3.1 tracking with deterministic rigidity checks (stationary pivot, rigid rod), a DINOv2-class cross-model mask-agreement signal recorded in the diagnostics, a multimodal Experiment Inspector whose advisory notes stay in a visibly separate channel from the verdict, and further mechanical systems (spring-mass, projectile, collisions) on the same five-stage rail. Destination: a local physics experiment hub where Meta models do the seeing and every number survives an audit, because no model ever authored one.
+
 ## Rules for AI agents working on this repo
 
 - Stdlib-only backend; the UI stays a single self-contained file — no frameworks, no external refs.

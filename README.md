@@ -21,9 +21,10 @@
 | [What is KineticLab?](#what-is-kineticlab) | [Highlights](#highlights) |
 | [How it works](#how-it-works) | [Meta models in the loop](#meta-models-in-the-loop) |
 | [What a run looks like](#what-a-run-looks-like) | [What a run gives you](#what-a-run-gives-you) |
-| [Why this is different](#why-this-is-different) | [Quickstart](#quickstart) |
-| [Fields this touches](#fields-this-touches) | [Audit trail](#audit-trail) |
-| [Docs](#docs) | [License](#license) |
+| [Why this is different](#why-this-is-different) | [Roadmap](#roadmap) |
+| [Quickstart](#quickstart) | [Fields this touches](#fields-this-touches) |
+| [Audit trail](#audit-trail) | [Docs](#docs) |
+| [License](#license) | |
 
 ## What is KineticLab?
 
@@ -97,6 +98,19 @@ Every AI demo can show a number. KineticLab is built so it **can't fake one**:
 - **Locked taxonomy.** Exactly 32 error codes and 9 warning codes in `kineticlab/contracts.py`; nothing new can appear at runtime; the one documented exception is unclassified server faults, which answer `code: null` rather than an invented code.
 - **Rejection is never green.** Unsupported inputs fail loudly, with the same honesty as successes.
 - **Provenance on the result and summary exports:** `software_version`, `input_sha256`, `model_name`, artifact hashes of every written file — reproducible and auditable end-to-end; `angles.csv` and `diagnostics.json` are the exact-byte numeric exports.
+
+## Roadmap
+
+KineticLab is one instance of a pattern: **Meta models propose, deterministic physics disposes.** The pendulum is the first instrument on the bench. The same contract-checked, hash-pinned, honesty-law architecture generalizes to other mechanical systems — what changes is the fit model, never the discipline.
+
+Designed next steps — stated as intent, not claims; none of it exists in the code today:
+
+- **Multi-object tracking** — SAM 3.1 propagation over the rod and pivot, not just the bob and card. Deterministic rigidity checks (a stationary pivot, a non-stretching rod) would become additional *evidence* the pipeline verifies — not additional trust granted to the model.
+- **Cross-model agreement** — a second Meta vision model (DINOv2-class) embeds each mask crop; agreement between two independently trained models becomes a recorded, auditable signal in the diagnostics.
+- **Experiment Inspector** — a multimodal model examines the setup itself (lighting, scale reference, occlusions, camera motion) and files advisory notes. The pipeline keeps "model says" and "physics proves" in visibly separate channels, and only the latter can touch a verdict.
+- **More experiments on the same rail** — spring-mass, projectile, collisions. The five-stage chain (upload → detect → confirm → measure → results) is experiment-agnostic; each new instrument is a new fit contract, with the same locked taxonomy, exact-byte exports, and honest nulls.
+
+The destination is a **physics experiment hub**: a local laboratory where you film any mechanical system, Meta models do the seeing, and every number survives an audit — because no model ever wrote one.
 
 ## Quickstart
 
