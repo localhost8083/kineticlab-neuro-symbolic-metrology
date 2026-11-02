@@ -130,7 +130,17 @@ python -m unittest          # 905 tests
 python -m kineticlab serve  # localhost UI
 ```
 
-Live capture needs `MODEL_API_KEY` in the environment — sent only as an `Authorization` header, never logged or stored. Without it, the live panel degrades honestly (503 + registered code).
+| Command | What it does | Needs key? |
+|---|---|---|
+| `python -m kineticlab doctor` | Self-check: python version, contract integrity, fixture pins, node, key hygiene, config — one line per check, exit 1 on any FAIL | No |
+| `python -m kineticlab demo` | Replays the pinned SAM + advisory artifacts, assembles one full chain, writes the four exact-byte exports — fully offline | No |
+| `python -m kineticlab serve` | Starts the local web UI on 127.0.0.1 (blocking); uploads and results stay on your machine | No |
+| `python -m kineticlab capture` | One live SAM capture + measure chain from your own clip | **Yes** — `MODEL_API_KEY` |
+| `python -m kineticlab config` | Prints the effective non-secret configuration | No |
+| `python scripts/media_check.py` | Offline media/fixture smoke check | No |
+| `python -m unittest` | The full offline test suite | No |
+
+The API key gates **live capture only** — it is sent solely as an `Authorization` header, never logged or stored. Without it, the demo, the UI, the certificate, and the entire suite still run offline from pinned fixtures.
 
 **Cross-platform note.** The suite's byte pins prove *same-machine* replay determinism. OS C math libraries (glibc, UCRT) differ in the last ulp, which moves fit floats in the 8th+ decimal — a real numerical fact, not a bug. CI therefore runs the full suite on ubuntu + windows with the byte-pin tests skipped (`KL_CROSS_PLATFORM=1`) and UTF-8 text mode forced (`PYTHONUTF8=1`, the PEP 686 default). The pins stay strict on a single machine: rerun the suite twice locally and every hash matches.
 
