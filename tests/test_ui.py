@@ -872,14 +872,30 @@ class RefinementTests(unittest.TestCase):
         # KL-8.11 touch-up: caps raised 280/260/300 -> 600 and width
         # capped + centered, so charts fill their cards instead of
         # letterboxing to a ~594px island on wide screens.
-        for rule in ("#chartSvg.plot{max-height:680px;max-width:1150px;"
+        # KL-10.28: caps lowered (560/440/440, width 1000) so each
+        # tab fits a 1080p recording viewport, and the replay arm
+        # (viewBox 720x340) got its own cap - it was uncapped and
+        # rendered ~540px tall on wide screens. Replay deck: equal
+        # 2x2 grid, replay arm capped 280/520.
+        for rule in ("#chartSvg.plot{max-height:560px;max-width:1000px;"
                      "margin:0 auto}",
-                     "#stripSvg.plot{max-height:600px;max-width:1150px;"
+                     "#stripSvg.plot{max-height:440px;max-width:1000px;"
                      "margin:0 auto}",
-                     "#trailSvg.plot{max-height:600px;max-width:1150px;"
+                     "#trailSvg.plot{max-height:440px;max-width:1000px;"
+                     "margin:0 auto}",
+                     "#replaySvg.plot{max-height:280px;max-width:520px;"
                      "margin:0 auto}"):
             with self.subTest(rule=rule):
                 self.assertIn(rule, self.style)
+        # KL-10.28: the Replay tab lays the four chart panels out as
+        # a grid (deck wrapper + class toggle + CSS rule) so the
+        # synced-views overview fits one recording screen.
+        self.assertIn('<div id="chartDeck">', self.page)
+        self.assertIn('el("chartDeck").classList.toggle("replay-grid", '
+                      'showAll)', self.script)
+        self.assertIn('#chartDeck.replay-grid{display:grid;'
+                      'grid-template-columns:repeat(2,minmax(0,1fr));'
+                      'gap:12px;align-items:stretch}', self.style)
         # Chart boxes hide until measured points arrive — no tall
         # empty bordered boxes under the empty text.
         for ident in ("chartWrap", "stripWrap", "trailWrap"):
@@ -1716,10 +1732,14 @@ class TouchUp811Tests(unittest.TestCase):
     def test_charts_fill_cards(self):
         # KL-10.25: the trajectory chart grows taller (680px cap);
         # strip + trail keep the 600px cap.
+        # KL-10.28: recording-fit caps - chart 560, strip + trail
+        # 440, width 1000; replay arm capped 400 (was uncapped).
         self.assertEqual(
-            self.page.count("max-height:600px;max-width:1150px;"
+            self.page.count("max-height:440px;max-width:1000px;"
                             "margin:0 auto"), 2)
-        self.assertIn("max-height:680px;max-width:1150px;"
+        self.assertIn("max-height:560px;max-width:1000px;"
+                      "margin:0 auto", self.page)
+        self.assertIn("max-height:280px;max-width:520px;"
                       "margin:0 auto", self.page)
 
     def test_stepper_demo_title(self):

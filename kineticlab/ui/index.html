@@ -276,9 +276,20 @@ details.uploadwrap summary{font-size:12px;font-weight:700;cursor:pointer}
 .chart-wrap svg.plot{width:100%;height:auto;display:block}
 /* Bounded visualization heights: the SVGs keep their aspect ratio
    (meet-fit letterboxes) but never stretch the page on wide screens. */
-#chartSvg.plot{max-height:680px;max-width:1150px;margin:0 auto}
-#stripSvg.plot{max-height:600px;max-width:1150px;margin:0 auto}
-#trailSvg.plot{max-height:600px;max-width:1150px;margin:0 auto}
+#chartSvg.plot{max-height:560px;max-width:1000px;margin:0 auto}
+#stripSvg.plot{max-height:440px;max-width:1000px;margin:0 auto}
+#trailSvg.plot{max-height:440px;max-width:1000px;margin:0 auto}
+#replaySvg.plot{max-height:280px;max-width:520px;margin:0 auto}
+/* KL-10.28: Replay tab shows every chart at once - lay the deck out
+   as a grid so the synced-views overview fits one recording screen.
+   Trajectory and the replay arm span the full width; residuals and
+   trail share the middle row. */
+#chartDeck.replay-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:stretch}
+#chartDeck.replay-grid .sub{display:none}
+#chartDeck.replay-grid [role="tabpanel"]{display:flex;flex-direction:column}
+#chartDeck.replay-grid .chart-wrap{flex:1;display:flex;flex-direction:column}
+#chartDeck.replay-grid .chart-wrap svg.plot{flex:1;height:auto;min-height:0}
+@media(max-width:900px){#chartDeck.replay-grid{grid-template-columns:1fr}}
 #advDiag img.overlay{max-height:320px;object-fit:contain}
 .chart-meta{display:flex;gap:18px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted);padding:8px 6px 4px}
 .chart-meta .mono{color:var(--text)}
@@ -692,6 +703,7 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
         <button class="tab" role="tab" id="ctabResiduals" aria-controls="viewResiduals" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5v14M20 5v14M4 12h16M8 8v8m4-11v14m4-9v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>Residuals</button>
         <button class="tab" role="tab" id="ctabReplay" aria-controls="viewReplay" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8L7 4Z"/></svg>Replay</button>
       </div>
+      <div id="chartDeck">
       <div role="tabpanel" id="viewTrajectory" aria-labelledby="ctabTrajectory">
         <div class="chart-empty" id="chartEmpty"><span class="empty-icon" aria-hidden="true">◷</span><strong>No trajectory yet</strong><p>Observed angles plot here after a demo or measurement. Nothing is drawn from guesses.</p></div>
         <div class="chart-wrap hidden" id="chartWrap">
@@ -756,6 +768,7 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
         </div>
         <p class="sub" id="replayCaption"></p>
       </div>
+      </div><!-- /chartDeck -->
       <details class="acc" id="sciDiagWrap">
         <summary>Advanced Diagnostics</summary>
         <div class="accbody"><table class="kv"><tbody id="sciDiagRows"></tbody></table></div>
@@ -1481,6 +1494,7 @@ function selectChartTab(id) {
     if (showAll || tabId === id) show(el(viewId)); else hide(el(viewId));
   }
   if (showAll) show(el("viewReplay")); else hide(el("viewReplay"));
+  el("chartDeck").classList.toggle("replay-grid", showAll);
 }
 function wireTabs(ids) {
   for (const id of ids) {
