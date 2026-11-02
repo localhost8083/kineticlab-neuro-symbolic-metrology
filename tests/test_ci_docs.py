@@ -102,9 +102,20 @@ class CiDocsLockTests(unittest.TestCase):
 
     def test_no_pep701_fstrings(self):
         """Python floor is 3.11: no multi-line expressions inside
-        single-quoted f-string braces (PEP 701 relaxed this in
-        3.12; the 3.11 CI floor raises SyntaxError at import)."""
+        single-quoted f-string braces. On the 3.11 floor the
+        parser rejects those at import time (SyntaxError), so the
+        interpreter enforces natively there; this static walk
+        matters on 3.12+ parsers, which accept the syntax. The
+        walk must not run below 3.12: pre-3.12 AST nodes do not
+        carry per-expression positions (a FormattedValue
+        inherits the whole f-string's span), which would flag
+        legal code."""
         import ast
+        import sys
+        if sys.version_info < (3, 12):
+            self.skipTest(
+                "3.11 parser enforces the PEP 701 floor natively; "
+                "position-based static walk is 3.12+ only")
         offenders = []
         for path in sorted((ROOT / "kineticlab").rglob("*.py")):
             text = _read(path)
