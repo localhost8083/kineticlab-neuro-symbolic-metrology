@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="Docs/img/logo.png" width="340" alt="KineticLab logo: a pendulum swinging across a glowing blue arc beside a circuit-etched Meta infinity mark, above the tagline Measure what you can see. Refuse what you can't." />
+
 # KineticLab
 
 **Point a phone camera at a swinging pendulum — Meta's SAM 3.1 model does the seeing, deterministic Python does the measuring, and every number ships with a full audit trail.**
