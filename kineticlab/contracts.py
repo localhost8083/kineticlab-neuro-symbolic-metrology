@@ -1097,7 +1097,11 @@ class CalibrationRecord:
     reference type: present iff ``user_confirmed``, null iff
     ``not_provided``. Assumption flags are nullable booleans: ``null``
     means unassessed, never a silent default; a valid record states
-    both explicitly.
+    both explicitly. ``valid`` means the scale is structurally usable and
+    both assumptions were assessed, not that either assumption is true or
+    physical accuracy is certified. Thus ``same_plane_assumption=False`` may
+    coexist with ``valid=True`` when g/L measurement can proceed while the
+    U-3 depth offset remains an explicit assumption.
     """
 
     schema_version: str

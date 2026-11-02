@@ -8,7 +8,7 @@ Source of truth for the live transcript: `Docs/Review_Log_Public.md`, entries (h
 
 - Windows PowerShell, run from the repo root.
 - Python 3.11 or newer (`pyproject.toml`: `requires-python = ">=3.11"`).
-- No third-party installs: the verified tree runs on the standard library only.
+- No third-party runtime installs: the verified runtime uses the standard library only. Optional `pytest` and build tooling are separate development extras.
 - `MODEL_API_KEY` set at user level (live capture only; offline checks need no key).
   Fetch it into the process environment at invocation:
 
@@ -126,8 +126,8 @@ default and no guessing; motion mode with `--card-width-mm` is rejected.
 
 ## 4. Honesty contract
 
-- Every number on screen comes from a run you started; a fresh page shows an
-  idle empty state, never sample numbers.
+- Every measurement/result number on screen comes from a run you started; a fresh
+  page shows an idle empty state, never sample measurement values.
 - Unknown renders as `null`, never a guess.
 - Gravity stays `null` without a reference card plus an independent pivot
   length; unestimated uncertainty carries `W_UNCERTAINTY_UNAVAILABLE`.

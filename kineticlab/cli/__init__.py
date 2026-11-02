@@ -205,16 +205,24 @@ def cmd_doctor(args: argparse.Namespace) -> int:
              f"{sys.version_info.minor} < 3.11 (required)")
 
     # 2. Package import + contract self-check (a valid result.v1
-    # built from the shared test builders must parse).
+    # fixture must parse). Test-only builders are not package imports.
     try:
         import kineticlab  # noqa: F401 — the import itself is the check
-        from tests.contract_samples import valid_result
-
-        ResultContract.from_dict(valid_result())
-        line("PASS", "kineticlab imports; contracts load; valid "
-             "result.v1 self-check parses")
     except Exception as error:  # noqa: BLE001 — doctor reports, never crashes
-        line("FAIL", f"contract self-check: {type(error).__name__}: {error}")
+        line("FAIL", f"package import: {type(error).__name__}: {error}")
+    else:
+        contract_fixture = root / "fixtures" / "contracts" / "valid_result.json"
+        if not contract_fixture.is_file():
+            line("SKIP", f"kineticlab imports; {contract_fixture} absent; "
+                 "test fixture unavailable; contract self-check skipped")
+        else:
+            try:
+                ResultContract.from_dict(json.loads(
+                    contract_fixture.read_text(encoding="utf-8")))
+                line("PASS", "kineticlab imports; contracts load; valid "
+                     "result.v1 self-check parses")
+            except Exception as error:  # noqa: BLE001 — doctor reports, never crashes
+                line("FAIL", f"contract self-check: {type(error).__name__}: {error}")
 
     # 3. Fixture integrity: pinned expectations + clip sha256.
     fixture_path = root / "fixtures" / "test_3.json"

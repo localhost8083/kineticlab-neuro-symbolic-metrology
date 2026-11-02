@@ -4,7 +4,7 @@
 
 ## The problem it solves
 
-"Measure gravity from a video" demos are easy to fake: an app pipes frames through an AI model, an LLM writes a plausible number, and nobody can audit where the number came from. KineticLab is the counter-example — a local-first metrology tool where every number is traceable to pixels you confirmed and measurements you supplied, and every unknown stays honestly `null`.
+"Measure gravity from a video" demos are easy to fake: an app pipes frames through an AI model, an LLM writes a plausible number, and nobody can audit where the number came from. KineticLab is the counter-example — a local-first metrology tool where every measurement is traceable to pixels you confirmed and measurements you supplied, and every unknown stays honestly `null`.
 
 ## What it does
 
@@ -17,18 +17,18 @@ Two modes: **Full** (bob + reference card) and **Motion** (bob only — scale-fr
 
 ## The honesty architecture (the differentiator)
 
-- **No language model ever authors a number.** All math is deterministic, inspectable Python.
+- **No model supplies or changes measurement values.** Advisory text may echo exact JSON values only after audit and never feeds measurement assembly. All math is deterministic, inspectable Python.
 - **Unknown = `null`.** Missing data renders as `null`, never interpolated, never guessed.
 - **Millimeters are always human-typed.** The card's physical width is typed by the user from a ruler and stamped `user_supplied` in provenance. The app *never* suggests or infers physical size from pixels — a wrong guess would silently corrupt gravity, so it structurally cannot happen.
 - **Gravity stays `null` without independent references** — the app reports the scale-free quantity g/L_eff (= ω²) instead of pretending to know g.
 - **A locked error taxonomy** — exactly 32 error codes + 9 warning codes, zero new codes ever. If a situation fits no code, the pipeline stops rather than improvises.
 - **Model output that violates the canonical format is rejected, not trimmed** — e.g. if the vision model returns two objects for one prompt in a frame, the run is rejected with a registered error and the raw evidence is preserved.
 - **Every export is auditable**: result JSON, human-readable summary, geometry report, calibration record (with validity flags and warnings), raw fixture references, SHA-256 hashes. A `measure_reuse` record states exactly what computation was cached and what bytes (by hash) it covered.
-- **Provenance chain**: software version, model name, input hashes, timestamps — machine-readable in every artifact.
+- **Provenance chain**: software version, model name, input hashes, and artifact metadata timestamps where available — machine-readable in each artifact that carries those fields. Frame timing uses source PTS.
 
 ## Engineering shape
 
-- **Backend: Python standard library only** — zero third-party runtime dependencies.
+- **Backend/runtime: Python standard library only** — zero third-party runtime dependencies. Optional `pytest` and build tooling are separate development extras.
 - **UI: one self-contained HTML file** (vanilla JS/CSS, no frameworks, no external references, no setInterval/setTimeout (one requestAnimationFrame ticker)) served by a stdlib HTTP server on `127.0.0.1:8137`.
 - Verified by a 905-test suite (`python -m unittest`), including key hygiene (the model API key is env-only, never logged or stored). Automated tests are mock-transport; real-API evidence is the recorded fixture run.
 - Windows-first; live-verified end-to-end on real hardware.
@@ -40,12 +40,12 @@ Two modes: **Full** (bob + reference card) and **Motion** (bob only — scale-fr
 
 ## Roadmap
 
-The pendulum is the first instrument, not the scope. The architecture — locked contracts, verbatim hash-pinned model telemetry, canonical codec, deterministic fit, loud verdicts — is experiment-agnostic. Designed next steps, stated as intent rather than claims, none built today: multi-object SAM 3.1 tracking with deterministic rigidity checks (stationary pivot, rigid rod), a DINOv2-class cross-model mask-agreement signal recorded in the diagnostics, a multimodal Experiment Inspector whose advisory notes stay in a visibly separate channel from the verdict, and further mechanical systems (spring-mass, projectile, collisions) on the same five-stage rail. Destination: a local physics experiment hub where Meta models do the seeing and every number survives an audit, because no model ever authored one.
+The pendulum is the first instrument, not the scope. The architecture — locked contracts, verbatim hash-pinned model telemetry, canonical codec, deterministic fit, loud verdicts — is experiment-agnostic. Designed next steps, stated as intent rather than claims, none built today: multi-object SAM 3.1 tracking with deterministic rigidity checks (stationary pivot, rigid rod), a DINOv2-class cross-model mask-agreement signal recorded in the diagnostics, a multimodal Experiment Inspector whose advisory notes stay in a visibly separate channel from the verdict, and further mechanical systems (spring-mass, projectile, collisions) on the same five-stage rail. Destination: a local physics experiment hub where Meta models do the seeing and every measurement/result number survives an audit, because no model supplies or changes measurement values.
 
 ## Rules for AI agents working on this repo
 
-- Stdlib-only backend; the UI stays a single self-contained file — no frameworks, no external refs.
-- Never add a taxonomy code; never let a model author or "clean up" a numeric result.
+- Stdlib-only backend/runtime; optional `pytest` and build tooling stay separate; the UI stays a single self-contained file — no frameworks, no external refs.
+- Never add a taxonomy code; never let a model supply or change a measurement value.
 - `fixtures/` is read-only; task ledgers (`TASKS.md`, `WHITEBOARD.md`) and review docs (`Docs/Review_Log_Public.md`, `Docs/Claims_Register_Public.md`, `PLAN.md`) have named owners — check before writing.
 - No commits or pushes without the owner's explicit approval.
 

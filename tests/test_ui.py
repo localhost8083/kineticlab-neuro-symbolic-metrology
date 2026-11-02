@@ -3845,7 +3845,7 @@ class DashboardLayout1014Tests(unittest.TestCase):
         foot = self.page.split('<footer class="footer">', 1)[1].split(
             "</footer>", 1)[0]
         left = "Unknown values render as null"
-        right = "All timestamps are real source PTS."
+        right = "All frame timing uses real source PTS."
         self.assertIn(left, foot)
         self.assertIn(right, foot)
         self.assertLess(foot.index(left), foot.index(right))

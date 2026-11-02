@@ -51,10 +51,12 @@ for a deterministic template [C-019].
 
 ## 3. Geometry and calibration (2 min)
 
-Show `fixtures/geometry/calibration_live.json`: valid `calibration.v1`,
-ID-1 85.60×53.98 mm caller-confirmed, scale 0.328633 mm/px over 117
-clean frames, U-3 depth-offset bound 1.67% stated as an assumption,
-scale uncertainty honestly null [C-024]. Show the arc-fit pivot at
+Show `fixtures/geometry/calibration_live.json`: structurally valid
+`calibration.v1` record, ID-1 85.60×53.98 mm caller-confirmed, scale
+0.328633 mm/px over 117 clean frames, U-3 depth-offset bound 1.67% stated as
+an assumption, scale uncertainty honestly null [C-024]. The
+`same_plane_assumption=false` state is explicitly carried; structural validity
+does not certify coplanarity or physical accuracy. Show the arc-fit pivot at
 (452.62, −523.75) px, r = 907.48 px, mean residual 5.158 px [C-025],
 and clean-frame corner jitter mean 1.23 px / max 2.96 px as the
 camera-stability evidence (occluded frames excluded with measured

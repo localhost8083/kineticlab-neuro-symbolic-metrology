@@ -2,9 +2,9 @@
 
 <img src="Docs/img/logo.png" width="340" alt="KineticLab logo: a pendulum swinging across a glowing blue arc beside a circuit-etched Meta infinity mark, above the tagline Measure what you can see. Refuse what you can't." />
 
-**Point a phone camera at a swinging pendulum — Meta's SAM 3.1 model does the seeing, deterministic Python does the measuring, and every number ships with a full audit trail.**
+**Point a phone camera at a swinging pendulum — Meta's SAM 3.1 model does the seeing, deterministic Python does the measuring, and every measurement ships with a full audit trail.**
 
-![Python](https://img.shields.io/badge/python-3.11%2B-306998?style=for-the-badge) ![Runtime](https://img.shields.io/badge/runtime-stdlib--only-success?style=for-the-badge) ![Tests](https://img.shields.io/badge/tests-905%20passing-brightgreen?style=for-the-badge) ![CI](https://github.com/localhost8083/kineticlab-neuro-symbolic-metrology/actions/workflows/ci.yml/badge.svg) ![Meta](https://img.shields.io/badge/Meta-SAM%203.1-0668E5?style=for-the-badge) ![License](https://img.shields.io/badge/license-MIT-lightgrey?style=for-the-badge)
+![Python](https://img.shields.io/badge/python-3.11%2B-306998?style=for-the-badge) ![Runtime](https://img.shields.io/badge/runtime-stdlib--only%20runtime-success?style=for-the-badge) ![Tests](https://img.shields.io/badge/tests-905%20passing-brightgreen?style=for-the-badge) ![CI](https://github.com/localhost8083/kineticlab-neuro-symbolic-metrology/actions/workflows/ci.yml/badge.svg) ![Meta](https://img.shields.io/badge/Meta-SAM%203.1-0668E5?style=for-the-badge) ![License](https://img.shields.io/badge/license-MIT-lightgrey?style=for-the-badge)
 
 <br>
 
@@ -32,9 +32,9 @@
 
 ## What is KineticLab?
 
-KineticLab turns an ordinary video clip into an **auditable measurement of a pendulum**. Meta **SAM 3.1** segments the bob and a reference card frame by frame; you confirm the masks; then a deterministic, **stdlib-only** Python engine fits the motion and reports `g/L_eff = ω²` (scale-free, `1/s²`) with a seeded block-bootstrap interval for ω. Nothing is hidden between the pixels and the report: every stage keeps hashes, and every export carries full provenance.
+KineticLab turns an ordinary video clip into an **auditable measurement of a pendulum**. Meta **SAM 3.1** segments the bob and a reference card frame by frame; you confirm the masks; then a deterministic Python engine using a **stdlib-only runtime** fits the motion and reports `g/L_eff = ω²` (scale-free, `1/s²`) with a seeded block-bootstrap interval for ω. Optional `pytest` and build tooling are separate from runtime. Nothing is hidden between the pixels and the report: every stage keeps hashes, and every export carries full provenance.
 
-The rule that shapes the whole project: **no language model ever authors a number.** Vision output is untrusted telemetry, decoded by a canonical codec. When evidence is missing — no scale, no measured length — the answer is `null` with a registered warning code, never a guess dressed as data.
+The rule that shapes the whole project: **no model supplies or changes measurement values.** Vision output is untrusted telemetry, decoded by a canonical codec. Advisory text may echo exact JSON values only after audit and never feeds measurement assembly. When evidence is missing — no scale, no measured length — the answer is `null` with a registered warning code, never a guess dressed as data.
 
 ## Highlights
 
@@ -42,7 +42,7 @@ The rule that shapes the whole project: **no language model ever authors a numbe
 - **Gravity only from your own ruler** — type the pendulum length you measured yourself and the app computes `g = (g/L_eff) × L`; without it, `g` stays `null`
 - **Honest nulls, loud rejections** — missing evidence renders `null` plus a warning; unusable clips fail with a specific red verdict, never a fake success
 - **Exact-byte exports with a provenance chain** — input SHA-256, model name, artifact digests recorded on the result and summary exports; all four exports are written with exact, re-verifiable bytes
-- **Nothing to install** — `dependencies = []`: pure Python 3.11+ stdlib; clone and run
+- **Nothing to install at runtime** — `dependencies = []`: Python 3.11+ stdlib runtime; optional `pytest` and build tooling stay separate
 
 ## How it works
 
@@ -55,6 +55,8 @@ Five stages, each one leaving evidence:
 5. **Results** — verdict, charts, exact-byte exports (`angles.csv`, `diagnostics.json`, `result.json`, `summary.md`), full provenance.
 
 ## Meta models in the loop
+
+**Built with:** Meta SAM 3.1 · Spark advisory layer · deterministic Python stdlib runtime
 
 | Model | Role | Guardrail |
 |---|---|---|
@@ -92,7 +94,7 @@ The simulation playground unlocks only after a measurement seeds it: your measur
 
 Every AI demo can show a number. KineticLab is built so it **can't fake one**:
 
-- **No language model ever authors a number.** Vision output is untrusted telemetry — SAM 3.1 `one_bit` masks are stored verbatim with source PTS and decoded by a canonical codec. Physics is computed locally, deterministically.
+- **No model supplies or changes measurement values.** Vision output is untrusted telemetry — SAM 3.1 `one_bit` masks are stored verbatim with source PTS and decoded by a canonical codec. Advisory text may echo exact JSON values only after audit and never feeds measurement assembly. Physics is computed locally, deterministically.
 - **Unknown is `null`.** Missing scale, length, or uncertainty renders as `null` plus an explicit warning code — never a guess dressed as data.
 - **The card's millimeters are always human-typed** (`user_supplied`). The app never estimates mm from pixels.
 - **Locked taxonomy.** Exactly 32 error codes and 9 warning codes in `kineticlab/contracts.py`; nothing new can appear at runtime; the one documented exception is unclassified server faults, which answer `code: null` rather than an invented code.
@@ -115,7 +117,7 @@ Designed next steps — stated as intent, not claims; none of it exists in the c
 - **Experiment Inspector** — a multimodal model examines the setup itself (lighting, scale reference, occlusions, camera motion) and files advisory notes. The pipeline keeps "model says" and "physics proves" in visibly separate channels, and only the latter can touch a verdict.
 - **More experiments on the same rail** — spring-mass, projectile, collisions. The five-stage chain (upload → detect → confirm → measure → results) is experiment-agnostic; each new instrument is a new fit contract, with the same locked taxonomy, exact-byte exports, and honest nulls.
 
-The destination is a **physics experiment hub**: a local laboratory where you film any mechanical system, Meta models do the seeing, and every number survives an audit — because no model ever wrote one.
+The destination is a **physics experiment hub**: a local laboratory where you film any mechanical system, Meta models do the seeing, and every measurement/result number survives an audit — because no model supplies or changes measurement values.
 
 ## Quickstart
 

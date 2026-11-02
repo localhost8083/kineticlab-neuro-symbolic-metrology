@@ -109,7 +109,11 @@ def build_calibration(*, card_width_mm: Any, card_height_mm: Any,
     Card size, assumptions, U-3 depths, video size, and provenance
     are caller-supplied (U-1/U-3 inputs) and strictly validated.
     Returns ``(record, report)``; the record always passes
-    ``CalibrationRecord.from_dict`` (valid or explicitly invalid).
+    ``CalibrationRecord.from_dict`` (valid or explicitly invalid). ``valid``
+    means structurally usable scale with both assumptions assessed; it does
+    not certify true assumptions or physical accuracy. A false U-3
+    same-plane assumption can therefore remain valid while g/L measurement
+    proceeds with the depth offset explicitly stated.
     """
     width_mm = _positive_float(card_width_mm, "card_width_mm")
     height_mm = _positive_float(card_height_mm, "card_height_mm")

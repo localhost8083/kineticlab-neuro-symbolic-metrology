@@ -14,7 +14,8 @@ measured numbers are in the pipeline's own exports.
 Spark is an optional cached sidecar: it never participates in measurement assembly. Narrative advisories are replayed from hash-checked offline cache and audited so any number not justified by the run's JSON is discarded.
 
 The measurement itself is deterministic. Meta AI does the seeing and the
-explaining; no language model ever authors a number.
+explaining; no model supplies or changes measurement values. Advisory text may
+echo exact JSON values only after audit and never feeds measurement assembly.
 
 ## Live run vs offline replay — labeled evidence
 
