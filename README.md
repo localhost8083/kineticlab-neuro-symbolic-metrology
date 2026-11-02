@@ -10,6 +10,10 @@
 
 <img src="Docs/img/dashboard.png" width="860" alt="KineticLab full success run: Upload / Detect / Confirm / Measure / Results stepper complete, Scientific Analysis charts (trajectory with fitted overlay, residuals, centroid trail, synced replay deck), key results (angular frequency, period, g/L_eff), evidence and provenance rail, and the SUCCESS verdict with exact-byte exports" />
 
+<p align="center">
+  <img src="Docs/img/kinetic_demo.gif" width="760" alt="Animated demo: the analysis deck in motion — the trajectory playhead, residuals, centroid trail, and the pendulum arm reconstructed from the pinned masks, every playhead synced on the source-PTS timebase" />
+</p>
+
 *Shown: the built-in demo replay. Every chart is the run's own measured data — rendered from that run's `angles.csv`, never baked, never illustrative.*
 
 </div>
