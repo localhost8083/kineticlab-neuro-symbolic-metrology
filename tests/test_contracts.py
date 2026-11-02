@@ -121,6 +121,8 @@ class SchemaStructureTest(unittest.TestCase):
     def test_confirmed_card_requires_user_dimensions(self):
         data = valid_calibration()
         data["reference_type"] = "iso_id1_confirmed"
+        data["reference_dimensions_mm"] = None
+        data["dimension_source"] = "not_provided"
         with self.assertRaises(ContractError) as raised:
             CalibrationRecord.from_dict(data)
         self.assertIn("E_UNCONFIRMED_DIMENSIONS", raised.exception.codes)

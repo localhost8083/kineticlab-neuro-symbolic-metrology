@@ -1,6 +1,11 @@
 # Pinned end-to-end assembly (KL-7.1)
 
-The live test_3 chain assembled by `kineticlab/assembly/assemble`:
+Historical KL-7.1 pin: the test_3 chain assembled by
+`kineticlab/assembly/assemble` before the KL-10.11 bootstrap change.
+It is not current demo output; the current demo recomputes the chain and
+includes a seeded bootstrap interval (see `tests/test_demo.py`).
+
+The pinned chain was:
 media/PTS -> live SAM observations (234 bob + 234 card records) ->
 arc-fit pivot -> M1 fit -> validated `result.v1`, plus exports.
 Regeneration test in `tests/test_assembly.py` reassembles into a

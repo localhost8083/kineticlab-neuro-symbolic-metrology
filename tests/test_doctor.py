@@ -50,6 +50,35 @@ class DoctorCliTest(unittest.TestCase):
         self.assertEqual(raised.exception.code, 0)
         self.assertIn("exit", stdout.getvalue().lower())
 
+    def test_outside_checkout_reports_package_only_mode(self):
+        previous_cwd = os.getcwd()
+        with tempfile.TemporaryDirectory() as tmp:
+            try:
+                os.chdir(tmp)
+                code, output = self.run_doctor()
+            finally:
+                os.chdir(previous_cwd)
+        self.assertEqual(code, 0)
+        self.assertIn("package-only mode", output)
+        self.assertIn("full repository health not claimed", output)
+        self.assertIn("repository fixture integrity skipped", output)
+        self.assertNotIn("fixtures/test_3.json absent", output)
+
+    def test_repo_without_fixtures_reports_skips(self):
+        previous_cwd = os.getcwd()
+        with tempfile.TemporaryDirectory() as tmp:
+            try:
+                os.chdir(tmp)
+                (Path(tmp) / "kineticlab.toml").write_text("\n",
+                                                               encoding="utf-8")
+                code, output = self.run_doctor()
+            finally:
+                os.chdir(previous_cwd)
+        self.assertEqual(code, 1)
+        self.assertIn("valid_result.json absent", output)
+        self.assertIn("fixtures/test_3.json absent", output)
+        self.assertIn("doctor: ", output)
+
     def test_output_never_carries_key_material(self):
         previous_cwd = os.getcwd()
         self.addCleanup(os.chdir, previous_cwd)

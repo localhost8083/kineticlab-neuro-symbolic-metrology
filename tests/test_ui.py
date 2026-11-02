@@ -395,6 +395,15 @@ class PageTests(unittest.TestCase):
         self.assertIn('"copy"', script)
         self.assertIn("navigator.clipboard", script)
 
+    def test_provenance_uses_artifact_hash_schema_keys(self):
+        script = self.page.split("<script>", 1)[1]
+        for token in ("raw_bob_sha256", "raw_card_sha256",
+                      "Raw bob model hash", "Raw card model hash"):
+            with self.subTest(token=token):
+                self.assertIn(token, script)
+        self.assertNotIn("hashes.raw_bob_one_bit", script)
+        self.assertNotIn("hashes.raw_card_one_bit", script)
+
     def test_autostart_wiring(self):
         script = self.page.split("<script>", 1)[1]
         self.assertIn("DOMContentLoaded", script)
@@ -415,7 +424,8 @@ class PageTests(unittest.TestCase):
         self.assertIn("<details", self.page)
 
     def test_advisory_label(self):
-        self.assertIn("Advisory replay", self.page)
+        self.assertIn("Cached Spark advisory replay", self.page)
+        self.assertIn("historical M-2 input, not current measurement", self.page)
         self.assertIn('id="advisoryBox"', self.page)
 
     def test_amber_verdict_status_keyed(self):
@@ -809,7 +819,8 @@ class WorkstationRegionTests(unittest.TestCase):
             r"Provenance|provenance|Evidence.*provenance",
             "expected evidence/provenance panel")
         self.assertIn('class="prov-list"', self.page)
-        for token in ("Model output hash", "Computation hash", "SAM 3.1"):
+        for token in ("Raw bob model hash", "Raw card model hash",
+                      "Computation hash", "SAM 3.1"):
             with self.subTest(token=token):
                 self.assertIn(token, self.page)
 
@@ -839,13 +850,17 @@ class RefinementTests(unittest.TestCase):
             cls.style = ""
 
     def test_sidebar_width_in_range(self):
-        # KL-10.16: fractional 3-track shell (rail min 300px,
-        # dominant center, sim rail min 320px).
+        # KL-10.30: two-area workspace shell (video/setup rail min
+        # 300px; status rail; Scientific Analysis spans below).
         self.assertRegex(
             self.style,
             r"\.shell\{[^}]*grid-template-columns:minmax\(300px",
             "left rail width must be 300–329px")
-        self.assertIn("minmax(0,2.45fr) minmax(320px,.95fr)", self.style)
+        self.assertIn(
+            'grid-template-areas:"side status" "sci sci"', self.style)
+        self.assertIn(".sidebar{grid-area:side", self.style)
+        self.assertIn(".rightcol{grid-area:status", self.style)
+        self.assertIn(".main{grid-area:sci", self.style)
 
     def test_advanced_diagnostics_collapsed(self):
         # Collapsed by default (no open attribute) and owning the
@@ -1689,8 +1704,8 @@ class LayoutCompressionTests(unittest.TestCase):
         self.assertLessEqual(open_count, 2)
         self.assertIn("Warnings (verbatim)</summary>", self.page)
         for summary in ("Assumptions (verbatim)", "Reject reasons",
-                        "Advisory replay", "Provenance",
-                        "Input artifact digests",
+                        "Cached Spark advisory replay — historical M-2 input, not current measurement",
+                        "Provenance", "Input artifact digests",
                         "Exports (exact written bytes)",
                         "Summary (copied, never recomputed)"):
             with self.subTest(summary=summary):
@@ -1715,7 +1730,7 @@ class TouchUp811Tests(unittest.TestCase):
     NaN can never render: non-finite CSV rows are skipped at parse,
     and the playhead readout guards its frame-order operands. Charts
     fill their cards instead of letterboxing. The stepper carries a
-    title clarifying the all-done-during-demo semantics.
+    title clarifying that demo states reflect replayed evidence only.
     """
 
     @classmethod
@@ -1743,7 +1758,21 @@ class TouchUp811Tests(unittest.TestCase):
                       "margin:0 auto", self.page)
 
     def test_stepper_demo_title(self):
-        self.assertIn("Stages reflect the most recent run", self.page)
+        self.assertIn(
+            'title="Stages reflect the latest run. Demos replay pinned '
+            'inputs; no user confirmation is performed."', self.page)
+        self.assertIn('data-replay-title="Upload · demo replayed"', self.page)
+        self.assertIn('data-replay-title="Confirm · demo replayed"', self.page)
+        self.assertIn("function setWorkflowReplay(replayed)", self.page)
+        self.assertIn('setWorkflowReplay(true);', self.page)
+        self.assertIn('setWorkflowReplay(false);', self.page)
+        self.assertLess(self.page.index('setWorkflowReplay(false);'),
+                        self.page.index('async function runLiveDetect()'))
+
+    def test_spark_pipeline_tag_names_cached_advisory_input(self):
+        self.assertIn(
+            "cached replay · historical M-2 input, not current measurement",
+            self.page)
 
     def test_point_index_fallback(self):
         # G8 feedback fix: demo angles.csv has no point_index column;
@@ -2006,6 +2035,29 @@ class NodeExecutionTests(unittest.TestCase):
             asm / "diagnostics.json").read_text(encoding="utf-8")
         cls.angles_text = (
             asm / "angles.csv").read_text(encoding="utf-8")
+
+    def test_provenance_summary_shows_each_raw_model_hash(self):
+        bob = "b" * 64
+        card = "c" * 64
+        result = {"provenance": {"artifact_hashes": {
+            "raw_bob_sha256": bob,
+            "raw_card_sha256": card,
+            "calibration_sha256": "d" * 64,
+            "geometry_report_sha256": "e" * 64,
+        }}}
+        check = (
+            "paintProvSummary(\"demo-success\", "
+            + json.dumps(result) + ", null, {});\n"
+            "  const rows = document.getElementById(\"provSummary\").children;\n"
+            "  __emit({ rows: rows.map((r) => r.textContent),\n"
+            "    labels: rows.map((r) => r.children[1].textContent),\n"
+            "    chip: document.getElementById(\"provChip\").textContent });\n")
+        out = run_page_driver(self.script, check, {})
+        self.assertTrue(any("Raw bob model hash" in row and "bbbb…bbbb" in row
+                            for row in out["rows"]))
+        self.assertTrue(any("Raw card model hash" in row and "cccc…cccc" in row
+                            for row in out["rows"]))
+        self.assertNotIn("Evidence complete", out["chip"])
 
     def test_b2_paint_verdict_rejection_renders_without_throw(self):
         check = (

@@ -27,6 +27,9 @@ kineticlab = "kineticlab.cli:main"
 [tool.setuptools.packages.find]
 include = ["kineticlab*"]
 
+[tool.setuptools.package-data]
+"kineticlab.ui" = ["index.html"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]

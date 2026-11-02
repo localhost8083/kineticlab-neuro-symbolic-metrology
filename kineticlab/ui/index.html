@@ -43,7 +43,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 button:disabled{opacity:.48;cursor:not-allowed}
 input:disabled,select:disabled,textarea:disabled{opacity:.55;cursor:not-allowed}
 .btn:active:not(:disabled),.icon-btn:active:not(:disabled),.tab:active,.thumb:active:not(:disabled){filter:brightness(1.08)}
-.app{min-height:100vh;display:grid;grid-template-rows:66px auto minmax(0,1fr) auto}
+.app{min-height:100vh;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:66px auto minmax(0,1fr) auto}
 /* ---- header ---- */
 .topbar{height:66px;display:flex;align-items:center;gap:12px;padding:0 24px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:10;transition:background .22s,border-color .22s}
 .brand{display:flex;align-items:center;gap:11px;min-width:0}
@@ -66,8 +66,8 @@ input:disabled,select:disabled,textarea:disabled{opacity:.55;cursor:not-allowed}
 .icon-btn:hover{background:var(--surface-2)}
 /* ---- shell + rails (KL-10.14 3-column instrument dashboard:
    left rail 310px, dominant center, persistent 320px sim column) ---- */
-.shell{display:grid;grid-template-columns:minmax(300px,.72fr) minmax(0,2.45fr) minmax(320px,.95fr);gap:var(--space-4);padding:var(--space-4);max-width:1920px;width:100%;margin:0 auto;min-height:0;align-items:start}
-.sidebar{border:0;background:transparent;padding:0;display:flex;flex-direction:column;gap:var(--space-4);min-width:0;transition:background .22s}
+.shell{display:grid;grid-template-columns:minmax(300px,.9fr) minmax(340px,1.1fr);grid-template-areas:"side status" "sci sci";gap:var(--space-4);padding:var(--space-4);max-width:1920px;width:100%;margin:0 auto;min-height:0;align-items:start}
+.sidebar{grid-area:side;border:0;background:transparent;padding:0;display:flex;flex-direction:column;gap:var(--space-4);min-width:0;transition:background .22s}
 .rail-util{display:flex;flex-direction:column;gap:var(--space-2)}
 .rail-navrow{display:flex;gap:var(--space-2)}
 .nav-btn{display:flex;align-items:center;gap:7px;flex:1;border:1px solid var(--border);background:var(--surface);color:var(--muted);padding:6px 8px;border-radius:var(--radius-sm);text-align:left;font-size:11px;font-weight:600;transition:background .18s,color .18s;justify-content:center;min-width:0}
@@ -90,8 +90,8 @@ details.rail-fold
 details.demo-card summary{cursor:pointer;font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:750;list-style-position:inside;padding:2px 0}
 details.demo-card summary::-webkit-details-marker{color:var(--muted)}
 /* ---- main + stepper ---- */
-.main{padding:0;min-width:0;width:100%;margin:0;display:flex;flex-direction:column;gap:var(--space-4)}
-.rightcol{display:flex;flex-direction:column;gap:var(--space-4);min-width:0}
+.main{grid-area:sci;padding:0;min-width:0;width:100%;margin:0;display:flex;flex-direction:column;gap:var(--space-4)}
+.rightcol{grid-area:status;display:flex;flex-direction:column;gap:var(--space-4);min-width:0}
 .stepper{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));column-gap:var(--space-4);background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:var(--radius-lg);padding:var(--space-4);margin-bottom:var(--space-4)}
 /* KL-10.25: the stepper moved into the header as compact pills —
    same ids/states/aria, smaller chrome. Base rules above keep the
@@ -118,6 +118,9 @@ details.demo-card summary::-webkit-details-marker{color:var(--muted)}
 details.rail-fold 
 details.rail-fold .step:not(:last-child):after{display:none}
 .pipeline-strip{background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);max-width:1920px;width:100%;margin:var(--space-3) auto var(--space-4)}
+.pipeline-strip summary{cursor:pointer;font-size:13px;font-weight:650;color:var(--muted);list-style-position:inside}
+.pipeline-strip summary:hover{color:var(--text)}
+.pipeline-strip[open] summary{margin-bottom:8px}
 .pipeline-strip .explainer{font-size:13px;font-weight:600;margin:0 0 6px}
 .pipeline{display:flex;flex-wrap:wrap;border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .pstage{flex:1 1 0;min-width:200px;padding:8px 14px;font-size:12px;font-weight:600}
@@ -269,8 +272,6 @@ details.uploadwrap summary{font-size:12px;font-weight:700;cursor:pointer}
 .tab:hover{background:color-mix(in srgb,var(--cyan) 6%,transparent);color:var(--text)}
 .tab[aria-selected="true"]{background:transparent;color:var(--cyan);font-weight:750}
 .tab[aria-selected="true"]::after{content:"";position:absolute;left:9%;right:9%;bottom:0;height:3px;border-radius:4px 4px 0 0;background:var(--cyan);box-shadow:0 0 12px color-mix(in srgb,var(--cyan) 30%,transparent)}
-[role="tabpanel"]{animation:fadein 180ms ease}
-@keyframes fadein{from{opacity:.25}to{opacity:1}}
 .chart-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;padding:0;overflow:auto;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--cyan) 3%,transparent)}
 .chart-wrap{background:var(--surface-2);border:1px solid var(--border);border-radius:11px;padding:12px;min-width:0}
 .chart-wrap svg.plot{width:100%;height:auto;display:block}
@@ -485,11 +486,11 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
 .idle-compact .btn{margin-left:auto;flex:none}
 #statusArc{transition:stroke .22s,stroke-dashoffset .3s}
 /* ---- responsive ---- */
-@media(min-width:1600px){.shell{grid-template-columns:minmax(300px,.68fr) minmax(0,2.4fr) minmax(340px,1fr)}} @media(max-width:640px){.step{grid-template-columns:minmax(0,1fr);gap:5px}.step-number{width:24px;height:24px;font-size:11px}}
-@media(max-width:1250px){.shell{grid-template-columns:minmax(0,.9fr) minmax(0,1.8fr)}.rightcol{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}.brand-sub{display:none}.result-list{grid-template-columns:1fr 1fr}}
+@media(min-width:1600px){.shell{grid-template-columns:minmax(360px,.8fr) minmax(380px,1fr)}} @media(max-width:640px){.step{grid-template-columns:minmax(0,1fr);gap:5px}.step-number{width:24px;height:24px;font-size:11px}}
+@media(max-width:1250px){.shell{grid-template-columns:minmax(300px,.9fr) minmax(300px,1fr)}.brand-sub{display:none}.result-list{grid-template-columns:1fr 1fr}}
 @media(max-width:1200px){.topbar .pill{display:none}.brand-kicker{display:none}.brand-tagline{display:none}}
 @media(max-width:900px){.topbar{padding:0 16px}.brand-kicker{font-size:10px}.brand-tagline{font-size:11px}.topbar .step-title{display:none}}
-@media(max-width:760px){.app{grid-template-rows:60px auto minmax(0,1fr) auto}.topbar{height:60px;padding:0 12px;gap:10px}.brand-name{font-size:17px}.topbar .pill{display:none}.brand-kicker{font-size:9px}.shell{grid-template-columns:minmax(0,1fr);padding:var(--space-3)}.rail-navrow{flex-wrap:wrap}.sim-layout{grid-template-columns:minmax(0,1fr)}.rightcol{display:flex;flex-direction:column}.underbar .pipeline-strip .pipeline{flex-wrap:wrap}.result-list{grid-template-columns:1fr 1fr}.footer{padding:8px 12px;flex-wrap:wrap;gap:6px;margin:0 var(--space-3) var(--space-3)}.footer .footer-host{display:none}.sim-layout{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:760px){.app{grid-template-rows:60px auto minmax(0,1fr) auto}.topbar{height:60px;padding:0 12px;gap:10px}.brand-name{font-size:17px}.topbar .pill{display:none}.brand-kicker{font-size:9px}.shell{grid-template-columns:minmax(0,1fr);grid-template-areas:"side" "status" "sci";padding:var(--space-3)}.rail-navrow{flex-wrap:wrap}.sim-layout{grid-template-columns:minmax(0,1fr)}.underbar .pipeline-strip .pipeline{flex-wrap:wrap}.result-list{grid-template-columns:1fr 1fr}.footer{padding:8px 12px;flex-wrap:wrap;gap:6px;margin:0 var(--space-3) var(--space-3)}.footer .footer-host{display:none}.sim-layout{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:560px){.chart-tabs .tab{flex-direction:column;gap:3px;font-size:10px;padding:8px 4px}.tab svg{width:16px;height:16px}.sim-stats{gap:6px}.sim-stat-value{font-size:16px}.metric-value{font-size:18px}.footer{font-size:10px}.verdict-badge{font-size:10px;padding:4px 9px}.brand-name{display:none}.brand-divider{display:none}.topbar{gap:8px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}.spinner{animation:none;border-top-color:var(--border)}[role="tabpanel"]{animation:none}}
 </style>
@@ -505,12 +506,12 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
     <div><div class="brand-kicker">KINETICLAB · PENDULUM METROLOGY</div><div class="brand-tagline">Measure. Verify. Reproduce.</div></div>
   </div>
   <div class="top-spacer"></div>
-  <section class="stepper" aria-label="Analysis workflow" title="Stages reflect the most recent run - a demo run genuinely completes every stage on your machine.">
-    <div class="step" id="stepUpload" data-stage="upload"><div class="step-number">1</div><div><div class="step-title">Upload</div><div class="step-desc">Load your video</div></div></div>
-    <div class="step" id="stepDetect" data-stage="detect"><div class="step-number">2</div><div><div class="step-title">Detect</div><div class="step-desc">AI finds objects (SAM 3.1)</div></div></div>
-    <div class="step" id="stepConfirm" data-stage="confirm"><div class="step-number">3</div><div><div class="step-title">Confirm</div><div class="step-desc">Review and approve</div></div></div>
-    <div class="step" id="stepMeasure" data-stage="measure"><div class="step-number">4</div><div><div class="step-title">Measure</div><div class="step-desc">Compute physics</div></div></div>
-    <div class="step" id="stepResults" data-stage="results"><div class="step-number">5</div><div><div class="step-title">Results</div><div class="step-desc">View &amp; export</div></div></div>
+  <section class="stepper" aria-label="Analysis workflow" title="Stages reflect the latest run. Demos replay pinned inputs; no user confirmation is performed.">
+    <div class="step" id="stepUpload" data-stage="upload"><div class="step-number">1</div><div><div class="step-title" data-live-title="Upload" data-replay-title="Upload · demo replayed">Upload</div><div class="step-desc">Load your video</div></div></div>
+    <div class="step" id="stepDetect" data-stage="detect"><div class="step-number">2</div><div><div class="step-title" data-live-title="Detect" data-replay-title="Detect · demo replayed">Detect</div><div class="step-desc">AI finds objects (SAM 3.1)</div></div></div>
+    <div class="step" id="stepConfirm" data-stage="confirm"><div class="step-number">3</div><div><div class="step-title" data-live-title="Confirm" data-replay-title="Confirm · demo replayed">Confirm</div><div class="step-desc">Review and approve</div></div></div>
+    <div class="step" id="stepMeasure" data-stage="measure"><div class="step-number">4</div><div><div class="step-title" data-live-title="Measure" data-replay-title="Measure · demo replayed">Measure</div><div class="step-desc">Compute physics</div></div></div>
+    <div class="step" id="stepResults" data-stage="results"><div class="step-number">5</div><div><div class="step-title" data-live-title="Results" data-replay-title="Results · demo replayed">Results</div><div class="step-desc">View &amp; export</div></div></div>
   </section>
   <div class="top-spacer"></div>
   <span class="verdict-badge is-neutral" id="verdictBadge">No run yet</span>
@@ -520,18 +521,21 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
   <button class="icon-btn" id="themeToggle" type="button" aria-label="Toggle theme">Light mode</button>
 </header>
 
-<section class="pipeline-strip" aria-label="Pipeline stages">
+<details class="pipeline-strip" aria-label="Pipeline stages">
+      <summary>How the pipeline works</summary>
+      <div class="pipeline-inner">
       <p class="explainer">Phone video in, auditable physics out. SAM 3.1 sees, deterministic math computes.</p>
       <div class="pipeline">
         <div class="pstage">SAM 3.1 masks<span class="tag">model output · recorded & replayed</span></div>
         <div class="pstage">Deterministic calibration + fit<span class="tag">deterministic — no model</span></div>
-        <div class="pstage">Muse Spark advisory<span class="tag">advisory replayed verbatim</span></div>
+        <div class="pstage">Muse Spark advisory<span class="tag">cached replay · historical M-2 input, not current measurement</span></div>
       </div>
-    </section>
+      </div>
+    </details>
 <div class="shell">
   <aside class="sidebar" aria-label="Primary navigation">
     <div class="rail-util">
-      <details class="demo-card" open aria-label="Demo scenarios">
+      <details class="demo-card" aria-label="Demo scenarios">
         <summary>Demo scenarios</summary>
         <div class="chainpanel" id="panelSuccess">
           <h3>Success chain</h3>
@@ -837,7 +841,7 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
                 <div class="accbody"><ul class="tight" id="assumeList"></ul></div>
               </details>
               <details class="acc">
-                <summary>Advisory replay — recorded M-2-era input</summary>
+                <summary>Cached Spark advisory replay — historical M-2 input, not current measurement</summary>
                 <div class="accbody" id="advisoryBox"></div>
               </details>
               <details class="acc">
@@ -1521,8 +1525,8 @@ function wireTabs(ids) {
 
 /* Five-stage workflow stepper: states derive from real workflow
    events only (file staged, detect/measure responses, user
-   confirmation). Demo chains mark every stage done because the
-   pinned chain genuinely completed each stage offline. */
+   confirmation). Demo states reflect replayed pinned outputs, not
+   user confirmation. */
 const STAGE_IDS = ["stepUpload", "stepDetect", "stepConfirm", "stepMeasure", "stepResults"];
 function setWorkflowStage(stage, state) {
   const node = el({ upload: "stepUpload", detect: "stepDetect",
@@ -1538,10 +1542,18 @@ function setWorkflowStage(stage, state) {
   badge.textContent = state === "done" ? "✓" : state === "failed" ? "!"
     : state === "processing" ? "…" : order[stage];
 }
+function setWorkflowReplay(replayed) {
+  for (const id of STAGE_IDS) {
+    const title = el(id).querySelector(".step-title");
+    title.textContent = replayed
+      ? title.dataset.replayTitle : title.dataset.liveTitle;
+  }
+}
 function resetWorkflow() {
   for (const id of STAGE_IDS) {
     el(id).classList.remove("done", "active", "processing", "failed");
   }
+  setWorkflowReplay(false);
   const order = ["1", "2", "3", "4", "5"];
   STAGE_IDS.forEach((id, i) => {
     el(id).querySelector(".step-number").textContent = order[i];
@@ -1706,6 +1718,7 @@ function setStage(name) {
 }
 
 async function runDemo(chain) {
+  setWorkflowReplay(true);
   const spinner = el("demoSpin");
   setBusy(true);
   notify("Demo started", "Running the pinned " + chain + " chain.", "info");
@@ -2044,13 +2057,16 @@ function paintProvSummary(kind, result, report, files) {
     rows.push({ label: "Source video hash", hash: provenance.input_sha256,
       state: "recorded" });
   }
-  let modelHash = null;
-  if (result && result.provenance && result.provenance.artifact_hashes) {
-    const hashes = result.provenance.artifact_hashes;
-    modelHash = hashes.raw_bob_one_bit || hashes.raw_card_one_bit || null;
+  const hashes = result && result.provenance
+    ? result.provenance.artifact_hashes || {} : {};
+  for (const [key, label] of [
+    ["raw_bob_sha256", "Raw bob model hash"],
+    ["raw_card_sha256", "Raw card model hash"]
+  ]) {
+    const hash = hashes[key] || null;
+    rows.push({ label, hash,
+      state: hash ? "recorded" : "missing from payload" });
   }
-  rows.push({ label: "Model output hash", hash: modelHash,
-    state: modelHash ? "recorded" : "missing from payload" });
   const exports = files ? Object.keys(files).length : 0;
   rows.push({ label: "Computation hash", hash: null,
     state: exports > 0 ? exports + " exports recorded" : "no exports" });
@@ -4113,6 +4129,7 @@ async function runLiveDetect() {
     notify("Check the prompts", "A prompt is empty. Fill it in to detect.", "warn");
     return;
   }
+  setWorkflowReplay(false);
   const spinner = el("liveSpin");
   hide(el("liveErr"));
   show(spinner);
@@ -4711,6 +4728,7 @@ function wireViewer() {
 function stageClip(file) {
   if (!file) return;
   if (!validateClipSelection(file)) return;
+  setWorkflowReplay(false);
   el("emptyError").textContent = "";
   hide(el("emptyError"));
   setPendingFile(file);

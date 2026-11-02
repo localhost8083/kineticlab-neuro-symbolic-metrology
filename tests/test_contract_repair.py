@@ -330,28 +330,78 @@ class CalibrationProvenanceTest(unittest.TestCase):
     def test_dimensions_require_confirmed_source(self):
         data = valid_calibration()
         data["reference_dimensions_mm"] = {"width_mm": 85.6, "height_mm": 53.98}
+        data["dimension_source"] = "not_provided"
         with self.assertRaises(ContractError) as raised:
             CalibrationRecord.from_dict(data)
         self.assertIn("E_INCOHERENT_VALUE", raised.exception.codes)
 
     def test_confirmed_source_requires_dimensions(self):
         data = valid_calibration()
+        data["reference_dimensions_mm"] = None
         data["dimension_source"] = "user_confirmed"
         with self.assertRaises(ContractError) as raised:
             CalibrationRecord.from_dict(data)
         self.assertIn("E_INCOHERENT_VALUE", raised.exception.codes)
 
+    def test_scale_requires_confirmed_dimensions(self):
+        data = valid_calibration()
+        data["reference_dimensions_mm"] = None
+        data["dimension_source"] = "not_provided"
+        with self.assertRaises(ContractError) as raised:
+            CalibrationRecord.from_dict(data)
+        self.assertIn("E_INCOHERENT_VALUE", raised.exception.codes)
+
+    def test_plane_transform_requires_confirmed_dimensions(self):
+        data = valid_calibration()
+        data["reference_dimensions_mm"] = None
+        data["dimension_source"] = "not_provided"
+        data["scale_mm_per_px"] = None
+        data["plane_transform"] = [
+            [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0],
+        ]
+        with self.assertRaises(ContractError) as raised:
+            CalibrationRecord.from_dict(data)
+        self.assertIn("E_INCOHERENT_VALUE", raised.exception.codes)
+
+    def test_invalid_dimensions_still_require_confirmed_source(self):
+        for field, value in (
+            ("scale_mm_per_px", 1.0),
+            ("plane_transform", [
+                [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0],
+            ]),
+        ):
+            with self.subTest(field=field):
+                data = valid_calibration()
+                data["reference_dimensions_mm"] = None
+                data["dimension_source"] = "not_provided"
+                data["scale_mm_per_px"] = None
+                data["plane_transform"] = None
+                data[field] = value
+                data["valid"] = False
+                data["same_plane_assumption"] = None
+                data["camera_fixed_assumption"] = None
+                with self.assertRaises(ContractError) as raised:
+                    CalibrationRecord.from_dict(data)
+                self.assertIn("E_INCOHERENT_VALUE", raised.exception.codes)
+
+    def test_null_scale_not_provided_is_accepted(self):
+        data = valid_calibration()
+        data["reference_dimensions_mm"] = None
+        data["dimension_source"] = "not_provided"
+        data["scale_mm_per_px"] = None
+        data["valid"] = False
+        data["same_plane_assumption"] = None
+        data["camera_fixed_assumption"] = None
+        record = CalibrationRecord.from_dict(data)
+        self.assertIsNone(record.scale_mm_per_px)
+        self.assertEqual(record.dimension_source.value, "not_provided")
+
     def test_coherent_combinations_pass(self):
         data = valid_calibration()
         data["reference_type"] = "iso_id1_confirmed"
         data["reference_dimensions_mm"] = {"width_mm": 85.6, "height_mm": 53.98}
-        data["dimension_source"] = "user_confirmed"
         record = CalibrationRecord.from_dict(data)
         self.assertEqual(record.dimension_source.value, "user_confirmed")
-        data = valid_calibration()
-        data["reference_dimensions_mm"] = {"width_mm": 90.0, "height_mm": 55.0}
-        data["dimension_source"] = "user_confirmed"
-        CalibrationRecord.from_dict(data)
 
 
 class NegativePtsTest(unittest.TestCase):

@@ -291,6 +291,7 @@
         "provenance": null
       },
       "expect_codes": [
+        "E_INCOHERENT_VALUE",
         "E_UNCONFIRMED_DIMENSIONS"
       ]
     },
@@ -330,6 +331,7 @@
         "provenance": null
       },
       "expect_codes": [
+        "E_INCOHERENT_VALUE",
         "E_SCALE_AMBIGUOUS"
       ]
     },
@@ -353,6 +355,7 @@
         "provenance": null
       },
       "expect_codes": [
+        "E_INCOHERENT_VALUE",
         "E_INCOHERENT_VALUE"
       ]
     },
@@ -428,6 +431,7 @@
       },
       "expect_codes": [
         "E_GRAVITY_WITHOUT_LENGTH",
+        "E_INCOHERENT_VALUE",
         "E_INCOHERENT_VALUE"
       ]
     },
@@ -1864,6 +1868,7 @@
         "provenance": null
       },
       "expect_codes": [
+        "E_INCOHERENT_VALUE",
         "E_INCOHERENT_VALUE"
       ]
     },
@@ -2405,6 +2410,7 @@
         ]
       },
       "expect_codes": [
+        "E_INCOHERENT_VALUE",
         "E_INCOHERENT_VALUE"
       ]
     },
@@ -2547,6 +2553,7 @@
         ]
       },
       "expect_codes": [
+        "E_INCOHERENT_VALUE",
         "E_INCOHERENT_VALUE"
       ]
     },
@@ -2689,6 +2696,7 @@
         ]
       },
       "expect_codes": [
+        "E_INCOHERENT_VALUE",
         "E_INCOHERENT_VALUE",
         "E_INCOHERENT_VALUE"
       ]

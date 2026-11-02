@@ -23,14 +23,14 @@ Two modes: **Full** (bob + reference card) and **Motion** (bob only — scale-fr
 - **Gravity stays `null` without independent references** — the app reports the scale-free quantity g/L_eff (= ω²) instead of pretending to know g.
 - **A locked error taxonomy** — exactly 32 error codes + 9 warning codes, zero new codes ever. If a situation fits no code, the pipeline stops rather than improvises.
 - **Model output that violates the canonical format is rejected, not trimmed** — e.g. if the vision model returns two objects for one prompt in a frame, the run is rejected with a registered error and the raw evidence is preserved.
-- **Every export is auditable**: result JSON, human-readable summary, geometry report, calibration record (with validity flags and warnings), raw fixture references, SHA-256 hashes. A `measure_reuse` record states exactly what computation was cached and what bytes (by hash) it covered.
-- **Provenance chain**: software version, model name, input hashes, and artifact metadata timestamps where available — machine-readable in each artifact that carries those fields. Frame timing uses source PTS.
+- **Four run exports are auditable**: `result.json`, `diagnostics.json`, `angles.csv`, and `summary.md`. Geometry reports, calibration records (with validity flags and warnings), and raw fixture references are supporting evidence artifacts, not part of those four exports. Hashes and provenance link the relevant artifacts; a `measure_reuse` record states what computation was cached and which bytes (by hash) it covered.
+- **Provenance chain**: software version, model name, input hashes, and artifact metadata timestamps only where fields exist. Capture records artifact-save timestamps, not model-call timestamps; frame timing uses source PTS.
 
 ## Engineering shape
 
 - **Backend/runtime: Python standard library only** — zero third-party runtime dependencies. Optional `pytest` and build tooling are separate development extras.
 - **UI: one self-contained HTML file** (vanilla JS/CSS, no frameworks, no external references, no setInterval/setTimeout (one requestAnimationFrame ticker)) served by a stdlib HTTP server on `127.0.0.1:8137`.
-- Verified by a 905-test suite (`python -m unittest`), including key hygiene (the model API key is env-only, never logged or stored). Automated tests are mock-transport; real-API evidence is the recorded fixture run.
+- Test status is tracked honestly: current discovery finds 918 test methods; the latest full-suite run discovered 910 tests and failed 3. The last recorded earlier-tree run reported 905 tests, OK. Key hygiene remains covered (`python -m unittest` tests that the model API key is env-only, never logged or stored). Automated tests are mock-transport; real-API evidence is the recorded fixture run.
 - Windows-first; live-verified end-to-end on real hardware.
 
 ## Honest status
@@ -41,13 +41,6 @@ Two modes: **Full** (bob + reference card) and **Motion** (bob only — scale-fr
 ## Roadmap
 
 The pendulum is the first instrument, not the scope. The architecture — locked contracts, verbatim hash-pinned model telemetry, canonical codec, deterministic fit, loud verdicts — is experiment-agnostic. Designed next steps, stated as intent rather than claims, none built today: multi-object SAM 3.1 tracking with deterministic rigidity checks (stationary pivot, rigid rod), a DINOv2-class cross-model mask-agreement signal recorded in the diagnostics, a multimodal Experiment Inspector whose advisory notes stay in a visibly separate channel from the verdict, and further mechanical systems (spring-mass, projectile, collisions) on the same five-stage rail. Destination: a local physics experiment hub where Meta models do the seeing and every measurement/result number survives an audit, because no model supplies or changes measurement values.
-
-## Rules for AI agents working on this repo
-
-- Stdlib-only backend/runtime; optional `pytest` and build tooling stay separate; the UI stays a single self-contained file — no frameworks, no external refs.
-- Never add a taxonomy code; never let a model supply or change a measurement value.
-- `fixtures/` is read-only; task ledgers (`TASKS.md`, `WHITEBOARD.md`) and review docs (`Docs/Review_Log_Public.md`, `Docs/Claims_Register_Public.md`, `PLAN.md`) have named owners — check before writing.
-- No commits or pushes without the owner's explicit approval.
 
 ---
 

@@ -319,6 +319,35 @@ class ValidateFrameTableTest(unittest.TestCase):
         self.assertEqual(len(records), 3)
 
 
+class ChunkTableBoundTests(unittest.TestCase):
+    def test_oversized_chunk_offset_counts_raise_before_reading_entries(self):
+        from kineticlab.ingest.mp4 import MAX_SAMPLE_COUNT, ProbeError, _read_chunk_offsets
+
+        count = MAX_SAMPLE_COUNT + 1
+        for box_type in ("stco", "co64"):
+            with self.subTest(box_type=box_type):
+                payload = full_box(box_type, 0, struct.pack(">I", count))
+                with self.assertRaises(ProbeError) as raised:
+                    _read_chunk_offsets(box("stbl", payload), 8, 8 + len(payload), count)
+                self.assertIn("exceeds limit", str(raised.exception))
+
+    def test_oversized_stsc_run_count_raises_before_reading_entries(self):
+        from kineticlab.ingest.mp4 import MAX_SAMPLE_COUNT, ProbeError, _read_sample_chunks
+
+        count = MAX_SAMPLE_COUNT + 1
+        data = full_box("stsc", 0, struct.pack(">I", count))
+        with self.assertRaises(ProbeError) as raised:
+            _read_sample_chunks(data, 8, len(data), count, count)
+        self.assertIn("exceeds limit", str(raised.exception))
+
+    def test_chunk_count_cannot_exceed_sample_count(self):
+        from kineticlab.ingest.mp4 import ProbeError, _read_sample_chunks
+
+        with self.assertRaises(ProbeError) as raised:
+            _read_sample_chunks(b"", 0, 0, 3, 2)
+        self.assertIn("exceeds sample count", str(raised.exception))
+
+
 class StszBoundTests(unittest.TestCase):
     """Uniform-stsz counts bound before allocation (KL-9.6 M8)."""
 
@@ -331,7 +360,18 @@ class StszBoundTests(unittest.TestCase):
         # allocation (same ProbeError style as the per-sample path).
         with self.assertRaises(ProbeError) as raised:
             _read_stsz(data, 0, len(data))
-        self.assertIn("exceeds file size", str(raised.exception))
+        self.assertIn("exceeds limit", str(raised.exception))
+
+    def test_count_within_file_size_but_over_limit_raises(self):
+        from kineticlab.ingest.mp4 import MAX_SAMPLE_COUNT, ProbeError, _read_stsz
+
+        count = MAX_SAMPLE_COUNT + 1
+        data = b"\x00" * 4 + struct.pack(">II", 100, count)
+        data += b"\x00" * (count - len(data))
+        self.assertGreaterEqual(len(data), count)
+        with self.assertRaises(ProbeError) as raised:
+            _read_stsz(data, 0, 12)
+        self.assertIn("exceeds limit", str(raised.exception))
 
     def test_legitimate_uniform_table_still_parses(self):
         from kineticlab.ingest.mp4 import _read_stsz

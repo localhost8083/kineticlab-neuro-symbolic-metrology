@@ -183,8 +183,13 @@ def cmd_doctor(args: argparse.Namespace) -> int:
 
     from kineticlab.contracts import ResultContract
 
-    root = find_repo_root(Path.cwd()) or Path.cwd()
+    repo_root = find_repo_root(Path.cwd())
+    package_only = repo_root is None
+    root = repo_root or Path.cwd()
     passed = skipped = failed = 0
+    if package_only:
+        print("doctor: package-only mode; repository fixtures not checked; "
+              "full repository health not claimed")
 
     def line(status: str, detail: str) -> None:
         nonlocal passed, skipped, failed
@@ -211,22 +216,28 @@ def cmd_doctor(args: argparse.Namespace) -> int:
     except Exception as error:  # noqa: BLE001 — doctor reports, never crashes
         line("FAIL", f"package import: {type(error).__name__}: {error}")
     else:
-        contract_fixture = root / "fixtures" / "contracts" / "valid_result.json"
-        if not contract_fixture.is_file():
-            line("SKIP", f"kineticlab imports; {contract_fixture} absent; "
-                 "test fixture unavailable; contract self-check skipped")
+        if package_only:
+            line("PASS", "kineticlab imports; package self-check complete; "
+                 "repository contract fixture skipped in package-only mode")
         else:
-            try:
-                ResultContract.from_dict(json.loads(
-                    contract_fixture.read_text(encoding="utf-8")))
-                line("PASS", "kineticlab imports; contracts load; valid "
-                     "result.v1 self-check parses")
-            except Exception as error:  # noqa: BLE001 — doctor reports, never crashes
-                line("FAIL", f"contract self-check: {type(error).__name__}: {error}")
+            contract_fixture = root / "fixtures" / "contracts" / "valid_result.json"
+            if not contract_fixture.is_file():
+                line("FAIL", f"kineticlab imports; {contract_fixture} absent; "
+                     "repository contract self-check unavailable")
+            else:
+                try:
+                    ResultContract.from_dict(json.loads(
+                        contract_fixture.read_text(encoding="utf-8")))
+                    line("PASS", "kineticlab imports; contracts load; valid "
+                         "result.v1 self-check parses")
+                except Exception as error:  # noqa: BLE001 — doctor reports, never crashes
+                    line("FAIL", f"contract self-check: {type(error).__name__}: {error}")
 
     # 3. Fixture integrity: pinned expectations + clip sha256.
     fixture_path = root / "fixtures" / "test_3.json"
-    if not fixture_path.is_file():
+    if package_only:
+        line("SKIP", "repository fixture integrity skipped in package-only mode")
+    elif not fixture_path.is_file():
         line("SKIP", f"fixtures/test_3.json absent under {root}; "
              "fixture integrity not checkable")
     else:
@@ -272,7 +283,9 @@ def cmd_doctor(args: argparse.Namespace) -> int:
         line("PASS", detail)
 
     # 6. Config parse (when present).
-    if (root / CONFIG_FILENAME).is_file():
+    if package_only:
+        line("SKIP", "repository config check skipped in package-only mode")
+    elif (root / CONFIG_FILENAME).is_file():
         try:
             load_config(root)
             line("PASS", f"{CONFIG_FILENAME} parses")

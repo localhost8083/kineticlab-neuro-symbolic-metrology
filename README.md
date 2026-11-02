@@ -4,15 +4,13 @@
 
 **Point a phone camera at a swinging pendulum — Meta's SAM 3.1 model does the seeing, deterministic Python does the measuring, and every measurement ships with a full audit trail.**
 
-![Python](https://img.shields.io/badge/python-3.11%2B-306998?style=for-the-badge) ![Runtime](https://img.shields.io/badge/runtime-stdlib--only%20runtime-success?style=for-the-badge) ![Tests](https://img.shields.io/badge/tests-905%20passing-brightgreen?style=for-the-badge) ![CI](https://github.com/localhost8083/kineticlab-neuro-symbolic-metrology/actions/workflows/ci.yml/badge.svg) ![Meta](https://img.shields.io/badge/Meta-SAM%203.1-0668E5?style=for-the-badge) ![License](https://img.shields.io/badge/license-MIT-lightgrey?style=for-the-badge)
+![Python](https://img.shields.io/badge/python-3.11%2B-306998?style=for-the-badge) ![Runtime](https://img.shields.io/badge/runtime-stdlib--only%20runtime-success?style=for-the-badge) ![CI](https://github.com/localhost8083/kineticlab-neuro-symbolic-metrology/actions/workflows/ci.yml/badge.svg) ![Meta](https://img.shields.io/badge/Meta-SAM%203.1-0668E5?style=for-the-badge) ![License](https://img.shields.io/badge/license-MIT-lightgrey?style=for-the-badge)
+
+Current discovery finds 918 test methods; latest full-suite run discovered 910 tests and failed 3; no current full-suite pass is claimed.
 
 <br>
 
-<img src="Docs/img/dashboard.png" width="860" alt="KineticLab full success run: Upload / Detect / Confirm / Measure / Results stepper complete, Scientific Analysis charts (trajectory with fitted overlay, residuals, centroid trail, synced replay deck), key results (angular frequency, period, g/L_eff), evidence and provenance rail, and the SUCCESS verdict with exact-byte exports" />
-
-<p align="center">
-  <img src="Docs/img/kinetic_demo.gif" width="760" alt="Animated demo: the analysis deck in motion — the trajectory playhead, residuals, centroid trail, and the pendulum arm reconstructed from the pinned masks, every playhead synced on the source-PTS timebase" />
-</p>
+<img src="Docs/img/dashboard.png" width="860" alt="KineticLab full success run: Upload / Detect / Confirm / Measure / Results stepper complete, two-column workspace with video staging and status/key-results/provenance rail, Scientific Analysis 2x2 chart deck — trajectory with fitted overlay, residuals, centroid trail, and the measured pendulum-arm replay synced on the source-PTS timebase — plus the SUCCESS verdict with exact-byte exports" />
 
 *Shown: the built-in demo replay. Every chart is the run's own measured data — rendered from that run's `angles.csv`, never baked, never illustrative.*
 
@@ -32,7 +30,7 @@
 
 ## What is KineticLab?
 
-KineticLab turns an ordinary video clip into an **auditable measurement of a pendulum**. Meta **SAM 3.1** segments the bob and a reference card frame by frame; you confirm the masks; then a deterministic Python engine using a **stdlib-only runtime** fits the motion and reports `g/L_eff = ω²` (scale-free, `1/s²`) with a seeded block-bootstrap interval for ω. Optional `pytest` and build tooling are separate from runtime. Nothing is hidden between the pixels and the report: every stage keeps hashes, and every export carries full provenance.
+KineticLab turns an ordinary video clip into an **auditable measurement of a pendulum**. Meta **SAM 3.1** segments the bob and a reference card frame by frame; you confirm the masks; then a deterministic Python engine using a **stdlib-only runtime** fits the motion and reports `g/L_eff = ω²` (scale-free, `1/s²`) with a seeded block-bootstrap interval for ω. Optional `pytest` and build tooling are separate from runtime. Nothing is hidden between the pixels and the report: result provenance carries input and upstream artifact hashes; summary records hashes for its other written exports, not itself.
 
 The rule that shapes the whole project: **no model supplies or changes measurement values.** Vision output is untrusted telemetry, decoded by a canonical codec. Advisory text may echo exact JSON values only after audit and never feeds measurement assembly. When evidence is missing — no scale, no measured length — the answer is `null` with a registered warning code, never a guess dressed as data.
 
@@ -41,7 +39,7 @@ The rule that shapes the whole project: **no model supplies or changes measureme
 - **Video in, physics out** — measured θ(t) trajectory, fitted model, period, angular frequency ω, and `g/L_eff` with uncertainty
 - **Gravity only from your own ruler** — type the pendulum length you measured yourself and the app computes `g = (g/L_eff) × L`; without it, `g` stays `null`
 - **Honest nulls, loud rejections** — missing evidence renders `null` plus a warning; unusable clips fail with a specific red verdict, never a fake success
-- **Exact-byte exports with a provenance chain** — input SHA-256, model name, artifact digests recorded on the result and summary exports; all four exports are written with exact, re-verifiable bytes
+- **Exact-byte exports with a provenance chain** — input SHA-256, model name, and upstream artifact digests in provenance; summary lists SHA-256 for `result.json`, `diagnostics.json`, and `angles.csv` (not its own hash); all four exports are written with exact bytes
 - **Nothing to install at runtime** — `dependencies = []`: Python 3.11+ stdlib runtime; optional `pytest` and build tooling stay separate
 
 ## How it works
@@ -67,7 +65,7 @@ Meta AI does the seeing and the explaining. The **measurement itself stays deter
 
 ## What a run looks like
 
-A successful run ends in a verdict, four exact-byte reports, and a provenance chain — input SHA-256, model name (`sam-3.1`), artifact digests, exports:
+A successful run ends in a verdict, four exact-byte exports, supporting geometry and calibration artifacts, raw evidence references, and a provenance chain — input SHA-256, model name (`sam-3.1`), and artifact digests:
 
 <p align="center">
   <img src="Docs/img/trajectory.png" width="680" alt="Trajectory tab: 234 observed samples against the fitted sinusoid and the block-bootstrap omega band, with the legend observed theta(t), fitted theta(t) — observed minus pipeline residual, and T = 1.147 s" />
@@ -104,7 +102,7 @@ Every AI demo can show a number. KineticLab is built so it **can't fake one**:
   <img src="Docs/img/rejection.png" width="680" alt="Rejection run: the audit refuses to certify the input — REJECTED (unsupported_input) in red, the cause stated below, nothing smoothed or guessed; key results render Not available and the four exports are still written for inspection" />
 </p>
 
-- **Provenance on the result and summary exports:** `software_version`, `input_sha256`, `model_name`, artifact hashes of every written file — reproducible and auditable end-to-end; `angles.csv` and `diagnostics.json` are the exact-byte numeric exports.
+- **Provenance on result and summary exports:** `software_version`, `input_sha256`, `model_name`, and upstream artifact hashes. `summary.md` records exact-byte SHA-256 digests for `result.json`, `diagnostics.json`, and `angles.csv`; it excludes its own self-hash. `angles.csv` and `diagnostics.json` are exact-byte numeric exports.
 
 ## Roadmap
 
@@ -128,13 +126,13 @@ cd kineticlab-neuro-symbolic-metrology
 python --version
 python -m kineticlab --help
 python scripts/media_check.py
-python -m unittest          # 905 tests
+python -m unittest          # current discovery: 918 methods; latest run: 910 tests, 3 failures
 python -m kineticlab serve  # localhost UI
 ```
 
 | Command | What it does | Needs key? |
 |---|---|---|
-| `python -m kineticlab doctor` | Self-check: python version, contract integrity, fixture pins, node, key hygiene, config — one line per check, exit 1 on any FAIL | No |
+| `python -m kineticlab doctor` | Self-check: python version, contract integrity, fixture pins, node, key hygiene, config — one line per check, exit 1 on any FAIL. Outside a source checkout, reports package-only mode and skips repository checks; does not claim full repository health. | No |
 | `python -m kineticlab demo` | Replays the pinned SAM + advisory artifacts, assembles one full chain, writes the four exact-byte exports — fully offline | No |
 | `python -m kineticlab serve` | Starts the local web UI on 127.0.0.1 (blocking); uploads and results stay on your machine | No |
 | `python -m kineticlab capture` | One live SAM capture + measure chain from your own clip | **Yes** — `MODEL_API_KEY` |
@@ -155,22 +153,7 @@ The API key gates **live capture only** — it is sent solely as an `Authorizati
 
 ## Audit trail
 
-Built in the open with a two-agent workflow (builder + independent verifier) and two external audits. The audit's findings were verified against code and artifacts, triaged, and repaired — including executing the page's JavaScript in tests so runtime crashes of that class can't ship silently again. The internal process ledgers appear in no reachable commit of this repository: an early draft commit that once carried them was removed by a full-history rewrite, and GitHub’s object cache may still serve that orphaned draft’s page by its direct SHA until garbage collection. What’s here is the product and its evidence.
-
-<details>
-<summary><b>Overview & promo material</b> (marketing graphics — mock values are illustrative, the app's own numbers are not)</summary>
-
-<p align="center">
-  <img src="Docs/img/promo_cover.png" width="560" alt="Observe the motion. Prove the number." />
-</p>
-<p align="center">
-  <img src="Docs/img/promo_overview.png" width="560" alt="How it works: upload, detect, confirm, measure, results & evidence" />
-</p>
-<p align="center">
-  <img src="Docs/img/promo_features.png" width="560" alt="Key features: AI detection, deterministic physics, full provenance, local first" />
-</p>
-
-</details>
+Built with a two-agent workflow (builder + independent verifier) and reviewed in external audits. Findings were checked against code and artifacts, then triaged and repaired; tests execute the page's JavaScript to catch runtime failures. Product claims remain tied to code and evidence.
 
 ## Docs
 

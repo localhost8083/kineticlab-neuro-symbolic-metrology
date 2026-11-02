@@ -1,13 +1,13 @@
-# Demo Runbook (skeleton, M-4)
+# KineticLab Demo Runbook
 
 Ordered local demo: every step runs offline from pinned artifacts.
 Every number shown cites its `Docs/Claims_Register_Public.md` claim
 ID; no other numbers are displayed. Items marked USER ACTION need a
 human (card owner / submitter) and are not agent work.
 
-Submission context (source:
-`Docs/meta_ai_developer_hackathon_details.md`): deadline Nov 4, 9:00
-PM EST; package = functional demo + public repo link + short video;
+Submission context: portal details user-confirmed from submission form;
+deadline Nov 4, 9:00 PM EST is user-verified (no tracked official
+source). Package = functional demo + public repo link + short video;
 one track (Indie / Startup); scoring Impact 30 / Technical Execution
 25 / Meta AI Tooling 25 / Demo & Presentation 20.
 
@@ -17,7 +17,7 @@ one track (Indie / Startup); scoring Impact 30 / Technical Execution
 python -m unittest
 ```
 
-Say: "905 tests pass [C-003] on the maintained machine" — on a fresh clone some Smoke-results-backed tests skip, which REPRODUCE documents as expected. Say hygiene is enforced by 5 of them
+Say: "The last recorded earlier-tree run reported 905 tests, OK [C-003]; current discovery finds 918 test methods, and latest full-suite run failed 3 of 910 tests" — on a fresh clone some Smoke-results-backed tests skip, which REPRODUCE documents as expected. Say hygiene is enforced by 5 of them
 (no key material in tree, fixtures, or history [C-017]).
 
 ## 1. Structural media check — NOT a SAM replay
@@ -26,8 +26,8 @@ Say: "905 tests pass [C-003] on the maintained machine" — on a fresh clone som
 python scripts/media_check.py
 ```
 
-Say exactly: "Both fixtures PASS structurally [C-002]. This is a
-media structure check, not a model replay — the pinned SAM
+Say exactly: "The pinned `test_3` fixture passes structurally [C-002].
+This is a media structure check, not a model replay — the pinned SAM
 responses replay to 234/234 valid records each through
 `python -m kineticlab demo` [C-016]; nothing was tuned to
 make anything pass; the 117 occlusion frames [C-026] and
@@ -80,26 +80,26 @@ as a physical gravity measurement [C-027].
 Script beats (compressed to fit 3:00 MAX): (0) green tree +
 media structure check, (1) pinned SAM evidence files, (2)
 advisory evidence + hard rules, (3) calibration + pivot +
-overlay, (4) assembly result/summary + honesty close ("g is
-null, warnings carried"). Timebox: 0:00-0:30 tree, 0:30-1:15
-SAM, 1:15-2:00 advisory, 2:00-2:40 geometry, 2:40-3:00 honesty
+overlay, (4) current `demo_out/success/` assembly result/summary +
+honesty close ("g is null, warnings carried"). `fixtures/assembly/`
+is historical KL-7.1 output with no interval; current demo computes the
+seeded block-bootstrap interval [C-009]. Timebox: 0:00-0:30 tree,
+0:30-1:15 SAM, 1:15-2:00 advisory, 2:00-2:40 geometry, 2:40-3:00 honesty
 close. Every on-screen number claim-cited as above. No new
 numbers. Label all model evidence "live capture, offline
 replay" - never a live network call in the video.
 
 ## 6. USER ACTION — portal + push
 
-PORTAL RULES CONFIRMED 2026-10-28 (user logged in; official form
-screenshots + `Docs/meta_ai_developer_hackathon_details.md` agree):
-deadline Nov 4 9:00 PM EST; required = team name, track, theme,
+PORTAL DETAILS USER-CONFIRMED 2026-10-28 (user logged in;
+submission form screenshots): deadline Nov 4 9:00 PM EST is
+user-verified; required = team name, track, theme,
 project description, PUBLIC GitHub repo link, 3-MINUTE-MAX demo video
 (YouTube link), "Describe your use of Meta products", "Why are Meta's
 models important to your solution?"; optional = Most Viral Track X-post
 link, product feedback, partner-technology feedback. User decisions:
-solo builder -> INDIE DEVELOPER TRACK. Theme choice PENDING (Fable
-recommends "Push the Frontier" — the theme names physical systems and
-scientific experimentation verbatim; "Build for Your World" is the
-personal-workflow theme). Team name DECIDED 2026-10-29:
+solo builder -> INDIE DEVELOPER TRACK. Theme DECIDED: "Push the
+Frontier" (also stated in `Docs/OVERVIEW.md`). Team name DECIDED 2026-10-29:
 "KineticLab" (brand unity with repo/package/README). Card-privacy
 CONFIRMED
 2026-10-28: the reference card is an old, expired, blank-purpose

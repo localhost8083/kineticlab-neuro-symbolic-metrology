@@ -3,9 +3,9 @@
 Pins the public contract together with plain-text assertions
 (stdlib only, no YAML parser): every README Quickstart command must appear
 in .github/workflows/ci.yml, the workflow must keep its promised shape
-(matrix OS pair, timeout floor, triggers), and the five suite-count tokens
-across README + Docs must all name the same integer so one stale count
-cannot ship again.
+(matrix OS pair, timeout floor, triggers), and public suite-count wording
+must distinguish the historical result from current discovery so stale
+passing claims cannot ship again.
 
 These files are tracked; a missing one is a loud failure, never a skip.
 """
@@ -30,14 +30,10 @@ QUICKSTART_COMMANDS = (
     "python -m kineticlab serve",
 )
 
-# (file, regex with one integer group) for each suite-count token.
-COUNT_TOKENS = (
-    (README, r"tests-(\d+)%20passing"),   # README badge
-    (README, r"# (\d+) tests"),           # README Quickstart comment
-    (REPRODUCE, r"`(\d+) tests, OK`"),    # REPRODUCE.md expectation
-    (RUNBOOK, r'"(\d+) tests pass'),      # Demo_Runbook.md say-line
-    (OVERVIEW, r"(?:a|an) (\d+)-test suite"),  # OVERVIEW.md engineering shape
-)
+# Public docs must label historical and current counts honestly. A single
+# static passing count cannot survive changes to discovered test methods.
+HISTORICAL_COUNT = 905
+CURRENT_DISCOVERED_COUNT = 918
 
 
 def _read(path):
@@ -84,21 +80,19 @@ class CiDocsLockTests(unittest.TestCase):
         for trigger in ("push:", "pull_request", "workflow_dispatch"):
             self.assertIn(trigger, ci, f"trigger missing: {trigger}")
 
-    def test_suite_count_tokens_agree(self):
-        """All five suite-count tokens name the same integer."""
-        counts = []
-        for path, pattern in COUNT_TOKENS:
-            text = _read(path)
-            matches = re.findall(pattern, text)
-            label = f"{path.relative_to(ROOT)} /{pattern}/"
-            self.assertEqual(
-                len(matches), 1,
-                f"expected exactly one count token in {label}, "
-                f"found {len(matches)}")
-            counts.append(int(matches[0]))
-        self.assertEqual(
-            len(set(counts)), 1,
-            f"suite-count tokens disagree across docs: {counts}")
+    def test_suite_count_wording_is_honest(self):
+        """Docs distinguish historical result from current discovery count."""
+        texts = {path: _read(path) for path in (README, REPRODUCE, RUNBOOK, OVERVIEW)}
+        combined = "\n".join(texts.values())
+        self.assertIn(f"{CURRENT_DISCOVERED_COUNT} test methods", combined)
+        self.assertIn(f"{HISTORICAL_COUNT} tests, OK", combined)
+        self.assertIn("failed 3", combined)
+        self.assertNotRegex(combined, r"905 tests pass(?:ing)?")
+        self.assertNotRegex(combined, r"tests-905%20passing")
+        claim = _read(ROOT / "Docs" / "Claims_Register_Public.md")
+        self.assertIn("905 tests, OK", claim)
+        self.assertIn("918 test methods", claim)
+        self.assertIn("current suite failing", claim)
 
     def test_no_pep701_fstrings(self):
         """Python floor is 3.11: no multi-line expressions inside

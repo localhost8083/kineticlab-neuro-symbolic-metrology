@@ -4,7 +4,7 @@
   ],
   "calibration": {
     "camera_fixed_assumption": true,
-    "dimension_source": "not_provided",
+    "dimension_source": "user_confirmed",
     "observed_corners_px": [
       [
         10.0,
@@ -29,7 +29,7 @@
     },
     "plane_transform": null,
     "provenance": null,
-    "reference_dimensions_mm": null,
+    "reference_dimensions_mm": {"width_mm": 100.0, "height_mm": 50.0},
     "reference_type": "unknown",
     "same_plane_assumption": true,
     "scale_mm_per_px": 0.85,

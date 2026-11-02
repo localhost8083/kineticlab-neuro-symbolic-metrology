@@ -1092,7 +1092,9 @@ class CalibrationRecord:
     ``[x, y, 1]`` to plane ``[X_mm, Y_mm, 1]``. Exactly one scale form
     is allowed on a valid record. Standard ID-1 dimensions enter only
     through U-1 user input: this module hardcodes no card size, and a
-    confirmed type without user-confirmed dimensions is rejected.
+    confirmed type without user-confirmed dimensions is rejected. A plane
+    transform also requires user-confirmed dimensions because its coordinates
+    are millimeters.
     Dimensions and source must agree in both directions for every
     reference type: present iff ``user_confirmed``, null iff
     ``not_provided``. Assumption flags are nullable booleans: ``null``
@@ -1217,12 +1219,11 @@ class CalibrationRecord:
         if valid and (same_plane is None or camera_fixed is None):
             collector.add("E_INCOHERENT_VALUE", "valid",
                           "valid calibration must state both plane assumptions explicitly")
-        # ponytail: a scale alongside dimension_source="not_provided"
-        # still parses valid here. Locking the schema would rewrite the
-        # entire pinned fixture corpus; the only pipeline producer
-        # (geometry.calibration) always emits user_confirmed, which is
-        # the working enforcement point (KL-10.21 triage). Revisit when
-        # the fixture corpus is next regenerated.
+        if (scale is not None or transform is not None) \
+                and dimension_source is DimensionSource.NOT_PROVIDED:
+            field = "scale_mm_per_px" if scale is not None else "plane_transform"
+            collector.add("E_INCOHERENT_VALUE", field,
+                          "calibration dimensions require user confirmation")
         collector.raise_if_errors()
         assert reference_type is not None and dimension_source is not None
         assert valid is not None and warnings is not None
@@ -1451,6 +1452,13 @@ class FitRecord:
         pivot_length = _read_float(data, "pivot_length_mm", collector, "", allow_null=True,
                                    minimum=0.0, minimum_exclusive=True)
         pivot_source = _read_enum(data, "pivot_length_source", collector, "", LengthSource)
+        if pivot_source is LengthSource.NOT_PROVIDED and pivot_length is not None:
+            collector.add("E_INCOHERENT_VALUE", "pivot_length_source",
+                          "not_provided requires null pivot_length_mm")
+        elif (pivot_source is LengthSource.INDEPENDENT_MEASUREMENT
+              and pivot_length is None):
+            collector.add("E_INCOHERENT_VALUE", "pivot_length_mm",
+                          "independent_measurement requires a pivot length")
         g_over_l = _read_float(data, "g_over_l_per_s2", collector, "", allow_null=True)
         gravity = _read_float(data, "gravity_m_s2", collector, "", allow_null=True)
         if g_over_l is not None and "g_over_l" not in parameters:

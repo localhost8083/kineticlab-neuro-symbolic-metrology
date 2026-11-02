@@ -1,7 +1,9 @@
 # Review Log (public redaction)
 
-Public, tracked copy of the gate decisions. Each entry keeps its
-date, gate, verdict, accepted evidence, and blocking findings.
+Public, tracked historical copy of gate decisions through KL-10.14.
+Each entry keeps its date, gate, verdict, accepted evidence, and
+blocking findings. Current verification belongs in
+`Docs/Claims_Register_Public.md` and CI, not this historical log.
 Stripped from the private ledger: machine-local paths and timings,
 per-run process notes, agent working chatter, and anything
 credentials-adjacent. The private ledger (`Docs/Review_Log.md`)
@@ -115,11 +117,13 @@ stays gitignored and append-only.
 
 ## 2026-10-28 — KL-7.1 — VERIFIED
 
-- End-to-end offline result assembly. 472 tests OK x2.
+- Historical KL-7.1 end-to-end offline result assembly. 472 tests OK x2.
   Independent clean-room `assemble()` recompute 15/15 PASS,
-  g/L_eff 30.00563573707589 exact. Pin honesty chain verified:
+  g/L_eff 30.00563573707589 exact. Historical pin honesty chain:
   `success_with_warnings`, gravity null, interval null + method
-  `none`, sole warning `W_UNCERTAINTY_UNAVAILABLE`.
+  `none`; fit warning `W_UNCERTAINTY_UNAVAILABLE` (calibration also
+  carries `W_ASSUMPTION_UNVERIFIED`). Superseded for current demo interval
+  behavior by KL-10.11 seeded bootstrap.
 
 ## 2026-10-28 — KL-7.2 — VERIFIED
 
@@ -339,9 +343,11 @@ stays gitignored and append-only.
   toast system (rAF-only, rejections never green).
   838 tests OK.
 
-## 2026-10-31 — Gate KL-10.14 — VERIFY (pending)
+## 2026-10-31 — Gate KL-10.14 — VERIFY (historical snapshot)
 
 - Layout restructure to the 3-column instrument
   dashboard (structure moves; components, physics,
-  honesty frozen). 844 tests OK. Verdict pending
-  reviewer sign-off at the time of redaction.
+  honesty frozen). 844 tests OK at the time of this entry.
+  Verdict was pending reviewer sign-off when this historical
+  snapshot was recorded; current verification is tracked in
+  `Docs/Claims_Register_Public.md` and CI.

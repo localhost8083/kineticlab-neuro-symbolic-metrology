@@ -25,6 +25,8 @@ import hashlib
 import struct
 from pathlib import Path
 
+MAX_SAMPLE_COUNT = 100_000  # Matches the existing fit.MAX_SAMPLES ceiling.
+
 CODEC_NAMES = {
     "avc1": "h264",
     "avc3": "h264",
@@ -277,10 +279,10 @@ def _read_stsz(data: bytes, start: int, end: int) -> tuple[int, list[int]]:
     if end - start < 12:
         raise ProbeError("truncated stsz header")
     sample_size, sample_count = struct.unpack_from(">II", data, start + 4)
-    # KL-9.6 M8: bound BEFORE any allocation. The uniform path below
-    # used to multiply first, so a 4-billion count demanded a
-    # 4-billion-element list before the caller's post-hoc check could
-    # run. Same ProbeError style as the per-sample path.
+    # Bound before expanding either uniform or per-sample tables.
+    if sample_count > MAX_SAMPLE_COUNT:
+        raise ProbeError(
+            f"sample count {sample_count} exceeds limit {MAX_SAMPLE_COUNT}")
     if sample_count > len(data):
         raise ProbeError(
             f"sample count {sample_count} exceeds file size {len(data)}")
@@ -297,7 +299,8 @@ def _read_stsz(data: bytes, start: int, end: int) -> tuple[int, list[int]]:
     return sample_count, sizes
 
 
-def _read_chunk_offsets(data: bytes, stbl_start: int, stbl_end: int) -> list[int]:
+def _read_chunk_offsets(data: bytes, stbl_start: int, stbl_end: int,
+                        sample_count: int) -> list[int]:
     """Return chunk byte offsets from exactly one of stco/co64."""
     stco = find_child(data, stbl_start, stbl_end, "stco")
     co64 = find_child(data, stbl_start, stbl_end, "co64")
@@ -308,6 +311,12 @@ def _read_chunk_offsets(data: bytes, stbl_start: int, stbl_end: int) -> list[int
     box_start, box_end = co64 if co64 is not None else stco
     assert box_start is not None and box_end is not None
     _, entry_count, cursor = _read_full_header(data, box_start, box_end, "stco/co64")
+    if entry_count > MAX_SAMPLE_COUNT:
+        raise ProbeError(
+            f"chunk count {entry_count} exceeds limit {MAX_SAMPLE_COUNT}")
+    if entry_count > sample_count:
+        raise ProbeError(
+            f"chunk count {entry_count} exceeds sample count {sample_count}")
     width = 8 if co64 is not None else 4
     offsets = []
     for _ in range(entry_count):
@@ -325,7 +334,19 @@ def _read_chunk_offsets(data: bytes, stbl_start: int, stbl_end: int) -> list[int
 def _read_sample_chunks(data: bytes, start: int, end: int, chunk_count: int,
                         sample_count: int) -> list[int]:
     """Return the 1-based chunk number of each sample in decode order."""
+    if chunk_count > MAX_SAMPLE_COUNT:
+        raise ProbeError(
+            f"chunk count {chunk_count} exceeds limit {MAX_SAMPLE_COUNT}")
+    if chunk_count > sample_count:
+        raise ProbeError(
+            f"chunk count {chunk_count} exceeds sample count {sample_count}")
     _, entry_count, cursor = _read_full_header(data, start, end, "stsc")
+    if entry_count > MAX_SAMPLE_COUNT:
+        raise ProbeError(
+            f"stsc run count {entry_count} exceeds limit {MAX_SAMPLE_COUNT}")
+    if entry_count > chunk_count:
+        raise ProbeError(
+            f"stsc run count {entry_count} exceeds chunk count {chunk_count}")
     runs = []
     for _ in range(entry_count):
         if cursor + 12 > end:
@@ -401,15 +422,14 @@ def extract_sample_timing(data: bytes) -> dict:
         if stsz is None:
             raise ProbeError("no stsz box: sample count unknown")
         sample_count, sizes = _read_stsz(data, *stsz)
-        if sample_count > len(data):
-            raise ProbeError(f"sample count {sample_count} exceeds file size {len(data)}")
         stts = find_child(data, stbl_start, stbl_end, "stts")
         if stts is None:
             raise ProbeError("no stts box: decoding times unknown")
         deltas = _read_stts(data, *stts, sample_count)
         ctts = find_child(data, stbl_start, stbl_end, "ctts")
         offsets = _read_ctts(data, *ctts, sample_count) if ctts is not None else [0] * sample_count
-        chunk_offsets = _read_chunk_offsets(data, stbl_start, stbl_end)
+        chunk_offsets = _read_chunk_offsets(
+            data, stbl_start, stbl_end, sample_count)
         stsc = find_child(data, stbl_start, stbl_end, "stsc")
         if stsc is None:
             raise ProbeError("no stsc box: sample-to-chunk mapping unknown")

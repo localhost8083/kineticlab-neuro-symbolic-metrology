@@ -365,6 +365,19 @@ class StrictnessMatrixTest(unittest.TestCase):
             FitRecord.from_dict(data)
         self.assertIn("E_INCOHERENT_VALUE", raised.exception.codes)
 
+    def test_fit_pivot_length_source_coherence(self):
+        for length, source in (
+            (12.0, "not_provided"),
+            (None, "independent_measurement"),
+        ):
+            with self.subTest(length=length, source=source):
+                data = valid_fit()
+                data["pivot_length_mm"] = length
+                data["pivot_length_source"] = source
+                with self.assertRaises(ContractError) as raised:
+                    FitRecord.from_dict(data)
+                self.assertIn("E_INCOHERENT_VALUE", raised.exception.codes)
+
     def test_validity_gates(self):
         frame = valid_frame()
         frame.update({"pts_seconds": None, "valid": True})
