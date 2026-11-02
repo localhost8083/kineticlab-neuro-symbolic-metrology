@@ -2,8 +2,6 @@
 
 <img src="Docs/img/logo.png" width="340" alt="KineticLab logo: a pendulum swinging across a glowing blue arc beside a circuit-etched Meta infinity mark, above the tagline Measure what you can see. Refuse what you can't." />
 
-# KineticLab
-
 **Point a phone camera at a swinging pendulum — Meta's SAM 3.1 model does the seeing, deterministic Python does the measuring, and every number ships with a full audit trail.**
 
 ![Python](https://img.shields.io/badge/python-3.11%2B-306998?style=for-the-badge) ![Runtime](https://img.shields.io/badge/runtime-stdlib--only-success?style=for-the-badge) ![Tests](https://img.shields.io/badge/tests-905%20passing-brightgreen?style=for-the-badge) ![CI](https://github.com/localhost8083/kineticlab-neuro-symbolic-metrology/actions/workflows/ci.yml/badge.svg) ![Meta](https://img.shields.io/badge/Meta-SAM%203.1-0668E5?style=for-the-badge) ![License](https://img.shields.io/badge/license-MIT-lightgrey?style=for-the-badge)
