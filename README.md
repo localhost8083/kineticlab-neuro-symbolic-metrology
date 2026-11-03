@@ -4,6 +4,8 @@
 
 **Point a phone camera at a swinging pendulum — Meta's SAM 3.1 model does the seeing, deterministic Python does the measuring, and every measurement ships with a full audit trail.**
 
+**▸ Watch the 3-minute demo video: https://www.youtube.com/watch?v=j1-tvtS7HCk**
+
 ![Python](https://img.shields.io/badge/python-3.11%2B-306998?style=for-the-badge) ![Runtime](https://img.shields.io/badge/runtime-stdlib--only%20runtime-success?style=for-the-badge) ![CI](https://github.com/localhost8083/kineticlab-neuro-symbolic-metrology/actions/workflows/ci.yml/badge.svg) ![Meta](https://img.shields.io/badge/Meta-SAM%203.1-0668E5?style=for-the-badge) ![License](https://img.shields.io/badge/license-MIT-lightgrey?style=for-the-badge)
 
 Current discovery finds 921 test methods; latest full-suite run (2026-11-03): 877 tests, OK (skipped=15, platform-gated byte pins).
