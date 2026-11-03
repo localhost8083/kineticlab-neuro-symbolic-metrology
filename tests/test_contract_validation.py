@@ -350,7 +350,7 @@ class StrictnessMatrixTest(unittest.TestCase):
 
     def test_fit_count_rules(self):
         data = valid_fit()
-        data["rejected_count"] = 235
+        data["rejected_count"] = 592
         with self.assertRaises(ContractError) as raised:
             FitRecord.from_dict(data)
         self.assertIn("E_INCOHERENT_VALUE", raised.exception.codes)

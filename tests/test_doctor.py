@@ -62,7 +62,7 @@ class DoctorCliTest(unittest.TestCase):
         self.assertIn("package-only mode", output)
         self.assertIn("full repository health not claimed", output)
         self.assertIn("repository fixture integrity skipped", output)
-        self.assertNotIn("fixtures/test_3.json absent", output)
+        self.assertNotIn("fixtures/demo_test.json absent", output)
 
     def test_repo_without_fixtures_reports_skips(self):
         previous_cwd = os.getcwd()
@@ -76,7 +76,7 @@ class DoctorCliTest(unittest.TestCase):
                 os.chdir(previous_cwd)
         self.assertEqual(code, 1)
         self.assertIn("valid_result.json absent", output)
-        self.assertIn("fixtures/test_3.json absent", output)
+        self.assertIn("fixtures/demo_test.json absent", output)
         self.assertIn("doctor: ", output)
 
     def test_output_never_carries_key_material(self):

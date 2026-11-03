@@ -351,3 +351,39 @@ stays gitignored and append-only.
   Verdict was pending reviewer sign-off when this historical
   snapshot was recorded; current verification is tracked in
   `Docs/Claims_Register_Public.md` and CI.
+
+## 2026-11-03 - KL-10.24 - fixture corpus swap onto demo_test
+
+- Corpus swap: every tracked pin, test, and public doc moved from
+  the retired `Smoke/test_3.mp4` clip to the shipped
+  `Smoke/demo_test.mp4` (sha256 db5da89e...d9945, h264 1024x576,
+  591 frames, 19.73 s). Evidence source: verified live run
+  `live-20261103T044359Z-365dd3b5` (two SAM 3.1 calls, prompts
+  ball/card; bob 591/591, card 392/392 records, frames 199..590).
+- New pins: `fixtures/live/` raws + run_metadata (bob
+  23e4035e...15e8f, card ec6a62f7...a8d7df), ingest frame table,
+  `fixtures/demo_test.json` media pin, geometry trio
+  (calibration b83ddf2d...2ce70, report pin 05ea0472...47816,
+  overlay 8667cd51...a1345), assembly quartet (result
+  837a9b8a...abcb3, diagnostics 0666b5fb...2069, angles.csv
+  877b2b72...264e9, summary e54c5cc6...32ba6e) + rejection quartet
+  + corrupt pin 31b6d28b...f374.
+- Honest-calibration change landed with the swap: full mode now
+  needs BOTH card dimensions human-typed (85.0x54.0 typed for the
+  new card); the calibration record stays invalid with
+  reference_type "unknown" (a cut card is no standard) and two
+  W_ASSUMPTION_UNVERIFIED warnings; no new E_*/W_* codes, no
+  contracts.py schema edits. The fresh-clip U-3 statement replaces
+  the retired-clip bound wording; assembly result is plain
+  `success` with the seeded block-bootstrap interval
+  (g/L_eff 28.93746036102984 1/s^2, omega band
+  [5.375782102745884, 5.38357668969718], seed 20261103, n_boot 800,
+  block 36).
+- Docs updated with stable claim IDs (C-002/005/006/009/015/016/
+  024/025/026/028/029); historical entries above kept verbatim.
+  Advisory fixtures untouched (C-020..C-023 keep their recorded
+  evidence). `Docs/img/` screenshots still show the retired run;
+  regenerating them stays user action.
+- Full stdlib battery green on the swapped tree (module battery:
+  contracts 114, geometry 33, assembly 77, live_chain 40, ui 193,
+  guards battery 65 OK / 15 expected skips).

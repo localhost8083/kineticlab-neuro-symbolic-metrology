@@ -29,10 +29,10 @@ recomputed or authored here. Null renders as `null` (unknown).
 
 ## Quality metrics
 
-- frames_total: 234
-- frames_usable: 234
-- observations_total: 468
-- observations_valid: 468
+- frames_total: 591
+- frames_usable: 591
+- observations_total: 983
+- observations_valid: 983
 - calibrated_frames: null
 
 ## Assumptions
@@ -45,29 +45,29 @@ recomputed or authored here. Null renders as `null` (unknown).
 
 ## Reject reasons
 
-- `E_MALFORMED_JSON` (geometry.geometry_report): fixtures/assembly/corrupt_geometry_report.json is unreadable as JSON: Unterminated string starting at: line 10 column 14 (char 187)
+- `E_MALFORMED_JSON` (geometry.geometry_report): fixtures/assembly/corrupt_geometry_report.json is unreadable as JSON: Unterminated string starting at: line 7 column 21 (char 187)
 
 ## Provenance
 
 - software_name: kineticlab
 - software_version: 0.1.0
-- input_sha256: a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce
+- input_sha256: db5da89e06f74547f03a41a1ef2ff041c6b4b1948957538a8e4674f5ab1d9945
 - model_name: sam-3.1
 - model_version: null
 - raw_refs:
   - fixtures/live/raw_bob_one_bit.txt
   - fixtures/live/raw_card_one_bit.txt
 - artifact_hashes (input digests, copied):
-  - raw_bob_sha256: b216815fd6ca5e15718fed2dd8947a9972e00b1f27f71881e5d39401a4fb3ad7
-  - raw_card_sha256: d3fe9a7ecde3f48c6ef2753bd66f7d93f86783613d50bb2ebbf566deb57473d1
-  - calibration_sha256: 09e3e852efe6a7d74f67f642ef9710558c898d65bd6c55a9d67a033bba3fa3aa
-  - geometry_report_sha256: f1020ff32c1a44fefcc25aab9c786ba235acd3528883f7cf0023beb09c0e7bf6
+  - raw_bob_sha256: 23e4035ef0e648383eff5c44e6e9511cb7d20254b9e3d82b4a7de57773315e8f
+  - raw_card_sha256: ec6a62f76fdf2a2e58afea9eab83d2867737bb883ba675d88ded7c4040a8d7df
+  - calibration_sha256: b83ddf2dcc17848cd3ca196cd1499027d756901424368fcea1449fc033a2ce70
+  - geometry_report_sha256: 31b6d28bab36377c916e2d500c2b276382a993d919f464a1f56c57796304f374
 
 ## Export files
 
 SHA-256 over the exact written bytes, in write order:
 
-- result.json: d72d38dfc6cd15a51be4bf8bc335aecec6d36a7f742f7cea4b862896e18ebb7f
-- diagnostics.json: 97c97d4c4679af94644ccdc2e90c633ed36ba2ad42e335004197079014ff4b25
+- result.json: 2510bca66fbce1c7e59f84138f4763e1472b5e95641ec5557c43a404d948dac0
+- diagnostics.json: 12bd702a4ac58462aaa77c44aadade1f93fed0c9c04aa3ebdd1861fcdf1fe24c
 - angles.csv: ca2e507407c800918dc84d5d2021ad38091d957b20b3574ae7b038c16bef5e64
 - summary.md: (this file — self-hash excluded by construction; verify by regenerating)

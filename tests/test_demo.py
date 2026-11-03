@@ -1,7 +1,7 @@
 """Demo front-door tests (KL-8.1 Part A, OG F8b).
 
-Covers: pinned SAM replay counts (234/234 valid each role, no
-fits); advisory replay matching the M-2 closure facts (+3
+Covers: pinned SAM replay counts (591/591 bob, 392/392 card valid,
+no fits); advisory replay matching the M-2 closure facts (+3
 warnings, downgrade, narrative source model on recorded input);
 success + rejection chains through the shared entry surface
 (status, value, exports written, honest status lines); the demo
@@ -30,12 +30,12 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 class SamReplayTests(unittest.TestCase):
     def test_pinned_counts(self):
         sam = replay_sam_pins(REPO_ROOT)
-        self.assertEqual(sam["clip"], "Smoke/test_3.mp4")
-        self.assertEqual(sam["frames"], 234)
-        for role in ("bob", "card"):
-            with self.subTest(role=role):
-                self.assertEqual(sam[role]["records"], 234)
-                self.assertEqual(sam[role]["valid"], 234)
+        self.assertEqual(sam["clip"], "Smoke/demo_test.mp4")
+        self.assertEqual(sam["frames"], 591)
+        self.assertEqual((sam["bob"]["records"], sam["bob"]["valid"]),
+                         (591, 591))
+        self.assertEqual((sam["card"]["records"], sam["card"]["valid"]),
+                         (392, 392))
 
 
 class AdvisoryReplayTests(unittest.TestCase):
@@ -91,12 +91,12 @@ class DemoChainTests(unittest.TestCase):
         # KL-10.11: the bootstrap ran, so the demo success chain
         # reaches plain success with a populated interval.
         self.assertEqual(result["status"], "success")
-        self.assertEqual(result["value"], 30.00563573707589)
+        self.assertEqual(result["value"], 28.93746036102984)
         self.assertEqual(result["interval_method"], "block_bootstrap")
         self.assertLess(result["interval"]["lower"],
                         result["interval"]["upper"])
         self.assertIn("chain: success —", out["status_line"])
-        self.assertIn("30.00563573707589", out["status_line"])
+        self.assertIn("28.93746036102984", out["status_line"])
         self.assertIn("4 exports in demo_out/success",
                       out["status_line"])
         self.assertNotRegex(out["status_line"], r"[A-Za-z]:[\\/]")
@@ -128,10 +128,10 @@ class DemoChainTests(unittest.TestCase):
             "success",
             {"status": "success_with_warnings",
              "identifiable_quantity": {"name": "g/L_eff",
-                                       "value": 30.00563573707589,
+                                       "value": 28.93746036102984,
                                        "unit": "1/s^2"},
              "reject_reasons": []})
-        self.assertIn("30.00563573707589", line)
+        self.assertIn("28.93746036102984", line)
         self.assertIn("4 exports in demo_out/success", line)
         self.assertNotIn("E:", line)
 
@@ -154,7 +154,7 @@ class DemoCliTests(unittest.TestCase):
                 self.assertTrue(
                     (Path(tmp) / "rejection" / name).is_file())
         text = stdout.getvalue()
-        self.assertIn("234/234 valid", text)
+        self.assertIn("591/591 valid", text)
         self.assertIn("source=model", text)
         self.assertIn("unsupported_input", text)
         self.assertEqual(text.count("wrote: "), 4)
@@ -191,12 +191,12 @@ class DemoCliTests(unittest.TestCase):
                                    out_dir=str(Path(tmp)))
             with mock.patch.object(demo_mod, "replay_sam_pins",
                                    return_value={
-                                       "clip": "Smoke/test_3.mp4",
-                                       "frames": 234,
-                                       "bob": {"valid": 234,
-                                               "records": 234},
-                                       "card": {"valid": 234,
-                                                "records": 234}}), \
+                                       "clip": "Smoke/demo_test.mp4",
+                                       "frames": 591,
+                                       "bob": {"valid": 591,
+                                               "records": 591},
+                                       "card": {"valid": 392,
+                                                "records": 392}}), \
                  mock.patch.object(demo_mod, "replay_advisory_pins",
                                    return_value=advisory), \
                  mock.patch.object(demo_mod, "run_demo_chain",

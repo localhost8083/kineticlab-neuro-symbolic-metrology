@@ -19,6 +19,6 @@
     "input_sha256": null,
     "model_name": "sam-3.1",
     "model_version": "fixture",
-    "raw_refs": ["Smoke/results/test_3_white_card_raw.txt"]
+    "raw_refs": ["fixtures/live/raw_card_one_bit.txt"]
   }
 }

@@ -1,0 +1,19 @@
+{
+  "expect": {
+    "codec": "h264",
+    "codec_tag": "avc1",
+    "duration_s": 19.73143333333333,
+    "duration_tol_s": 0.05,
+    "fps": null,
+    "frames": 591,
+    "has_audio": true,
+    "height": 576,
+    "major_brand": "mp42",
+    "pix_fmt": null,
+    "sha256": "db5da89e06f74547f03a41a1ef2ff041c6b4b1948957538a8e4674f5ab1d9945",
+    "width": 1024
+  },
+  "name": "demo_test",
+  "provenance": "codec/geometry/frames pinned from the verified live run live-20261103T044359Z-365dd3b5 (clip.mp4, byte-identical to Demo/Demo_Test.mp4). duration_s and has_audio are first measured by the stdlib probe on 2026-11-03; re-verify with ffprobe when available. fps is null: stts timing is non-uniform (VFR-ish), so no nominal rate is pinned.",
+  "video": "Smoke/demo_test.mp4"
+}

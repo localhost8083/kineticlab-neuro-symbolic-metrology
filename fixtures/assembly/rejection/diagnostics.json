@@ -9,7 +9,7 @@
       {
         "code": "E_MALFORMED_JSON",
         "field": "geometry_report",
-        "message": "fixtures/assembly/corrupt_geometry_report.json is unreadable as JSON: Unterminated string starting at: line 10 column 14 (char 187)"
+        "message": "fixtures/assembly/corrupt_geometry_report.json is unreadable as JSON: Unterminated string starting at: line 7 column 21 (char 187)"
       }
     ],
     "stage": "geometry",
@@ -17,10 +17,10 @@
   },
   "m1": null,
   "m2": null,
-  "n_bob_records": 234,
-  "n_card_records": 234,
+  "n_bob_records": 591,
+  "n_card_records": 392,
   "n_fit_points": 0,
-  "n_table_frames": 234,
+  "n_table_frames": 591,
   "pivot_px": null,
   "pivot_source": null,
   "radius": null

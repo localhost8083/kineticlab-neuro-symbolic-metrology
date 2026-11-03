@@ -19,15 +19,15 @@ echo exact JSON values only after audit and never feeds measurement assembly.
 
 ## Live run vs offline replay — labeled evidence
 
-**LIVE-RUN** (real API responses, recorded 2026-10-28, user-operated
+**LIVE-RUN** (real API responses, recorded 2026-11-03, user-operated
 transport, no agent-held key): [`fixtures/live/`](live)
 
 - `run_metadata.json` pins everything: model `sam-3.1`, endpoint
   `https://api.meta.ai/v1`, prompts `ball` and `card`, mask encoding
   `one_bit`, confidence requested, and SHA-256 hashes of both raw response
-  artifacts plus the input clip (matching the `fixtures/test_3.json` pin).
+  artifacts plus the input clip (matching the `fixtures/demo_test.json` pin).
 - `raw_bob_one_bit.txt` / `raw_card_one_bit.txt` — the verbatim response
-  payloads (50–53 KB each), redacted of any request scaffolding.
+  payloads (79–121 KB each), redacted of any request scaffolding.
 - Uploaded working files were **deleted after each call** by the transport
   (`uploads_deleted_after: true`). No key material is present in any
   artifact; the API key lives in the environment only and is never logged
@@ -39,7 +39,8 @@ transport, no agent-held key): [`fixtures/live/`](live)
 (`python -m kineticlab demo --chain success|rejection`) and the whole test
 suite replay recorded mask payloads through the identical pipeline. The
 live SAM responses above replay through the unchanged offline pipeline to
-234/234 valid observations — the live and offline paths share one codec,
+591/591 valid bob observations and 392/392 valid card observations — the
+live and offline paths share one codec,
 one contract layer, one taxonomy.
 
 ## What this buys you

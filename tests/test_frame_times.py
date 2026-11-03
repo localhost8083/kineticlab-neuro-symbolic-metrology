@@ -7,7 +7,7 @@ and finite negative PTS, retain withdrawn frames, and fail
 contradictions with registered codes.
 
 Structural pins below were measured by this stdlib parser on
-2026-10-27 from the Smoke/ bytes (no ffprobe in this sandbox);
+2026-11-03 from the Smoke/ bytes (no ffprobe in this sandbox);
 FFprobe re-verification stays a recorded follow-up. They act as
 regression pins: identical bytes must yield identical numbers.
 """
@@ -31,7 +31,7 @@ from tests import require_smoke
 from tests.contract_samples import valid_frame
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-TEST_3 = REPO_ROOT / "Smoke/test_3.mp4"
+CLIP = REPO_ROOT / "Smoke/demo_test.mp4"
 
 
 def write_temp_bytes(payload):
@@ -121,24 +121,24 @@ def synthetic_mp4(*, timescale=1000, stts_entries=((2, 40),),
 
 
 class RealFixtureTimingTest(unittest.TestCase):
-    def test_test3_yields_234_strictly_increasing_vfr_frames(self):
-        require_smoke(TEST_3)
-        entries = extract_frame_times(TEST_3)
-        # Structural pins: 234 samples, timescale 90000, no ctts/elst.
-        self.assertEqual(len(entries), 234)
+    def test_demo_yields_591_strictly_increasing_vfr_frames(self):
+        require_smoke(CLIP)
+        entries = extract_frame_times(CLIP)
+        # Structural pins: 591 samples, timescale 90000, no ctts/elst.
+        self.assertEqual(len(entries), 591)
         self.assertTrue(all(entry["valid"] for entry in entries))
         pts = [entry["pts_seconds"] for entry in entries]
         self.assertTrue(all(later > earlier for earlier, later in zip(pts, pts[1:])))
         self.assertEqual(pts[0], 0.0)  # 0 / 90000
-        self.assertEqual(pts[-1], 7.8319777777777775)  # 704878 / 90000
+        self.assertEqual(pts[-1], 19.69811111111111)  # 1772830 / 90000
         gaps = {round(later - earlier, 12) for earlier, later in zip(pts, pts[1:])}
-        self.assertGreater(len(gaps), 1)  # VFR: deltas 2999 and 9110 units
+        self.assertGreater(len(gaps), 1)  # VFR: deltas 2999 and 6419 units
         for index, entry in enumerate(entries):
             self.assertEqual(entry["frame_index"], index)
             self.assertEqual(entry["source_frame_index"], index)
 
     def test_frame_count_agrees_with_media_record(self):
-        for path in (TEST_3,):
+        for path in (CLIP,):
             with self.subTest(path=path.name):
                 require_smoke(path)
                 media = inspect_media(path)
@@ -164,8 +164,8 @@ class FrameRecordTableTest(unittest.TestCase):
             self.assertEqual(record.provenance.input_sha256, media.source_sha256)
         return records
 
-    def test_test3_table_fully_valid(self):
-        records = self.check_table(TEST_3, 234)
+    def test_demo_table_fully_valid(self):
+        records = self.check_table(CLIP, 591)
         self.assertTrue(all(list(record.warnings) == [] for record in records))
 
 

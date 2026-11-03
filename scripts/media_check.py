@@ -12,8 +12,8 @@ validation. Unknown values are reported as null, never guessed:
 
 Usage (run from the repo root):
     python scripts/media_check.py                     # check every fixture
-    python scripts/media_check.py --fixture fixtures/test_3.json
-    python scripts/media_check.py --probe Smoke/test_3.mp4 [--json]
+    python scripts/media_check.py --fixture fixtures/demo_test.json
+    python scripts/media_check.py --probe Smoke/demo_test.mp4 [--json]
 
 Exit codes: 0 pass, 1 mismatch or parse failure, 2 usage or missing file.
 """

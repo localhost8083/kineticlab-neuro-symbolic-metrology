@@ -123,21 +123,27 @@ def cmd_capture(args: argparse.Namespace) -> int:
         print("error: motion mode uses no card width; drop --card-width-mm "
               "(E_INCOHERENT_VALUE)", file=sys.stderr)
         return 2
-    if args.mode == "full" and args.card_width_mm is None:
-        print("error: full mode needs --card-width-mm, human-typed "
-              "(E_MISSING_FIELD)", file=sys.stderr)
+    if args.mode == "motion" and args.card_height_mm is not None:
+        print("error: motion mode uses no card height; drop --card-height-mm "
+              "(E_INCOHERENT_VALUE)", file=sys.stderr)
+        return 2
+    if args.mode == "full" and (args.card_width_mm is None
+                                or args.card_height_mm is None):
+        print("error: full mode needs --card-width-mm and --card-height-mm, "
+              "human-typed (E_MISSING_FIELD)", file=sys.stderr)
         return 2
     prompts = {"bob": args.prompt_bob
-               if args.prompt_bob is not None else "red ball"}
+               if args.prompt_bob is not None else "ball"}
     if args.prompt_card is not None:
         prompts["card"] = args.prompt_card
     elif args.mode == "full":
-        prompts["card"] = "white paper card"
+        prompts["card"] = "card"
     out_base = Path(args.out_dir) if args.out_dir else root / "live_out"
     run_dir = out_base / new_run_id()
     try:
         out = run_live_chain(clip, args.mode, prompts,
-                             args.card_width_mm, run_dir, api_key)
+                             args.card_width_mm, run_dir, api_key,
+                             card_height_mm=args.card_height_mm)
     except ContractError as error:
         print(f"capture failed: {','.join(error.codes)}: "
               f"{error.errors[0].message if error.errors else ''}",
@@ -234,11 +240,11 @@ def cmd_doctor(args: argparse.Namespace) -> int:
                     line("FAIL", f"contract self-check: {type(error).__name__}: {error}")
 
     # 3. Fixture integrity: pinned expectations + clip sha256.
-    fixture_path = root / "fixtures" / "test_3.json"
+    fixture_path = root / "fixtures" / "demo_test.json"
     if package_only:
         line("SKIP", "repository fixture integrity skipped in package-only mode")
     elif not fixture_path.is_file():
-        line("SKIP", f"fixtures/test_3.json absent under {root}; "
+        line("SKIP", f"fixtures/demo_test.json absent under {root}; "
              "fixture integrity not checkable")
     else:
         try:
@@ -249,12 +255,12 @@ def cmd_doctor(args: argparse.Namespace) -> int:
             clip = root / video
             if not clip.is_file():
                 line("FAIL", f"{video} absent but pinned in "
-                     "fixtures/test_3.json")
+                     "fixtures/demo_test.json")
             else:
                 digest = hashlib.sha256(clip.read_bytes()).hexdigest()
                 if digest == pin:
                     line("PASS", f"{video} sha256 matches the "
-                         "fixtures/test_3.json pin")
+                         "fixtures/demo_test.json pin")
                 else:
                     line("FAIL", f"{video} sha256 {digest} != pinned "
                          f"{pin}")
@@ -337,8 +343,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     capture_parser.add_argument(
         "--mode", required=True, choices=("full", "motion"),
-        help="full (bob + card, needs --card-width-mm) or motion "
-             "(bob only, scale-free)",
+        help="full (bob + card, needs --card-width-mm and "
+             "--card-height-mm) or motion (bob only, scale-free)",
     )
     capture_parser.add_argument(
         "--card-width-mm", type=float, default=None,
@@ -346,13 +352,17 @@ def build_parser() -> argparse.ArgumentParser:
              "defaulted, never guessed)",
     )
     capture_parser.add_argument(
+        "--card-height-mm", type=float, default=None,
+        help="human-typed card height in mm (full mode only; never "
+             "defaulted, never guessed)",
+    )
+    capture_parser.add_argument(
         "--prompt-bob", default=None,
-        help='bob noun phrase (default: "red ball")',
+        help='bob noun phrase (default: "ball")',
     )
     capture_parser.add_argument(
         "--prompt-card", default=None,
-        help='card noun phrase (default: "white paper card"; full '
-             "mode only)",
+        help='card noun phrase (default: "card"; full mode only)',
     )
     capture_parser.add_argument(
         "--out-dir", default=None,

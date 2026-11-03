@@ -25,7 +25,7 @@ from tests import require_smoke
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 UI_DIR = REPO_ROOT / "kineticlab" / "ui"
-TEST_3 = REPO_ROOT / "Smoke" / "test_3.mp4"
+DEMO_TEST = REPO_ROOT / "Smoke" / "demo_test.mp4"
 PIN_BOB = (REPO_ROOT / "fixtures" / "live"
            / "raw_bob_one_bit.txt").read_text(encoding="utf-8")
 PIN_CARD = (REPO_ROOT / "fixtures" / "live"
@@ -169,8 +169,8 @@ class LiveCase(unittest.TestCase):
         if file_data is None:
             # KL-9.6 B1: the default clip is the Smoke/ file; every
             # caller inherits this guard.
-            require_smoke(TEST_3)
-            file_data = TEST_3.read_bytes()
+            require_smoke(DEMO_TEST)
+            file_data = DEMO_TEST.read_bytes()
         return self.post_live(fields, file_data)
 
 
@@ -204,15 +204,15 @@ class LiveDetectTests(LiveCase):
 
     def test_stage_misuse(self):
         self.set_key(SECRET)
-        require_smoke(TEST_3)
+        require_smoke(DEMO_TEST)
         status, _, body = self.post_live({"mode": "full"},
-                                         TEST_3.read_bytes())
+                                         DEMO_TEST.read_bytes())
         self.assertEqual(status, 400)
         payload = json.loads(body.decode("utf-8"))
         self.assertEqual(payload["error"]["code"], "E_MISSING_FIELD")
         self.assertEqual(payload["error"]["field"], "part:stage")
         status, _, body = self.post_live(
-            {"stage": "poke", "mode": "full"}, TEST_3.read_bytes())
+            {"stage": "poke", "mode": "full"}, DEMO_TEST.read_bytes())
         self.assertEqual(status, 400)
         payload = json.loads(body.decode("utf-8"))
         self.assertEqual(payload["error"]["code"], "E_BAD_ENUM")
@@ -220,15 +220,15 @@ class LiveDetectTests(LiveCase):
 
     def test_mode_misuse(self):
         self.set_key(SECRET)
-        require_smoke(TEST_3)
+        require_smoke(DEMO_TEST)
         status, _, body = self.post_live({"stage": "detect"},
-                                         TEST_3.read_bytes())
+                                         DEMO_TEST.read_bytes())
         self.assertEqual(status, 400)
         payload = json.loads(body.decode("utf-8"))
         self.assertEqual(payload["error"]["field"], "part:mode")
         status, _, body = self.post_live(
             {"stage": "detect", "mode": "sideways"},
-            TEST_3.read_bytes())
+            DEMO_TEST.read_bytes())
         self.assertEqual(status, 400)
         payload = json.loads(body.decode("utf-8"))
         self.assertEqual(payload["error"]["code"], "E_BAD_ENUM")
@@ -254,10 +254,10 @@ class LiveDetectTests(LiveCase):
 
     def test_blank_prompt_is_400(self):
         self.set_key(SECRET)
-        require_smoke(TEST_3)
+        require_smoke(DEMO_TEST)
         status, _, body = self.post_live(
             {"stage": "detect", "mode": "motion", "prompt_bob": "  "},
-            TEST_3.read_bytes())
+            DEMO_TEST.read_bytes())
         self.assertEqual(status, 400)
         payload = json.loads(body.decode("utf-8"))
         self.assertEqual(payload["error"]["code"], "E_EMPTY_STRING")
@@ -274,7 +274,7 @@ class LiveDetectTests(LiveCase):
         self.assertEqual(payload["filename"], "swing.mp4")
         summary = payload["summary"]
         self.assertEqual(summary["mode"], "full")
-        self.assertEqual(summary["video"]["frames"], 234)
+        self.assertEqual(summary["video"]["frames"], 591)
         for role in ("bob", "card"):
             self.assertGreater(summary["roles"][role]["valid"], 0)
             self.assertEqual(
@@ -291,12 +291,12 @@ class LiveDetectTests(LiveCase):
 
     def test_detect_empty_output_is_502(self):
         self.set_key(SECRET)
-        require_smoke(TEST_3)
+        require_smoke(DEMO_TEST)
         empty = pin_transport({})
         content_type, body = multipart(
             {"stage": "detect", "mode": "motion",
              "prompt_bob": "nothing matches this"},
-            TEST_3.read_bytes())
+            DEMO_TEST.read_bytes())
         headers = {"Content-Type": content_type,
                    "Content-Length": str(len(body))}
         status, _, answered = dispatch(
@@ -308,7 +308,7 @@ class LiveDetectTests(LiveCase):
 
     def test_detect_auth_failure_is_502_naming_key(self):
         self.set_key(SECRET)
-        require_smoke(TEST_3)
+        require_smoke(DEMO_TEST)
 
         def denied(request):
             return {"status": 401, "body": b'{"error": "bad key"}'}
@@ -316,7 +316,7 @@ class LiveDetectTests(LiveCase):
         content_type, body = multipart(
             {"stage": "detect", "mode": "motion",
              "prompt_bob": "red ball"},
-            TEST_3.read_bytes())
+            DEMO_TEST.read_bytes())
         headers = {"Content-Type": content_type,
                    "Content-Length": str(len(body))}
         status, _, answered = dispatch(
@@ -338,7 +338,7 @@ class LiveMeasureTests(LiveCase):
 
     @classmethod
     def _run_detect(cls, mode):
-        require_smoke(TEST_3)
+        require_smoke(DEMO_TEST)
         previous = os.environ.get("MODEL_API_KEY")
         os.environ["MODEL_API_KEY"] = SECRET
         try:
@@ -347,7 +347,7 @@ class LiveMeasureTests(LiveCase):
             if mode == "full":
                 fields["prompt_card"] = "white paper card"
             content_type, body = multipart(fields,
-                                           TEST_3.read_bytes())
+                                           DEMO_TEST.read_bytes())
             headers = {"Content-Type": content_type,
                        "Content-Length": str(len(body))}
             status, _, answered = dispatch(
@@ -362,10 +362,12 @@ class LiveMeasureTests(LiveCase):
                 os.environ["MODEL_API_KEY"] = previous
 
     def measure(self, run_id, card_width_mm=None, mode=None,
-                pivot_length_mm=None):
+                pivot_length_mm=None, card_height_mm=None):
         fields = {"stage": "measure", "run_id": run_id}
         if card_width_mm is not None:
             fields["card_width_mm"] = card_width_mm
+        if card_height_mm is not None:
+            fields["card_height_mm"] = card_height_mm
         if mode is not None:
             fields["mode"] = mode
         if pivot_length_mm is not None:
@@ -374,7 +376,7 @@ class LiveMeasureTests(LiveCase):
 
     def test_no_key_is_503(self):
         self.set_key(None)
-        status, _, body = self.measure(self.full_id, "85.6")
+        status, _, body = self.measure(self.full_id, "85.0")
         self.assertEqual(status, 503)
         payload = json.loads(body.decode("utf-8"))
         self.assertEqual(payload["error"]["field"], "MODEL_API_KEY")
@@ -393,7 +395,7 @@ class LiveMeasureTests(LiveCase):
 
     def test_mode_mismatch_is_400(self):
         self.set_key(SECRET)
-        status, _, body = self.measure(self.full_id, "85.6",
+        status, _, body = self.measure(self.full_id, "85.0",
                                        mode="motion")
         self.assertEqual(status, 400)
         payload = json.loads(body.decode("utf-8"))
@@ -410,7 +412,7 @@ class LiveMeasureTests(LiveCase):
         self.assertEqual(status, 400)
         payload = json.loads(body.decode("utf-8"))
         self.assertEqual(payload["error"]["code"], "E_WRONG_TYPE")
-        status, _, body = self.measure(self.motion_id, "85.6")
+        status, _, body = self.measure(self.motion_id, "85.0")
         self.assertEqual(status, 400)
         payload = json.loads(body.decode("utf-8"))
         self.assertEqual(payload["error"]["code"],
@@ -418,7 +420,8 @@ class LiveMeasureTests(LiveCase):
 
     def test_measure_full_happy(self):
         self.set_key(SECRET)
-        status, _, body = self.measure(self.full_id, "85.6")
+        status, _, body = self.measure(self.full_id, "85.0",
+                                       card_height_mm="54.0")
         self.assertEqual(status, 200)
         payload = json.loads(body.decode("utf-8"))
         self.assertEqual(payload["mode"], "full")
@@ -461,8 +464,9 @@ class LiveMeasureTests(LiveCase):
     def test_measure_full_with_pivot_computes_gravity(self):
         # KL-10.17 item 2: the measure form field reaches assemble.
         self.set_key(SECRET)
-        status, _, body = self.measure(self.full_id, "85.6",
-                                       pivot_length_mm="500")
+        status, _, body = self.measure(self.full_id, "85.0",
+                                       pivot_length_mm="500",
+                                       card_height_mm="54.0")
         self.assertEqual(status, 200)
         payload = json.loads(body.decode("utf-8"))
         fit = payload["result"]["fit"]
@@ -477,13 +481,15 @@ class LiveMeasureTests(LiveCase):
         # KL-10.17 item 2: an unusable pivot field is treated as
         # absent — the null-gravity path, never an error page.
         self.set_key(SECRET)
-        _, _, plain_body = self.measure(self.full_id, "85.6")
+        _, _, plain_body = self.measure(self.full_id, "85.0",
+                                        card_height_mm="54.0")
         plain = json.loads(plain_body.decode("utf-8"))
         self.assertIsNone(plain["result"]["fit"]["gravity_m_s2"])
         for bad in ("junk", "5", "9999"):
             with self.subTest(pivot=bad):
                 status, _, body = self.measure(
-                    self.full_id, "85.6", pivot_length_mm=bad)
+                    self.full_id, "85.0", pivot_length_mm=bad,
+                    card_height_mm="54.0")
                 self.assertEqual(status, 200)
                 payload = json.loads(body.decode("utf-8"))
                 self.assertEqual(payload["result"], plain["result"])
@@ -496,7 +502,7 @@ class LiveMeasureTests(LiveCase):
 
         run_id = new_run_id()
         (self.work / "live_out" / run_id).mkdir(parents=True)
-        status, _, body = self.measure(run_id, "85.6")
+        status, _, body = self.measure(run_id, "85.0")
         self.assertEqual(status, 404)
 
 
@@ -504,14 +510,14 @@ class LiveRunsTests(LiveCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        require_smoke(TEST_3)
+        require_smoke(DEMO_TEST)
         previous = os.environ.get("MODEL_API_KEY")
         os.environ["MODEL_API_KEY"] = SECRET
         try:
             from kineticlab.capture.chain import new_run_id, run_detect
 
             cls.run_id = new_run_id()
-            run_detect(TEST_3, cls.work / "live_out" / cls.run_id,
+            run_detect(DEMO_TEST, cls.work / "live_out" / cls.run_id,
                        "motion", {"bob": "red ball"}, SECRET,
                        transport=cls.transport)
             from kineticlab.capture.chain import run_measure
@@ -609,9 +615,9 @@ class LivePageTests(unittest.TestCase):
         self.assertIn('form.append("card_width_mm", mm);', self.script)
 
     def test_prompt_defaults_and_mm_never_defaulted(self):
-        self.assertIn('id="livePromptBob" value="red ball"',
+        self.assertIn('id="livePromptBob" value="ball"',
                       self.page)
-        self.assertIn('id="livePromptCard" value="white paper card"',
+        self.assertIn('id="livePromptCard" value="card"',
                       self.page)
         match = re.search(r'<input[^>]*id="liveMm"[^>]*>', self.page)
         self.assertIsNotNone(match)

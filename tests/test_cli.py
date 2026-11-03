@@ -86,7 +86,7 @@ class CaptureCliTest(unittest.TestCase):
     def test_no_key_is_misuse(self):
         os.environ.pop("MODEL_API_KEY", None)
         code, _, stderr = self.run_capture(
-            ["capture", "--clip", "Smoke/test_3.mp4",
+            ["capture", "--clip", "Smoke/demo_test.mp4",
              "--mode", "motion"])
         self.assertEqual(code, 2)
         self.assertIn("MODEL_API_KEY", stderr)
@@ -94,20 +94,20 @@ class CaptureCliTest(unittest.TestCase):
 
     def test_motion_with_mm_is_misuse(self):
         # The CLI stats the clip before the mm-misuse gate fires.
-        require_smoke(Path("Smoke/test_3.mp4"))
+        require_smoke(Path("Smoke/demo_test.mp4"))
         os.environ["MODEL_API_KEY"] = "test-key"
         code, _, stderr = self.run_capture(
-            ["capture", "--clip", "Smoke/test_3.mp4",
-             "--mode", "motion", "--card-width-mm", "85.6"])
+            ["capture", "--clip", "Smoke/demo_test.mp4",
+             "--mode", "motion", "--card-width-mm", "85.0"])
         self.assertEqual(code, 2)
         self.assertIn("E_INCOHERENT_VALUE", stderr)
 
     def test_full_without_mm_is_misuse(self):
         # The CLI stats the clip before the missing-mm gate fires.
-        require_smoke(Path("Smoke/test_3.mp4"))
+        require_smoke(Path("Smoke/demo_test.mp4"))
         os.environ["MODEL_API_KEY"] = "test-key"
         code, _, stderr = self.run_capture(
-            ["capture", "--clip", "Smoke/test_3.mp4",
+            ["capture", "--clip", "Smoke/demo_test.mp4",
              "--mode", "full"])
         self.assertEqual(code, 2)
         self.assertIn("E_MISSING_FIELD", stderr)
@@ -135,9 +135,9 @@ class CaptureCliTest(unittest.TestCase):
         self.addCleanup(setattr, chain_module, "run_live_chain",
                         real)
         # The chain is mocked but the CLI still stats the clip first.
-        require_smoke(Path("Smoke/test_3.mp4"))
+        require_smoke(Path("Smoke/demo_test.mp4"))
         code, _, stderr = self.run_capture(
-            ["capture", "--clip", "Smoke/test_3.mp4",
+            ["capture", "--clip", "Smoke/demo_test.mp4",
              "--mode", "motion"])
         self.assertEqual(code, 1)
         self.assertIn("E_EMPTY_STRING", stderr)
@@ -159,9 +159,9 @@ class CaptureCliTest(unittest.TestCase):
         self.addCleanup(setattr, chain_module, "run_live_chain",
                         real)
         # The chain is mocked but the CLI still stats the clip first.
-        require_smoke(Path("Smoke/test_3.mp4"))
+        require_smoke(Path("Smoke/demo_test.mp4"))
         code, stdout, _ = self.run_capture(
-            ["capture", "--clip", "Smoke/test_3.mp4",
+            ["capture", "--clip", "Smoke/demo_test.mp4",
              "--mode", "motion"])
         self.assertEqual(code, 0)
         self.assertIn("captured: bob 10/10 valid", stdout)

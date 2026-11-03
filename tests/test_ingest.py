@@ -18,7 +18,7 @@ from tests import require_smoke
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 PINNED = {
-    "test_3": "fixtures/test_3.json",
+    "demo_test": "fixtures/demo_test.json",
 }
 
 
@@ -55,18 +55,18 @@ class IngestPinAgreementTest(unittest.TestCase):
         self.assertEqual(MediaMetadata.from_dict(record.to_dict()), record)
         return record
 
-    def test_test3_matches_pins(self):
-        record = self.check_against_pins("test_3")
+    def test_demo_matches_pins(self):
+        record = self.check_against_pins("demo_test")
         self.assertEqual([warning.code for warning in record.warnings], ["W_VFR_TIMING"])
 
     def test_source_path_recorded_as_given(self):
-        require_smoke(Path("Smoke/test_3.mp4"))
-        record = inspect_media("Smoke/test_3.mp4")
-        self.assertEqual(record.source_path, "Smoke/test_3.mp4")
+        require_smoke(Path("Smoke/demo_test.mp4"))
+        record = inspect_media("Smoke/demo_test.mp4")
+        self.assertEqual(record.source_path, "Smoke/demo_test.mp4")
 
     def test_provenance_identifies_software_and_bytes(self):
-        require_smoke(REPO_ROOT / "Smoke/test_3.mp4")
-        record = inspect_media(REPO_ROOT / "Smoke/test_3.mp4")
+        require_smoke(REPO_ROOT / "Smoke/demo_test.mp4")
+        record = inspect_media(REPO_ROOT / "Smoke/demo_test.mp4")
         provenance = record.provenance
         self.assertIsNotNone(provenance)
         self.assertEqual(provenance.software_name, "kineticlab")

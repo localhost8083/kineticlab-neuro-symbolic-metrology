@@ -655,7 +655,8 @@ class _Handler(BaseHTTPRequestHandler):
     def _live_error(self, error: ContractError) -> None:
         first = error.errors[0]
         field = first.field or ""
-        if field == "card_width_mm" or field.startswith("prompt"):
+        if field in ("card_width_mm", "card_height_mm") \
+                or field.startswith("prompt"):
             raise UiError(first.code, f"part:{field}", first.message)
         if first.code == "E_MISSING_FIELD" and field == "run_id":
             raise UiError(first.code, f"part:{field}", first.message,
@@ -677,11 +678,11 @@ class _Handler(BaseHTTPRequestHandler):
                           first.message)
         filename, data = validate_upload(content_type, body)
         prompts = {"bob": fields["prompt_bob"]
-                       if "prompt_bob" in fields else "red ball"}
+                       if "prompt_bob" in fields else "ball"}
         if "prompt_card" in fields:
             prompts["card"] = fields["prompt_card"]
         elif mode == "full":
-            prompts["card"] = "white paper card"
+            prompts["card"] = "card"
         digest = hashlib.sha256(data).hexdigest()
         uploads = self._work / "uploads"
         uploads.mkdir(parents=True, exist_ok=True)
@@ -729,7 +730,8 @@ class _Handler(BaseHTTPRequestHandler):
         try:
             out = run_measure(run_dir,
                               fields.get("card_width_mm"),
-                              pivot_length_mm=pivot)
+                              pivot_length_mm=pivot,
+                              card_height_mm=fields.get("card_height_mm"))
         except ContractError as error:
             self._live_error(error)
             raise AssertionError("unreachable")

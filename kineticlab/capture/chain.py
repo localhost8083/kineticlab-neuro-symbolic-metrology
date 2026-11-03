@@ -15,15 +15,15 @@ to the same assembly the demos use. Motion mode never touches assemble
 motion report from :func:`build_fit_points`, :func:`angle_series`, and
 :func:`fit_m1` with scale/length/gravity null.
 
-Fresh-clip honesty rules (U-1/U-2/U-3 were test_3 measurements and are
-NOT transferred to other clips):
+Fresh-clip honesty rules (U-1/U-2/U-3 were measurements of older
+pinned clips and are NOT transferred to any fresh clip):
 
-- The human-typed card width (full mode requires it, ``E_MISSING_FIELD``
-  without it) is the U-1 confirmation that the reference card is ID-1:
-  the record states ``iso_id1_confirmed`` with ``user_confirmed``
-  dimensions — the typed width plus the ID-1 standard height
-  (``ISO_ID1_HEIGHT_MM``, from the standard the user confirmed, never
-  derived from pixel aspect). Motion mode builds no calibration.
+- Full mode requires BOTH card dimensions human-typed (``card_width_mm``
+  and ``card_height_mm``; ``E_MISSING_FIELD`` without either): the
+  record states ``reference_type: "unknown"`` (a cut card is no
+  standard) with ``user_confirmed`` dimensions — both numbers from the
+  user's ruler, never derived from pixel aspect. Motion mode builds no
+  calibration.
 - ``same_plane``/``camera_fixed`` stay null (unassessed) with one
   ``W_ASSUMPTION_UNVERIFIED`` warning each, so the record is honestly
   ``valid: false``. Assemble records that flag as data; it does not
@@ -35,10 +35,10 @@ NOT transferred to other clips):
   frame to frame, so no median corner set is honest.
 - No depth-offset bound exists for a fresh clip; the report states that
   instead of borrowing U-3.
-- ``card_width_mm`` + ``card_width_mm_source: "user_supplied"`` live in
-  the geometry report's calibration section (the v1 record's strict keys
-  forbid new fields, so the stamp sits with the calibration build's
-  provenance, documented here).
+- ``card_width_mm``/``card_height_mm`` + their ``*_source:
+  "user_supplied"`` stamps live in the geometry report's calibration
+  section (the v1 record's strict keys forbid new fields, so the stamp
+  sits with the calibration build's provenance, documented here).
 - Motion + a supplied mm is REJECTED (``E_INCOHERENT_VALUE``), never
   silently ignored: a silently unused physical size would let the user
   believe the report used it. Same for a card prompt in motion mode.
@@ -185,13 +185,6 @@ ROLE_NAMES = {"bob": "bob", "card": "reference_card"}
 NO_SCALE_REASON = "no reference card: no scale"
 """Why motion reports carry null scale/length/gravity (verbatim)."""
 
-ISO_ID1_HEIGHT_MM = 53.98
-"""ID-1 standard height, stamped once the user confirms the card type.
-
-The typed width confirms the card is ID-1 (U-1); the height comes from
-that same confirmed standard — never from pixel aspect, which would
-make the aspect check vacuous."""
-
 MOTION_ASSUMPTIONS = (
     # KL-9.6 M2: same correction as the assemble assumption — the
     # arbitrary zero is absorbed only up to a constant offset the
@@ -242,11 +235,12 @@ def _arc_radius_caveat(arc: dict[str, Any], scale_mm_per_px: float) -> str:
 
 U3_FRESH_CLIP_STATEMENT = (
     "No depth-offset scale bound: this clip provides no camera/card "
-    "depth measurements (U-3 applied to the pinned test_3 clip only); "
+    "depth measurements (U-3 was a measurement of a retired pinned "
+    "clip and is not borrowed here); "
     "scale assumes a coplanar card and a fixed camera, both unassessed "
     "(see the calibration warnings)."
 )
-"""Fresh-clip u3_bound statement (never borrows test_3's bound)."""
+"""Fresh-clip u3_bound statement (never borrows a retired clip's bound)."""
 
 
 def _fail(code: str, field: str | None, detail: str) -> None:
@@ -321,44 +315,55 @@ def validate_prompts(prompts: Any, mode: str) -> dict[str, str]:
 
 
 def validate_card_width_mm(value: Any, mode: str) -> float | None:
-    """Validate the human-typed card width (full mode only).
+    """Validate the human-typed card width (full mode only)."""
+    return _validate_card_dim_mm(value, mode, "card_width_mm")
+
+
+def validate_card_height_mm(value: Any, mode: str) -> float | None:
+    """Validate the human-typed card height (full mode only)."""
+    return _validate_card_dim_mm(value, mode, "card_height_mm")
+
+
+def _validate_card_dim_mm(value: Any, mode: str, field: str) -> float | None:
+    """Validate one human-typed card dimension (full mode only).
 
     Full mode requires a positive finite number; motion mode rejects any
     supplied value (silently unused physical sizes are dishonest).
     Strings parse (multipart fields arrive as text); anything else must
     already be a number.
     """
+    noun = "card width" if field == "card_width_mm" else "card height"
     if mode == "motion":
         if value is None:
             return None
-        _fail("E_INCOHERENT_VALUE", "card_width_mm",
-              "motion mode uses no card width; drop the value instead "
+        _fail("E_INCOHERENT_VALUE", field,
+              f"motion mode uses no {noun}; drop the value instead "
               "of letting it ride unused")
         raise AssertionError("unreachable")
     if value is None:
-        _fail("E_MISSING_FIELD", "card_width_mm",
-              "full mode needs the human-typed card width in mm")
+        _fail("E_MISSING_FIELD", field,
+              f"full mode needs the human-typed {noun} in mm")
         raise AssertionError("unreachable")
     if isinstance(value, str):
         try:
             number = float(value.strip())
         except ValueError:
-            _fail("E_WRONG_TYPE", "card_width_mm",
-                  f"card width must be a number, got {value!r}")
+            _fail("E_WRONG_TYPE", field,
+                  f"{noun} must be a number, got {value!r}")
             raise AssertionError("unreachable")
     elif isinstance(value, bool) or not isinstance(value, (int, float)):
-        _fail("E_WRONG_TYPE", "card_width_mm",
-              f"card width must be a number, got {type(value).__name__}")
+        _fail("E_WRONG_TYPE", field,
+              f"{noun} must be a number, got {type(value).__name__}")
         raise AssertionError("unreachable")
     else:
         number = float(value)
     if not math.isfinite(number):
-        _fail("E_NON_FINITE", "card_width_mm",
-              f"card width must be finite, got {value!r}")
+        _fail("E_NON_FINITE", field,
+              f"{noun} must be finite, got {value!r}")
         raise AssertionError("unreachable")
     if number <= 0.0:
-        _fail("E_OUT_OF_RANGE", "card_width_mm",
-              f"card width must be positive, got {value!r}")
+        _fail("E_OUT_OF_RANGE", field,
+              f"{noun} must be positive, got {value!r}")
         raise AssertionError("unreachable")
     return number
 
@@ -653,24 +658,23 @@ def _clean_card_frames(run_dir: Path, card: list[Any],
 
 
 def _fresh_calibration(clip_sha256: str, long_med: float,
-                       short_med: float,
-                       card_width_mm: float) -> dict[str, Any]:
+                       short_med: float, card_width_mm: float,
+                       card_height_mm: float) -> dict[str, Any]:
     """Build the confirmed fresh-clip ``calibration.v1`` dict (validated).
 
-    The caller-validated ``card_width_mm`` is the human-typed U-1
-    confirmation that the reference card is ID-1, so the record states
-    ``iso_id1_confirmed`` / ``user_confirmed`` with the typed width and
-    the ID-1 standard height (same shape as the offline
-    :func:`kineticlab.geometry.calibration.build_calibration` record and
-    ``fixtures/contracts/valid_calibration.json``). Assumptions stay
-    unassessed (null) with their warnings, so the record stays honestly
-    ``valid: false``; the scale is stamped by the caller below.
+    Both card dimensions are human-typed by the user (the confirm
+    gesture), so the record states ``unknown`` reference type (a cut
+    card is no standard) with ``user_confirmed`` dimensions — both from
+    the user's ruler, never derived from pixel aspect, which would make
+    the aspect check vacuous. Assumptions stay unassessed (null) with
+    their warnings, so the record stays honestly ``valid: false``; the
+    scale is stamped by the caller below.
     """
     record = CalibrationRecord.from_dict({
         "schema_version": CALIBRATION_VERSION,
-        "reference_type": "iso_id1_confirmed",
+        "reference_type": "unknown",
         "reference_dimensions_mm": {"width_mm": card_width_mm,
-                                    "height_mm": ISO_ID1_HEIGHT_MM},
+                                    "height_mm": card_height_mm},
         "dimension_source": "user_confirmed",
         "observed_corners_px": None,
         "observed_oriented_dimensions_px": {
@@ -702,7 +706,7 @@ def _fresh_calibration(clip_sha256: str, long_med: float,
 
 
 def _measure_full(run_dir: Path, summary: dict[str, Any],
-                  card_width_mm: float,
+                  card_width_mm: float, card_height_mm: float,
                   pivot_length_mm: float | None = None
                   ) -> dict[str, Any]:
     clip = run_dir / CLIP_FILENAME
@@ -730,7 +734,8 @@ def _measure_full(run_dir: Path, summary: dict[str, Any],
     short_med = float(statistics.median(shorts))
     scale = card_width_mm / long_med
     calibration = _fresh_calibration(summary["clip_sha256"], long_med,
-                                     short_med, card_width_mm)
+                                     short_med, card_width_mm,
+                                     card_height_mm)
     calibration["scale_mm_per_px"] = scale
     # Re-validate with the scale stamped: the written bytes are proven.
     CalibrationRecord.from_dict(calibration)
@@ -750,6 +755,8 @@ def _measure_full(run_dir: Path, summary: dict[str, Any],
             "n_usable_frames": len(clean),
             "card_width_mm": card_width_mm,
             "card_width_mm_source": "user_supplied",
+            "card_height_mm": card_height_mm,
+            "card_height_mm_source": "user_supplied",
             "scale_mm_per_px": scale,
             "median_long_side_px": long_med,
             "median_short_side_px": short_med,
@@ -944,12 +951,14 @@ def _measure_motion(run_dir: Path,
 
 def run_measure(run_dir: str | Path,
                 card_width_mm: Any = None,
-                pivot_length_mm: Any = None) -> dict[str, Any]:
+                pivot_length_mm: Any = None,
+                card_height_mm: Any = None) -> dict[str, Any]:
     """Measure a confirmed run dir to completion (full or motion).
 
-    Full mode needs the human-typed ``card_width_mm``; motion mode
-    rejects it. Returns the mode output (``result``- or
-    ``report``-shaped) plus ``written`` paths and a ``status_line``.
+    Full mode needs the human-typed ``card_width_mm`` AND
+    ``card_height_mm``; motion mode rejects both. Returns the mode
+    output (``result``- or ``report``-shaped) plus ``written`` paths
+    and a ``status_line``.
 
     ``pivot_length_mm`` (KL-10.17) optionally carries the human-typed
     independent pivot length; full mode forwards it to
@@ -963,10 +972,11 @@ def run_measure(run_dir: str | Path,
     summary = _read_summary(target)
     mode = summary["mode"]
     width = validate_card_width_mm(card_width_mm, mode)
+    height = validate_card_height_mm(card_height_mm, mode)
     if mode == "full":
-        assert width is not None
+        assert width is not None and height is not None
         pivot = validate_pivot_length_mm(pivot_length_mm)
-        return _measure_full(target, summary, width,
+        return _measure_full(target, summary, width, height,
                              pivot_length_mm=pivot)
     return _measure_motion(target, summary)
 
@@ -995,7 +1005,8 @@ def run_live_chain(clip: str | Path, mode: str,
                    run_dir: str | Path, api_key: str,
                    transport: Callable[[dict[str, Any]],
                                        dict[str, Any]] | None = None,
-                   pivot_length_mm: Any = None) -> dict[str, Any]:
+                   pivot_length_mm: Any = None,
+                   card_height_mm: Any = None) -> dict[str, Any]:
     """One-shot live chain: detect then measure (the CLI composition).
 
     ``run_dir`` must already be the run's directory (callers mint the id
@@ -1009,7 +1020,8 @@ def run_live_chain(clip: str | Path, mode: str,
     detected = run_detect(clip, target, mode, prompts, api_key,
                           transport=transport)
     measured = run_measure(target, card_width_mm,
-                           pivot_length_mm=pivot_length_mm)
+                           pivot_length_mm=pivot_length_mm,
+                           card_height_mm=card_height_mm)
     return {**measured, "run_id": detected["run_id"],
             "summary": detected["summary"],
             "clip_sha256": detected["clip_sha256"]}

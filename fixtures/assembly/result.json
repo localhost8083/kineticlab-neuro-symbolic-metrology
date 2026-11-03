@@ -1,65 +1,52 @@
 {
   "assumptions": [
-    "Angles measured from image +y about the arc-fit pivot; the zero is arbitrary and absorbed by the fit phase (no upright-camera assumption).",
-    "U-3 depth-offset scale bound 1.7% (25.0 mm offset over 1500.0 mm camera distance, tape estimate) stated as an assumption wherever this scale is used",
+    "Angles measured from image +y about the arc-fit pivot; the zero is arbitrary and absorbed by the fit phase only up to a constant offset the M1 model does not represent (A*cos(wt+phi) has no theta_eq term) - stated uncorrected (no upright-camera assumption).",
+    "No depth-offset scale bound: this clip provides no camera/card depth measurements (U-3 was a measurement of a retired pinned clip and is not borrowed here); scale assumes a coplanar card and a fixed camera, both unassessed (see the calibration warnings).",
     "M-3e hollow-ball/string-mass bias stated, uncorrected (see the geometry report model_limitations).",
     "Arc-fit radius is descriptive only, not an independent length; gravity stays null (U-2 not provided).",
-    "M1 is the reported model (pre-registered parsimony); the M2 outcome rides the diagnostics as a cross-check."
+    "M1 is the small-angle model: omega0 = omega*(1 - theta0^2/16 + O(theta0^4)), so the reported g/L_eff = omega^2 understates the small-angle g/L by about theta0^2/8 (order 1% at the observed amplitudes) - stated, uncorrected.",
+    "M1 residuals are structured, not white noise (lag-1 autocorrelation ~0.88 on the replay; damping and the DC offset are omitted): M1 is a frequency estimator for omega, not a complete trajectory model. The reported value is a point estimate with a resampling-based interval under M1 (fit_uncertainty_method=block_bootstrap; see Uncertainty); the diagnostic damped fit M2 is a cross-check, not an error bar.",
+    "M1 is the reported model (pre-registered parsimony); the M2 outcome rides the diagnostics as a cross-check.",
+    "The omega and g/L_eff intervals come from a seeded block bootstrap over measured frames (method block_bootstrap): they capture measurement noise under the M1 model, not M1 model-adequacy bias - the structured-residual limitation above stands unchanged.",
+    "Block resampling preserves short-range time dependence; the interval is resampling-based (percentiles of M1 refits), not an analytic derivation. Endpoints extend to contain the point estimate if a percentile excludes it (flagged as extended_to_contain_point in fit_uncertainty)."
   ],
   "calibration": {
-    "camera_fixed_assumption": true,
+    "camera_fixed_assumption": null,
     "dimension_source": "user_confirmed",
-    "observed_corners_px": [
-      [
-        146.9407337860218,
-        304.3348675281235
-      ],
-      [
-        405.9584471757171,
-        297.4990995558641
-      ],
-      [
-        409.74995243020834,
-        462.745757121545
-      ],
-      [
-        150.8587850879572,
-        469.4724564308142
-      ]
-    ],
+    "observed_corners_px": null,
     "observed_oriented_dimensions_px": {
-      "long_side_px": 258.7318351096624,
-      "short_side_px": 165.36871084913219
+      "long_side_px": 209.18933377750915,
+      "short_side_px": 128.34633924757009
     },
     "plane_transform": null,
     "provenance": {
-      "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+      "input_sha256": "db5da89e06f74547f03a41a1ef2ff041c6b4b1948957538a8e4674f5ab1d9945",
       "model_name": "sam-3.1",
       "model_version": null,
       "raw_refs": [
-        "fixtures/live/raw_card_one_bit.txt"
+        "raw_card_one_bit.txt"
       ],
       "software_name": "kineticlab",
       "software_version": "0.1.0"
     },
     "reference_dimensions_mm": {
-      "height_mm": 53.98,
-      "width_mm": 85.6
+      "height_mm": 54.0,
+      "width_mm": 85.0
     },
-    "reference_type": "iso_id1_confirmed",
-    "same_plane_assumption": false,
-    "scale_mm_per_px": 0.3286332854169991,
+    "reference_type": "unknown",
+    "same_plane_assumption": null,
+    "scale_mm_per_px": 0.4063304685046935,
     "scale_uncertainty_mm_per_px": null,
     "schema_version": "calibration.v1",
-    "valid": true,
+    "valid": false,
     "warnings": [
       {
-        "code": "W_UNCERTAINTY_UNAVAILABLE",
-        "detail": "no scale uncertainty estimated; the U-3 bound is a stated assumption, not an uncertainty"
+        "code": "W_ASSUMPTION_UNVERIFIED",
+        "detail": "same-plane card/swing geometry unassessed for this clip (no depth measurements provided)"
       },
       {
         "code": "W_ASSUMPTION_UNVERIFIED",
-        "detail": "U-3 depth-offset scale bound 1.7% (25.0 mm offset over 1500.0 mm camera distance, tape estimate) stated as an assumption wherever this scale is used"
+        "detail": "fixed-camera geometry unassessed for this clip (no stability check provided)"
       }
     ]
   },
@@ -79,15 +66,15 @@
   ],
   "fit": {
     "converged": true,
-    "fit_uncertainty_method": "none",
-    "g_over_l_per_s2": 30.00563573707589,
+    "fit_uncertainty_method": "block_bootstrap",
+    "g_over_l_per_s2": 28.93746036102984,
     "gravity_m_s2": null,
     "initial_conditions": {
-      "omega0_rad_s": -1.1474172412079513,
-      "theta0_rad": 0.2050088765289343
+      "omega0_rad_s": 1.042104970619526,
+      "theta0_rad": -0.4440003701018661
     },
     "model_id": "M1",
-    "observation_count": 234,
+    "observation_count": 591,
     "optimizer": "separable_omega_grid_linear_lsq_golden_refine_v1",
     "parameter_names": [
       "g_over_l"
@@ -96,42 +83,40 @@
       "g_over_l": "1/s^2"
     },
     "parameters": {
-      "g_over_l": 30.00563573707589
+      "g_over_l": 28.93746036102984
     },
     "pivot_length_mm": null,
     "pivot_length_source": "not_provided",
     "provenance": null,
     "rejected_count": 0,
     "residual_summary": {
-      "dof": 231,
-      "max_abs": 0.07864719822009777,
-      "rmse": 0.02275752015969389
+      "dof": 588,
+      "max_abs": 0.09307653918706144,
+      "rmse": 0.036873694317842085
     },
     "schema_version": "fit.v1",
     "solver": "closed_form_small_angle",
-    "warnings": [
-      {
-        "code": "W_UNCERTAINTY_UNAVAILABLE",
-        "detail": "KL-5.2 estimates no uncertainty; method is none (KL-5.4 owns uncertainty)."
-      }
-    ]
+    "warnings": []
   },
   "identifiable_quantity": {
     "name": "g/L_eff",
     "unit": "1/s^2",
-    "value": 30.00563573707589
+    "value": 28.93746036102984
   },
-  "interval": null,
-  "interval_method": null,
+  "interval": {
+    "lower": 28.899033216202955,
+    "upper": 28.982897973850847
+  },
+  "interval_method": "block_bootstrap",
   "measurement_name": "pendulum_g_over_l",
   "provenance": {
     "artifact_hashes": {
-      "calibration_sha256": "09e3e852efe6a7d74f67f642ef9710558c898d65bd6c55a9d67a033bba3fa3aa",
-      "geometry_report_sha256": "39540e565b557fc98d8b507f36a617a2117bb064f0f8b55fcd7352a237a89a41",
-      "raw_bob_sha256": "b216815fd6ca5e15718fed2dd8947a9972e00b1f27f71881e5d39401a4fb3ad7",
-      "raw_card_sha256": "d3fe9a7ecde3f48c6ef2753bd66f7d93f86783613d50bb2ebbf566deb57473d1"
+      "calibration_sha256": "b83ddf2dcc17848cd3ca196cd1499027d756901424368fcea1449fc033a2ce70",
+      "geometry_report_sha256": "05ea04720ce0e785dff59798b7a94bd4bd7b19517e934c30b9c612eaeb147816",
+      "raw_bob_sha256": "23e4035ef0e648383eff5c44e6e9511cb7d20254b9e3d82b4a7de57773315e8f",
+      "raw_card_sha256": "ec6a62f76fdf2a2e58afea9eab83d2867737bb883ba675d88ded7c4040a8d7df"
     },
-    "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+    "input_sha256": "db5da89e06f74547f03a41a1ef2ff041c6b4b1948957538a8e4674f5ab1d9945",
     "model_name": "sam-3.1",
     "model_version": null,
     "raw_refs": [
@@ -142,21 +127,16 @@
     "software_version": "0.1.0"
   },
   "quality_metrics": {
-    "calibrated_frames": 117,
-    "frames_total": 234,
-    "frames_usable": 234,
-    "observations_total": 468,
-    "observations_valid": 468
+    "calibrated_frames": 272,
+    "frames_total": 591,
+    "frames_usable": 591,
+    "observations_total": 983,
+    "observations_valid": 983
   },
   "reject_reasons": [],
   "schema_version": "result.v1",
-  "status": "success_with_warnings",
+  "status": "success",
   "unit": "1/s^2",
-  "value": 30.00563573707589,
-  "warnings": [
-    {
-      "code": "W_UNCERTAINTY_UNAVAILABLE",
-      "detail": "KL-7.1 estimates no uncertainty; method is none."
-    }
-  ]
+  "value": 28.93746036102984,
+  "warnings": []
 }

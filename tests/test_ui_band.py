@@ -126,7 +126,12 @@ class BandChartTests(unittest.TestCase):
             "    legendText:\n"
             "      document.getElementById(\"bandLegend\")\n"
             "        .textContent });\n")
-        diag_text = json.dumps(self.diagnostics)
+        # The pinned diagnostics now carry a real bootstrap band, so the
+        # no-band scenario is constructed explicitly: same record with
+        # fit_uncertainty removed. The invariant stays fully asserted.
+        diag = dict(self.diagnostics)
+        diag.pop("fit_uncertainty", None)
+        diag_text = json.dumps(diag)
         out = run_page_driver(
             self.script, self.paint_check(diag_text, post),
             {"u_csv": self.angles_text, "u_diag": diag_text})

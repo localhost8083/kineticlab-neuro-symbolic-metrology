@@ -4,8 +4,9 @@ Covers: fit-point partitioning (null/invalid rows excluded with
 frame lists, never silent); angle-series unwrap (hand-computed
 micro-case) plus cross-check of assembly thetas against fitter
 residuals + fitted curve (1e-9, kills formula drift); the live
-success path (success_with_warnings, pinned g/L, M2 included with
-justification, exports written + re-validated); rejection states
+success path (plain success via the seeded block bootstrap, pinned
+g/L interval, M2 included with justification, exports written +
+re-validated); rejection states
 via the parts seam (starved input -> insufficient_data +
 E_OUT_OF_RANGE; flat/pivot points -> insufficient_data +
 E_INCOHERENT_VALUE with the non-converged fit embedded);
@@ -30,9 +31,9 @@ regeneration runs plus one explicit double-run on the
 no-fit rejection path.
 
 KL-7.4 adds: the pinned frame-0 audit walkthrough (README
-citations asserted against the pins), summary verdicts for
-the remaining rejection states, and the pinned statement
-that plain success is structurally unreachable.
+citations asserted against the pins) and summary verdicts for
+the remaining rejection states. KL-10.24: the bootstrap chain's
+plain-success verdict is itself pinned.
 """
 
 import copy
@@ -77,12 +78,12 @@ from tests import require_smoke
 REPO_ROOT = Path(__file__).resolve().parent.parent
 ASM_DIR = REPO_ROOT / "fixtures" / "assembly"
 
-G_OVER_L_PIN = 30.00563573707589
-GAMMA_PIN = 0.029794544246787853
-RADIUS_MM_PIN = 298.2283771265327
+G_OVER_L_PIN = 28.93746036102984
+GAMMA_PIN = 0.014296385985767188
+RADIUS_MM_PIN = 325.45695751200054
 
 REQUEST = {
-    "clip_path": str(REPO_ROOT / "Smoke" / "test_3.mp4"),
+    "clip_path": str(REPO_ROOT / "Smoke" / "demo_test.mp4"),
     "raw_bob_path": str(REPO_ROOT / "fixtures" / "live"
                         / "raw_bob_one_bit.txt"),
     "raw_card_path": str(REPO_ROOT / "fixtures" / "live"
@@ -140,15 +141,6 @@ def _blank_result_hash_line(text):
     return "\n".join(
         "- result.json: <out-dir-dependent>"
         if line.startswith("- result.json: ") else line
-        for line in text.split("\n"))
-
-
-def _blank_line_prefix(text, prefix, token):
-    # KL-10.11: normalize one full summary line by prefix. Callers
-    # assert the exact content before blanking; the byte-compare
-    # then covers everything else.
-    return "\n".join(
-        token if line.startswith(prefix) else line
         for line in text.split("\n"))
 
 
@@ -237,10 +229,10 @@ class LiveChainTests(unittest.TestCase):
         self.assertEqual(result["warnings"], [])
         self.assertEqual(result["reject_reasons"], [])
         self.assertEqual(result["quality_metrics"],
-                         {"frames_total": 234, "frames_usable": 234,
-                          "observations_total": 468,
-                          "observations_valid": 468,
-                          "calibrated_frames": 117})
+                         {"frames_total": 591, "frames_usable": 591,
+                          "observations_total": 983,
+                          "observations_valid": 983,
+                          "calibrated_frames": 272})
         assumptions = result["assumptions"]
         self.assertTrue(any("U-3" in text for text in assumptions))
         self.assertTrue(any("M-3e" in text for text in assumptions))
@@ -275,7 +267,7 @@ class LiveChainTests(unittest.TestCase):
 
     def test_excluded_frames_empty_on_live_chain(self):
         self.assertEqual(self.out["diagnostics"]["excluded_frames"], [])
-        self.assertEqual(len(self.out["angle_series"]), 234)
+        self.assertEqual(len(self.out["angle_series"]), 591)
 
     def test_series_pts_are_real_and_increasing(self):
         # P-007 core: actual source PTS reaches the angle series.
@@ -285,7 +277,7 @@ class LiveChainTests(unittest.TestCase):
                             for moment in moments))
         self.assertTrue(all(b > a for a, b in zip(moments, moments[1:])))
         self.assertEqual(moments[0], 0.0)
-        self.assertTrue(math.isclose(moments[-1], 7.832, rel_tol=1e-4))
+        self.assertTrue(math.isclose(moments[-1], 19.6981, rel_tol=1e-4))
 
     def test_angle_series_matches_fitter_internals(self):
         # Cross-check: assembly thetas == fitted curve + residuals.
@@ -333,14 +325,14 @@ class RejectionTests(unittest.TestCase):
             (REPO_ROOT / "fixtures" / "geometry"
              / "geometry_report_live.json").read_text(encoding="utf-8"))
         cls.clip_sha = "a" * 64  # synthetic stand-in, labeled
-        # 234 rows keep metrics coherent with the real pin's
-        # calibrated_frames=117 (bounds-checked by the contract).
+        # 591 rows keep metrics coherent with the real pin's
+        # calibrated_frames=272 (bounds-checked by the contract).
         cls.table = [SimpleNamespace(frame_index=index,
                                      pts_seconds=index * 0.04,
                                      valid=True)
-                     for index in range(234)]
+                     for index in range(591)]
         cls.card = [SimpleNamespace(frame_index=index, valid=True)
-                    for index in range(234)]
+                    for index in range(591)]
 
     def _parts(self, bob, out_dir):
         return dict(
@@ -539,7 +531,7 @@ class ExportTests(unittest.TestCase):
     def test_pinned_csv_matches_series(self):
         text = (ASM_DIR / "angles.csv").read_text(encoding="utf-8")
         lines = text.splitlines()
-        self.assertEqual(len(lines), 235)
+        self.assertEqual(len(lines), 592)
         self.assertEqual(
             lines[0],
             "frame_index,pts_seconds,theta_rad,centroid_x_px,centroid_y_px")
@@ -636,27 +628,16 @@ class RegenerationTests(unittest.TestCase):
                 fresh = out["result"] if name == "result.json" \
                     else out["diagnostics"]
                 if name == "result.json":
-                    # KL-9.6 M2: the zero-offset sentence was
-                    # reworded on purpose; the committed fixture
-                    # keeps the old sentence (fixtures are
-                    # read-only), so pin the new wording exactly
-                    # here and compare everything else byte-stable.
+                    # Exact prose pins (current code wording; the
+                    # committed fixture regenerates with them).
                     self.assertEqual(fresh["assumptions"][0],
                                      ZERO_OFFSET_ASSUMPTION)
-                    # KL-10.6: same pattern for the added
-                    # finite-amplitude sentence (fixture predates it).
                     self.assertIn(SMALL_ANGLE_ASSUMPTION,
                                   fresh["assumptions"])
-                    # KL-10.7 sentence is GONE on success (reworded
-                    # by KL-10.11); the pin below asserts the new
-                    # wording instead. The fixture keeps the old.
                     self.assertNotIn(MODEL_ADEQUACY_ASSUMPTION,
                                      fresh["assumptions"])
-                    # KL-10.11: the bootstrap ran — verdict flip,
-                    # lifted warning, populated interval, reworded
-                    # adequacy + two honesty sentences. Asserted
-                    # exactly here, normalized below for the
-                    # byte-compare of everything else.
+                    # Plain success: the bootstrap ran — verdict,
+                    # lifted warning, populated interval.
                     self.assertEqual(fresh["status"], "success")
                     self.assertEqual(fresh["warnings"], [])
                     self.assertEqual(fresh["interval_method"],
@@ -677,36 +658,14 @@ class RegenerationTests(unittest.TestCase):
                                   fresh["assumptions"])
                     self.assertIn(BOOTSTRAP_RESAMPLING_ASSUMPTION,
                                   fresh["assumptions"])
-                    fresh = dict(
-                        fresh,
-                        status=pinned["status"],
-                        warnings=pinned["warnings"],
-                        interval=pinned["interval"],
-                        interval_method=pinned["interval_method"],
-                        fit=dict(
-                            fresh["fit"],
-                            fit_uncertainty_method=pinned["fit"][
-                                "fit_uncertainty_method"],
-                            warnings=pinned["fit"]["warnings"]),
-                        assumptions=["<zero-blanked>"]
-                        + [text for text in fresh["assumptions"][1:]
-                           if text != SMALL_ANGLE_ASSUMPTION
-                           and text != ADEQUACY_BOOTSTRAP_ASSUMPTION
-                           and text != BOOTSTRAP_NOISE_ASSUMPTION
-                           and text != BOOTSTRAP_RESAMPLING_ASSUMPTION])
-                    pinned = dict(
-                        pinned,
-                        assumptions=["<zero-blanked>"]
-                        + pinned["assumptions"][1:])
                 if name == "diagnostics.json":
-                    # KL-10.11: the new free-form fit_uncertainty
-                    # section, pinned exactly, then removed for the
-                    # byte-compare of everything else.
+                    # The free-form fit_uncertainty section
+                    # (seeded, deterministic).
                     fu = fresh["fit_uncertainty"]
                     self.assertEqual(fu["method"], "block_bootstrap")
                     self.assertEqual(fu["seed"], 20261103)
                     self.assertEqual(fu["n_boot"], 800)
-                    self.assertEqual(fu["block_frames"], 35)
+                    self.assertEqual(fu["block_frames"], 36)
                     self.assertFalse(
                         fu["extended_to_contain_point"])
                     omega = fu["omega_per_s"]
@@ -719,8 +678,6 @@ class RegenerationTests(unittest.TestCase):
                                      omega["high"] * omega["high"])
                     self.assertEqual(band["point"],
                                      out["result"]["value"])
-                    fresh = {key: value for key, value in fresh.items()
-                             if key != "fit_uncertainty"}
                 _assert_close_tree(
                     self, _with_basename_exports(fresh)
                     if name == "result.json" else fresh,
@@ -741,26 +698,15 @@ class RegenerationTests(unittest.TestCase):
                     math.isclose(float(cell), row[key],
                                  rel_tol=1e-12, abs_tol=1e-15),
                     f"{key}: {cell} vs {row[key]}")
-        # KL-7.3: the summary regenerates identically except
-        # the out-dir-dependent result.json hash line; listed
-        # hashes are verified against the freshly written files.
-        # KL-9.6 M2: plus the reworded zero-offset sentence, blanked
-        # on both sides (old wording read from the pin itself).
-        # KL-10.6: plus the added finite-amplitude sentence, removed
-        # from the fresh side (the pin predates it). KL-10.7: the
-        # old adequacy sentence is gone on success (reworded by
-        # KL-10.11); the new bullets are removed instead.
-        fresh_summary = summary_bytes.decode("utf-8").replace(
-            ZERO_OFFSET_ASSUMPTION, "<zero-blanked>").replace(
-                "- " + SMALL_ANGLE_ASSUMPTION + "\n", "").replace(
-                    "- " + ADEQUACY_BOOTSTRAP_ASSUMPTION + "\n",
-                    "").replace(
-                        "- " + BOOTSTRAP_NOISE_ASSUMPTION + "\n",
-                        "").replace(
-                            "- " + BOOTSTRAP_RESAMPLING_ASSUMPTION
-                            + "\n", "")
-        # KL-10.11: the Uncertainty section is new by design —
-        # assert its exact lines, then remove the whole section.
+        # KL-7.3: the summary regenerates identically except the
+        # out-dir-dependent result.json hash line (blanked on both
+        # sides); listed hashes are verified against the freshly
+        # written files below. The pinned fixture is current, so no
+        # wording normalization is needed on either side.
+        fresh_summary = summary_bytes.decode("utf-8")
+        self.assertIn("# KineticLab result: SUCCESS (success)\n",
+                      fresh_summary)
+        self.assertIn("## Warnings\n\n- none", fresh_summary)
         section_start = fresh_summary.index("## Uncertainty\n")
         section_end = fresh_summary.index("## M2 diagnostic")
         section = fresh_summary[section_start:section_end]
@@ -779,58 +725,14 @@ class RegenerationTests(unittest.TestCase):
                 f"- g_over_l_eff_per_s2 (1/s^2): low {band['low']!r}, "
                 f"point {band['point']!r}, high {band['high']!r}"):
             self.assertIn(line, section)
-        fresh_summary = (fresh_summary[:section_start]
-                         + fresh_summary[section_end:])
-        # Verdict flip + lifted warning + populated interval:
-        # asserted exactly above, normalized for the byte-compare.
-        self.assertIn("# KineticLab result: SUCCESS (success)\n",
-                      fresh_summary)
         self.assertIn(
             f"- interval: {{\"lower\": {band['low']!r}, "
             f"\"upper\": {band['high']!r}}}",
             fresh_summary)
         self.assertIn("- interval_method: block_bootstrap",
                       fresh_summary)
-        self.assertIn("## Warnings\n\n- none", fresh_summary)
-        fresh_summary = fresh_summary.replace(
-            "SUCCESS (success)", "SUCCESS (<status>)").replace(
-                "- status: success\n", "- status: <status>\n")
-        fresh_summary = _blank_line_prefix(
-            fresh_summary, "- interval: ", "- interval: <interval>")
-        fresh_summary = _blank_line_prefix(
-            fresh_summary, "- interval_method: ",
-            "- interval_method: <interval_method>")
         pinned_summary = (
-            ASM_DIR / SUMMARY_FILENAME).read_text(
-                encoding="utf-8").replace(
-                    pinned_result["assumptions"][0], "<zero-blanked>")
-        pinned_summary = pinned_summary.replace(
-            "SUCCESS (success_with_warnings)",
-            "SUCCESS (<status>)").replace(
-                "- status: success_with_warnings\n",
-                "- status: <status>\n")
-        self.assertIn("- interval: null", pinned_summary)
-        self.assertIn("- interval_method: null", pinned_summary)
-        pinned_summary = _blank_line_prefix(
-            pinned_summary, "- interval: ", "- interval: <interval>")
-        pinned_summary = _blank_line_prefix(
-            pinned_summary, "- interval_method: ",
-            "- interval_method: <interval_method>")
-        pinned_bullet = ("- `W_UNCERTAINTY_UNAVAILABLE`: KL-7.1 estimates "
-                         "no uncertainty; method is none.\n")
-        self.assertIn(pinned_bullet, pinned_summary)
-        pinned_summary = pinned_summary.replace(pinned_bullet,
-                                                "- none\n")
-        # diagnostics.json bytes intentionally changed (new
-        # fit_uncertainty section); its hash line is blanked on
-        # both sides while the listed hashes are still verified
-        # against the freshly written files below.
-        fresh_summary = _blank_line_prefix(
-            fresh_summary, "- diagnostics.json: ",
-            "- diagnostics.json: <bytes-changed>")
-        pinned_summary = _blank_line_prefix(
-            pinned_summary, "- diagnostics.json: ",
-            "- diagnostics.json: <bytes-changed>")
+            ASM_DIR / SUMMARY_FILENAME).read_text(encoding="utf-8")
         self.assertEqual(
             _blank_result_hash_line(fresh_summary),
             _blank_result_hash_line(pinned_summary))
@@ -939,11 +841,11 @@ class ObservationCriticalTests(unittest.TestCase):
                              "observation.frame_index")
             # Partial context: the frame table survived the failure.
             metrics = result["quality_metrics"]
-            self.assertEqual(metrics["frames_total"], 234)
-            self.assertEqual(metrics["frames_usable"], 234)
+            self.assertEqual(metrics["frames_total"], 591)
+            self.assertEqual(metrics["frames_usable"], 591)
             self.assertIsNone(metrics["observations_total"])
             self.assertIsNone(metrics["observations_valid"])
-            self.assertEqual(out["diagnostics"]["n_table_frames"], 234)
+            self.assertEqual(out["diagnostics"]["n_table_frames"], 591)
             self.assertIsNone(out["diagnostics"]["n_bob_records"])
             for name in ("result.json", "diagnostics.json", "angles.csv"):
                 self.assertTrue((out_dir / name).is_file())
@@ -1027,9 +929,9 @@ class GeometrySeamTests(unittest.TestCase):
         table = [SimpleNamespace(frame_index=index,
                                  pts_seconds=index * 0.04,
                                  valid=True)
-                 for index in range(234)]
+                 for index in range(591)]
         card = [SimpleNamespace(frame_index=index, valid=True)
-                for index in range(234)]
+                for index in range(591)]
         bob = [SimpleNamespace(frame_index=index, valid=True,
                                pts_seconds=index * 0.04,
                                centroid_x_px=1.0, centroid_y_px=2.0)
@@ -1053,8 +955,8 @@ class GeometrySeamTests(unittest.TestCase):
         self.assertEqual(result["calibration"]["warnings"],
                          self.calibration["warnings"])
         metrics = result["quality_metrics"]
-        self.assertEqual(metrics["calibrated_frames"], 117)
-        self.assertEqual(metrics["observations_total"], 236)
+        self.assertEqual(metrics["calibrated_frames"], 272)
+        self.assertEqual(metrics["observations_total"], 593)
         checked = ResultContract.from_dict(copy.deepcopy(result))
         self.assertEqual(checked.to_dict(), result)
 
@@ -1097,7 +999,7 @@ class GeometryRejectionPinTests(unittest.TestCase):
                           metrics["frames_usable"],
                           metrics["observations_total"],
                           metrics["observations_valid"]),
-                         (234, 234, 468, 468))
+                         (591, 591, 983, 983))
         self.assertIsNone(metrics["calibrated_frames"])
         self.assertEqual(result["identifiable_quantity"],
                          {"name": "g/L_eff", "value": None,
@@ -1179,7 +1081,7 @@ class SummaryRenderTests(unittest.TestCase):
         lines = self.text.splitlines()
         self.assertEqual(
             lines[0],
-            "# KineticLab result: SUCCESS (success_with_warnings)")
+            "# KineticLab result: SUCCESS (success)")
         headers = [
             "## Status and measurement",
             "## Identifiable quantity",
@@ -1365,60 +1267,62 @@ class SummaryDeterminismTests(unittest.TestCase):
 
 class NonCriticalTests(unittest.TestCase):
     def test_upstream_warnings_stay_success(self):
-        # Pin-inspected (no refit): the live calibration carries
-        # warnings, yet the chain stays in the success family.
+        # Pin-inspected (no refit): the live calibration is honestly
+        # invalid (both geometry assumptions unassessed, two
+        # warnings), yet the chain stays in the success family and
+        # carries the calibration warnings verbatim.
         result = json.loads(
             (ASM_DIR / "result.json").read_text(encoding="utf-8"))
         live_calibration = json.loads(
             (REPO_ROOT / "fixtures" / "geometry"
              / "calibration_live.json").read_text(encoding="utf-8"))
+        self.assertFalse(live_calibration["valid"])
         self.assertEqual(len(live_calibration["warnings"]), 2)
-        self.assertEqual(result["status"], "success_with_warnings")
+        self.assertEqual(result["status"], "success")
         self.assertTrue(math.isclose(result["value"], G_OVER_L_PIN,
                                      rel_tol=1e-6))
         self.assertEqual(result["calibration"]["warnings"],
                          live_calibration["warnings"])
-        self.assertEqual([item["code"] for item in result["warnings"]],
-                         ["W_UNCERTAINTY_UNAVAILABLE"])
+        self.assertEqual(result["warnings"], [])
 
 
 class AuditWalkthroughTests(unittest.TestCase):
     """Pins the README frame-0 walkthrough (KL-7.4)."""
 
     CITATIONS = [
-        ("fixtures/ingest/test_3_frame_table.json", 7,
+        ("fixtures/ingest/demo_test_frame_table.json", 7,
          '"frame_index": 0'),
-        ("fixtures/ingest/test_3_frame_table.json", 16,
+        ("fixtures/ingest/demo_test_frame_table.json", 16,
          '"pts_seconds": 0.0'),
-        ("fixtures/ingest/test_3_frame_table.json", 18,
+        ("fixtures/ingest/demo_test_frame_table.json", 18,
          '"source_frame_index": 0'),
-        ("fixtures/ingest/test_3_frame_table.json", 5,
+        ("fixtures/ingest/demo_test_frame_table.json", 5,
          '"sample:0"'),
         ("fixtures/assembly/angles.csv", 2,
-         "0,0.0,0.12636167830883652,565.7244623655914,"
-         "366.5494210090984"),
-        ("fixtures/assembly/diagnostics.json", 25,
+         "0,0.0,-0.4212208736632993,143.41923615977575,"
+         "292.29169586545197"),
+        ("fixtures/assembly/diagnostics.json", 42,
          '"point_index": 0'),
-        ("fixtures/assembly/diagnostics.json", 26,
-         '"residual_rad": -0.07864719822009777'),
-        ("fixtures/assembly/diagnostics.json", 27,
+        ("fixtures/assembly/diagnostics.json", 43,
+         '"residual_rad": 0.022779496438566804'),
+        ("fixtures/assembly/diagnostics.json", 44,
          '"t_seconds": 0.0'),
-        ("fixtures/assembly/diagnostics.json", 11,
-         '"amplitude_rad": 0.29309715273018166'),
-        ("fixtures/assembly/diagnostics.json", 12,
-         '"omega_per_s": 5.47774002094622'),
-        ("fixtures/assembly/diagnostics.json", 13,
-         '"period_s": 1.1470397067318712'),
-        ("fixtures/assembly/diagnostics.json", 14,
-         '"phase_rad": 0.7961587971827984'),
-        ("fixtures/assembly/result.json", 155,
-         '"value": 30.00563573707589'),
-        ("fixtures/assembly/result.json", 83,
-         '"g_over_l_per_s2": 30.00563573707589'),
+        ("fixtures/assembly/diagnostics.json", 28,
+         '"amplitude_rad": 0.4844222768378287'),
+        ("fixtures/assembly/diagnostics.json", 29,
+         '"omega_per_s": 5.379355013477902'),
+        ("fixtures/assembly/diagnostics.json", 30,
+         '"period_s": 1.1680183388969774'),
+        ("fixtures/assembly/diagnostics.json", 31,
+         '"phase_rad": -2.730179137233871'),
+        ("fixtures/assembly/result.json", 140,
+         '"value": 28.93746036102984'),
+        ("fixtures/assembly/result.json", 70,
+         '"g_over_l_per_s2": 28.93746036102984'),
         ("fixtures/assembly/summary.md", 11,
-         "- value: 30.00563573707589"),
+         "- value: 28.93746036102984"),
         ("fixtures/assembly/summary.md", 35,
-         "- omega_per_s: 5.47774002094622"),
+         "- omega_per_s: 5.379355013477902"),
     ]
 
     def test_walkthrough_citations_match_pins(self):
@@ -1450,17 +1354,16 @@ class AuditWalkthroughTests(unittest.TestCase):
                          result["fit"]["g_over_l_per_s2"])
         self.assertIsNone(result["fit"]["gravity_m_s2"])
 
-    def test_plain_success_unreachable_note(self):
-        # Pinned structural statement (KL-7.4): plain success
-        # cannot occur in P-007 because the uncertainty warning
-        # is always present and the contract requires
-        # success_with_warnings whenever warnings are present.
+    def test_plain_success_reached(self):
+        # KL-10.24: with the seeded block bootstrap in the chain,
+        # plain success IS the live verdict: no warnings, populated
+        # block_bootstrap interval.
         result = json.loads(
             (ASM_DIR / "result.json").read_text(encoding="utf-8"))
-        codes = [item["code"] for item in result["warnings"]]
-        self.assertIn("W_UNCERTAINTY_UNAVAILABLE", codes)
-        self.assertEqual(result["status"], "success_with_warnings")
-        self.assertNotEqual(result["status"], "success")
+        self.assertEqual(result["status"], "success")
+        self.assertEqual(result["warnings"], [])
+        self.assertEqual(result["interval_method"], "block_bootstrap")
+        self.assertIsNotNone(result["interval"])
 
 
 class InsufficientSummaryTests(unittest.TestCase):
@@ -1478,9 +1381,9 @@ class InsufficientSummaryTests(unittest.TestCase):
         table = [SimpleNamespace(frame_index=index,
                                  pts_seconds=index * 0.04,
                                  valid=True)
-                 for index in range(234)]
+                 for index in range(591)]
         card = [SimpleNamespace(frame_index=index, valid=True)
-                for index in range(234)]
+                for index in range(591)]
         bob = [SimpleNamespace(frame_index=index, valid=True,
                                pts_seconds=index * 0.04,
                                centroid_x_px=1.0, centroid_y_px=2.0)
@@ -1533,9 +1436,9 @@ class ProcessingSummaryTests(unittest.TestCase):
         table = [SimpleNamespace(frame_index=index,
                                  pts_seconds=index * 0.04,
                                  valid=True)
-                 for index in range(234)]
+                 for index in range(591)]
         card = [SimpleNamespace(frame_index=index, valid=True)
-                for index in range(234)]
+                for index in range(591)]
         bob = [SimpleNamespace(frame_index=index, valid=True,
                                pts_seconds=index * 0.04,
                                centroid_x_px=1.0, centroid_y_px=2.0)
@@ -1598,9 +1501,9 @@ class NonMonotonicTests(unittest.TestCase):
         table = [SimpleNamespace(frame_index=index,
                                  pts_seconds=index * 0.04,
                                  valid=True)
-                 for index in range(234)]
+                 for index in range(591)]
         card = [SimpleNamespace(frame_index=index, valid=True)
-                for index in range(234)]
+                for index in range(591)]
         with tempfile.TemporaryDirectory() as tmp:
             out = assemble_parts(
                 bob=self._swapped_bob(), card=card, frame_table=table,
@@ -1664,7 +1567,7 @@ class CardGateTests(unittest.TestCase):
             table = [SimpleNamespace(frame_index=index,
                                      pts_seconds=index * 0.04,
                                      valid=True)
-                     for index in range(234)]
+                     for index in range(591)]
         if bob is None:
             bob = [SimpleNamespace(frame_index=index, valid=True,
                                    pts_seconds=index * 0.04,
@@ -1695,7 +1598,7 @@ class CardGateTests(unittest.TestCase):
     def test_all_invalid_card_parts_seam_rejects(self):
         card = [SimpleNamespace(frame_index=index, valid=False,
                                 pts_seconds=index * 0.04)
-                for index in range(234)]
+                for index in range(591)]
         with tempfile.TemporaryDirectory() as tmp:
             result = self._parts(tmp, card=card)["result"]
             self.assertEqual(result["status"], "unsupported_input")
@@ -1720,21 +1623,21 @@ class CardGateTests(unittest.TestCase):
     def test_withdrawn_timed_excluded_from_usable(self):
         table = [SimpleNamespace(
             frame_index=index, pts_seconds=index * 0.04,
-            valid=index >= 10) for index in range(234)]
+            valid=index >= 10) for index in range(591)]
         card = [SimpleNamespace(frame_index=index, valid=True)
-                for index in range(234)]
+                for index in range(591)]
         with tempfile.TemporaryDirectory() as tmp:
             result = self._parts(tmp, card=card, table=table)["result"]
             self.assertEqual(result["status"], "insufficient_data")
             metrics = result["quality_metrics"]
-            self.assertEqual(metrics["frames_total"], 234)
-            self.assertEqual(metrics["frames_usable"], 224)
+            self.assertEqual(metrics["frames_total"], 591)
+            self.assertEqual(metrics["frames_usable"], 581)
 
     def test_malformed_counts_rejected(self):
         card = [SimpleNamespace(frame_index=index, valid=True)
-                for index in range(234)]
-        cases = {"string": "117", "bool": True, "negative": -1,
-                 "too_big": 235, "null": None, "missing": "MISSING",
+                for index in range(591)]
+        cases = {"string": "272", "bool": True, "negative": -1,
+                 "too_big": 592, "null": None, "missing": "MISSING",
                  "non_object_section": "NON_OBJECT"}
         for name, bad in cases.items():
             with self.subTest(count=name), \
@@ -1775,9 +1678,9 @@ class ArtifactHashesSeamTests(unittest.TestCase):
         table = [SimpleNamespace(frame_index=index,
                                  pts_seconds=index * 0.04,
                                  valid=True)
-                 for index in range(234)]
+                 for index in range(591)]
         card = [SimpleNamespace(frame_index=index, valid=True)
-                for index in range(234)]
+                for index in range(591)]
         bob = [SimpleNamespace(frame_index=index, valid=True,
                                pts_seconds=index * 0.04,
                                centroid_x_px=1.0, centroid_y_px=2.0)
@@ -2036,9 +1939,9 @@ class PivotLengthGravityTests(unittest.TestCase):
              / "geometry_report_live.json").read_text(encoding="utf-8"))
         table = [SimpleNamespace(frame_index=index,
                                  pts_seconds=index * 0.04, valid=True)
-                 for index in range(234)]
+                 for index in range(591)]
         card = [SimpleNamespace(frame_index=index, valid=True)
-                for index in range(234)]
+                for index in range(591)]
         bob = [SimpleNamespace(frame_index=index, valid=True,
                                pts_seconds=index * 0.04,
                                centroid_x_px=1.0, centroid_y_px=2.0)

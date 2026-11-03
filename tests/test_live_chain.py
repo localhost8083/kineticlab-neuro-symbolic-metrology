@@ -1,7 +1,7 @@
 """Live-chain orchestration tests (KL-8.4).
 
 `run_detect` / `run_measure` / `run_live_chain` run against the real
-test_3 clip with a mock transport serving the PINNED live raw bytes —
+demo_test clip with a mock transport serving the PINNED live raw bytes —
 so the full chain must reproduce the pinned success value exactly
 (same data, same arc fit, same M1). Covered per mode: detect summary
 shape, measure outputs, mm validation, the motion nulls + reason,
@@ -46,7 +46,7 @@ from kineticlab.ingest import extract_frame_records, inspect_media
 from tests import require_smoke
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-TEST_3 = REPO_ROOT / "Smoke" / "test_3.mp4"
+DEMO_TEST = REPO_ROOT / "Smoke" / "demo_test.mp4"
 PIN_BOB = (REPO_ROOT / "fixtures" / "live"
            / "raw_bob_one_bit.txt").read_text(encoding="utf-8")
 PIN_CARD = (REPO_ROOT / "fixtures" / "live"
@@ -54,7 +54,7 @@ PIN_CARD = (REPO_ROOT / "fixtures" / "live"
 PIN_VALUE = json.loads((REPO_ROOT / "fixtures" / "assembly"
                         / "result.json").read_text(encoding="utf-8"))
 PIN_G_OVER_L = PIN_VALUE["identifiable_quantity"]["value"]
-PIN_PERIOD = 1.1470397067318712
+PIN_PERIOD = 1.1680183388969774
 SECRET = "test-key-live-chain-probe-9f8e"
 
 
@@ -125,15 +125,15 @@ class ValidatorsTest(unittest.TestCase):
                          "E_EMPTY_STRING")
 
     def test_card_width_validation(self):
-        self.assertEqual(validate_card_width_mm(85.6, "full"), 85.6)
-        self.assertEqual(validate_card_width_mm("85.6", "full"), 85.6)
+        self.assertEqual(validate_card_width_mm(85.0, "full"), 85.0)
+        self.assertEqual(validate_card_width_mm("85.0", "full"), 85.0)
         self.assertIsNone(validate_card_width_mm(None, "motion"))
         with self.assertRaises(ContractError) as raised:
             validate_card_width_mm(None, "full")
         self.assertEqual(raised.exception.errors[0].code,
                          "E_MISSING_FIELD")
         with self.assertRaises(ContractError) as raised:
-            validate_card_width_mm(85.6, "motion")
+            validate_card_width_mm(85.0, "motion")
         self.assertEqual(raised.exception.errors[0].code,
                          "E_INCOHERENT_VALUE")
         for bad, code in (("abc", "E_WRONG_TYPE"), ("nan", "E_NON_FINITE"),
@@ -163,9 +163,9 @@ class DetectTest(unittest.TestCase):
         self.root = Path(self.tmp.name)
 
     def test_detect_full_summary(self):
-        require_smoke(TEST_3)
+        require_smoke(DEMO_TEST)
         run_id = new_run_id()
-        out = run_detect(TEST_3, self.root / run_id, "full",
+        out = run_detect(DEMO_TEST, self.root / run_id, "full",
                          {"bob": "red ball",
                           "card": "white paper card"},
                          SECRET, transport=pin_transport(FULL_TEXTS))
@@ -175,10 +175,10 @@ class DetectTest(unittest.TestCase):
         self.assertEqual(summary["prompts"],
                          {"bob": "red ball",
                           "card": "white paper card"})
-        media = inspect_media(str(TEST_3))
+        media = inspect_media(str(DEMO_TEST))
         self.assertEqual(summary["video"]["width"], media.width)
         self.assertEqual(summary["video"]["height"], media.height)
-        self.assertEqual(summary["video"]["frames"], 234)
+        self.assertEqual(summary["video"]["frames"], 591)
         for role in ("bob", "card"):
             info = summary["roles"][role]
             self.assertGreater(info["valid"], 0)
@@ -194,9 +194,9 @@ class DetectTest(unittest.TestCase):
         self.assertEqual(stored, summary)
 
     def test_detect_motion_captures_bob_only(self):
-        require_smoke(TEST_3)
+        require_smoke(DEMO_TEST)
         run_id = new_run_id()
-        out = run_detect(TEST_3, self.root / run_id, "motion",
+        out = run_detect(DEMO_TEST, self.root / run_id, "motion",
                          {"bob": "red ball"}, SECRET,
                          transport=pin_transport(FULL_TEXTS))
         self.assertEqual(sorted(out["summary"]["roles"]), ["bob"])
@@ -206,10 +206,10 @@ class DetectTest(unittest.TestCase):
                           / "raw_card_one_bit.txt").exists())
 
     def test_detect_empty_output_rejects(self):
-        require_smoke(TEST_3)
+        require_smoke(DEMO_TEST)
         run_id = new_run_id()
         with self.assertRaises(ContractError) as raised:
-            run_detect(TEST_3, self.root / run_id, "motion",
+            run_detect(DEMO_TEST, self.root / run_id, "motion",
                        {"bob": "red ball"}, SECRET,
                        transport=pin_transport({}))
         self.assertEqual(raised.exception.errors[0].code,
@@ -233,14 +233,15 @@ class DetectTest(unittest.TestCase):
 class MeasureFullTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        require_smoke(TEST_3)
+        require_smoke(DEMO_TEST)
         cls.tmp = tempfile.TemporaryDirectory()
         cls.root = Path(cls.tmp.name)
         cls.run_id = new_run_id()
-        run_detect(TEST_3, cls.root / cls.run_id, "full",
+        run_detect(DEMO_TEST, cls.root / cls.run_id, "full",
                    {"bob": "red ball", "card": "white paper card"},
                    SECRET, transport=pin_transport(FULL_TEXTS))
-        cls.out = run_measure(cls.root / cls.run_id, 85.60)
+        cls.out = run_measure(cls.root / cls.run_id, 85.0,
+                              card_height_mm=54.0)
 
     @classmethod
     def tearDownClass(cls):
@@ -262,14 +263,13 @@ class MeasureFullTest(unittest.TestCase):
             (self.root / self.run_id / CALIBRATION_FILENAME)
             .read_text(encoding="utf-8"))
         self.assertFalse(calibration["valid"])
-        # The typed 85.60 mm width is the U-1 ID-1 confirmation: the
-        # record states the confirmed dimensions (typed width + the
-        # ID-1 standard height, never a pixel estimate) and stays
-        # honestly invalid because the assumptions are unassessed.
+        # Both card dimensions are human-typed; the cut card is no
+        # standard, so the record states "unknown" with user_confirmed
+        # dimensions and stays honestly invalid (assumptions unassessed).
         self.assertEqual(calibration["reference_type"],
-                         "iso_id1_confirmed")
+                         "unknown")
         self.assertEqual(calibration["reference_dimensions_mm"],
-                         {"width_mm": 85.6, "height_mm": 53.98})
+                         {"width_mm": 85.0, "height_mm": 54.0})
         self.assertEqual(calibration["dimension_source"],
                          "user_confirmed")
         self.assertIsNone(calibration["observed_corners_px"])
@@ -286,12 +286,16 @@ class MeasureFullTest(unittest.TestCase):
             .read_text(encoding="utf-8"))
         self.assertTrue(report["pivot_arc"]["fitted"])
         section = report["calibration"]
-        self.assertEqual(section["n_usable_frames"], 117)
-        self.assertEqual(section["card_width_mm"], 85.60)
+        self.assertEqual(section["n_usable_frames"], 272)
+        self.assertEqual(section["card_width_mm"], 85.0)
         self.assertEqual(section["card_width_mm_source"],
                          "user_supplied")
-        self.assertIn("U-3 applied to the pinned test_3 clip only",
-                      section["u3_bound"]["statement"])
+        self.assertEqual(section["card_height_mm"], 54.0)
+        self.assertEqual(section["card_height_mm_source"],
+                         "user_supplied")
+        self.assertIn(
+            "U-3 was a measurement of a retired pinned clip",
+            section["u3_bound"]["statement"])
 
     def test_model_limitations_carry_arc_radius_caveat(self):
         # KL-9.6 M1: the live geometry report states the arc-fit
@@ -325,7 +329,8 @@ class MeasureFullTest(unittest.TestCase):
                                "angles.csv", "summary.md",
                                CALIBRATION_FILENAME,
                                GEOMETRY_REPORT_FILENAME)}
-        run_measure(self.root / self.run_id, 85.60)
+        run_measure(self.root / self.run_id, 85.0,
+                    card_height_mm=54.0)
         for name, payload in before.items():
             with self.subTest(export=name):
                 self.assertEqual(
@@ -343,11 +348,11 @@ class MeasureFullTest(unittest.TestCase):
 class MeasureMotionTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        require_smoke(TEST_3)
+        require_smoke(DEMO_TEST)
         cls.tmp = tempfile.TemporaryDirectory()
         cls.root = Path(cls.tmp.name)
         cls.run_id = new_run_id()
-        run_detect(TEST_3, cls.root / cls.run_id, "motion",
+        run_detect(DEMO_TEST, cls.root / cls.run_id, "motion",
                    {"bob": "red ball"}, SECRET,
                    transport=pin_transport(FULL_TEXTS))
         cls.out = run_measure(cls.root / cls.run_id)
@@ -366,7 +371,7 @@ class MeasureMotionTest(unittest.TestCase):
                                delta=1e-12 * abs(PIN_PERIOD))
         self.assertIsNotNone(report["omega_per_s"])
         self.assertIsNotNone(report["pivot_px"])
-        self.assertEqual(report["n_fit_points"], 234)
+        self.assertEqual(report["n_fit_points"], 591)
         self.assertEqual(report["excluded_frames"], [])
 
     def test_scale_fields_null_with_reason(self):
@@ -384,7 +389,7 @@ class MeasureMotionTest(unittest.TestCase):
             .read_text(encoding="utf-8").splitlines()
         self.assertEqual(lines[0], "frame_index,pts_seconds,theta_rad,"
                                   "centroid_x_px,centroid_y_px")
-        self.assertEqual(len(lines), 235)
+        self.assertEqual(len(lines), 592)
 
     def test_written_exports(self):
         self.assertEqual(len(self.out["written"]), 2)
@@ -434,9 +439,9 @@ class MotionHonestyTests(unittest.TestCase):
         self.root = Path(self.tmp.name)
 
     def detect_motion(self):
-        require_smoke(TEST_3)
+        require_smoke(DEMO_TEST)
         run_id = new_run_id()
-        run_detect(TEST_3, self.root / run_id, "motion",
+        run_detect(DEMO_TEST, self.root / run_id, "motion",
                    {"bob": "red ball"}, SECRET,
                    transport=pin_transport(FULL_TEXTS))
         return self.root / run_id
@@ -499,15 +504,15 @@ class MeasureGatingTest(unittest.TestCase):
         run_id = new_run_id()
         (self.root / run_id).mkdir()
         with self.assertRaises(ContractError) as raised:
-            run_measure(self.root / run_id, 85.60)
+            run_measure(self.root / run_id, 85.0, card_height_mm=54.0)
         error = raised.exception.errors[0]
         self.assertEqual(error.code, "E_MISSING_FIELD")
         self.assertEqual(error.field, "run_id")
 
     def test_full_without_mm_rejects(self):
-        require_smoke(TEST_3)
+        require_smoke(DEMO_TEST)
         run_id = new_run_id()
-        run_detect(TEST_3, self.root / run_id, "full",
+        run_detect(DEMO_TEST, self.root / run_id, "full",
                    {"bob": "red ball", "card": "white paper card"},
                    SECRET, transport=pin_transport(FULL_TEXTS))
         with self.assertRaises(ContractError) as raised:
@@ -516,14 +521,26 @@ class MeasureGatingTest(unittest.TestCase):
         self.assertEqual(error.code, "E_MISSING_FIELD")
         self.assertEqual(error.field, "card_width_mm")
 
-    def test_motion_with_mm_rejects(self):
-        require_smoke(TEST_3)
+    def test_full_without_height_rejects(self):
+        require_smoke(DEMO_TEST)
         run_id = new_run_id()
-        run_detect(TEST_3, self.root / run_id, "motion",
+        run_detect(DEMO_TEST, self.root / run_id, "full",
+                   {"bob": "red ball", "card": "white paper card"},
+                   SECRET, transport=pin_transport(FULL_TEXTS))
+        with self.assertRaises(ContractError) as raised:
+            run_measure(self.root / run_id, 85.0)
+        error = raised.exception.errors[0]
+        self.assertEqual(error.code, "E_MISSING_FIELD")
+        self.assertEqual(error.field, "card_height_mm")
+
+    def test_motion_with_mm_rejects(self):
+        require_smoke(DEMO_TEST)
+        run_id = new_run_id()
+        run_detect(DEMO_TEST, self.root / run_id, "motion",
                    {"bob": "red ball"}, SECRET,
                    transport=pin_transport(FULL_TEXTS))
         with self.assertRaises(ContractError) as raised:
-            run_measure(self.root / run_id, 85.60)
+            run_measure(self.root / run_id, 85.0, card_height_mm=54.0)
         self.assertEqual(raised.exception.errors[0].code,
                          "E_INCOHERENT_VALUE")
 
@@ -535,13 +552,14 @@ class LiveChainTest(unittest.TestCase):
         self.root = Path(self.tmp.name)
 
     def test_one_shot_full(self):
-        require_smoke(TEST_3)
+        require_smoke(DEMO_TEST)
         run_id = new_run_id()
-        out = run_live_chain(TEST_3, "full",
+        out = run_live_chain(DEMO_TEST, "full",
                              {"bob": "red ball",
                               "card": "white paper card"},
-                             85.60, self.root / run_id, SECRET,
-                             transport=pin_transport(FULL_TEXTS))
+                             85.0, self.root / run_id, SECRET,
+                             transport=pin_transport(FULL_TEXTS),
+                             card_height_mm=54.0)
         self.assertEqual(out["run_id"], run_id)
         self.assertEqual(out["mode"], "full")
         # KL-10.11: the bootstrap ran on the live full run.
@@ -551,9 +569,9 @@ class LiveChainTest(unittest.TestCase):
         self.assertEqual(out["summary"]["mode"], "full")
 
     def test_one_shot_motion(self):
-        require_smoke(TEST_3)
+        require_smoke(DEMO_TEST)
         run_id = new_run_id()
-        out = run_live_chain(TEST_3, "motion", {"bob": "red ball"},
+        out = run_live_chain(DEMO_TEST, "motion", {"bob": "red ball"},
                              None, self.root / run_id, SECRET,
                              transport=pin_transport(FULL_TEXTS))
         self.assertEqual(out["run_id"], run_id)
@@ -566,8 +584,8 @@ class MeasureReuseUnitTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        require_smoke(TEST_3)
-        cls.table = extract_frame_records(str(TEST_3))
+        require_smoke(DEMO_TEST)
+        cls.table = extract_frame_records(str(DEMO_TEST))
         cls.lines = PIN_BOB.splitlines()[:2]
 
     def _run_dir(self, root):
@@ -645,12 +663,12 @@ class MeasureReuseFallbackTest(unittest.TestCase):
     """Motion measure falls back to a full re-parse on SHA mismatch."""
 
     def test_fallback_reparses_and_records(self):
-        require_smoke(TEST_3)
+        require_smoke(DEMO_TEST)
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             run_id = new_run_id()
             run = root / run_id
-            run_detect(TEST_3, run, "motion", {"bob": "red ball"},
+            run_detect(DEMO_TEST, run, "motion", {"bob": "red ball"},
                        SECRET, transport=pin_transport(FULL_TEXTS))
             run_measure(run)
             reuse = json.loads(
@@ -683,7 +701,7 @@ class PivotLengthThreading1017Tests(unittest.TestCase):
         self.assertEqual(validate_pivot_length_mm(500), 500.0)
         self.assertEqual(validate_pivot_length_mm(10.0), 10.0)
         self.assertEqual(validate_pivot_length_mm(2000.0), 2000.0)
-        self.assertEqual(validate_pivot_length_mm(" 85.6 "), 85.6)
+        self.assertEqual(validate_pivot_length_mm(" 85.0 "), 85.0)
         for bad in (None, "", "junk", "5", "9.999", "2000.1",
                     "9999", "nan", "inf", "-inf", True, False,
                     [500], {"value": 500}):
@@ -692,16 +710,17 @@ class PivotLengthThreading1017Tests(unittest.TestCase):
 
     def _detect_full(self, root):
         run_id = new_run_id()
-        run_detect(TEST_3, root / run_id, "full",
+        run_detect(DEMO_TEST, root / run_id, "full",
                    {"bob": "red ball", "card": "white paper card"},
                    SECRET, transport=pin_transport(FULL_TEXTS))
         return root / run_id
 
     def test_run_measure_full_computes_gravity(self):
-        require_smoke(TEST_3)
+        require_smoke(DEMO_TEST)
         with tempfile.TemporaryDirectory() as tmp:
             target = self._detect_full(Path(tmp))
-            out = run_measure(target, 85.60, pivot_length_mm="500")
+            out = run_measure(target, 85.0, card_height_mm=54.0,
+                              pivot_length_mm="500")
             fit = out["result"]["fit"]
             self.assertEqual(fit["pivot_length_mm"], 500.0)
             self.assertEqual(fit["pivot_length_source"],
@@ -710,17 +729,18 @@ class PivotLengthThreading1017Tests(unittest.TestCase):
                                    fit["g_over_l_per_s2"] * 0.5)
 
     def test_invalid_pivot_is_byte_identical_to_absent(self):
-        require_smoke(TEST_3)
+        require_smoke(DEMO_TEST)
         with tempfile.TemporaryDirectory() as tmp:
             target = self._detect_full(Path(tmp))
-            plain = run_measure(target, 85.60)
+            plain = run_measure(target, 85.0, card_height_mm=54.0)
             plain_result = (target / "result.json").read_bytes()
             plain_diag = (target / "diagnostics.json").read_bytes()
             self.assertIsNone(
                 plain["result"]["fit"]["gravity_m_s2"])
             for bad in ("junk", "5", "9999"):
                 with self.subTest(pivot=bad):
-                    out = run_measure(target, 85.60,
+                    out = run_measure(target, 85.0,
+                                      card_height_mm=54.0,
                                       pivot_length_mm=bad)
                     self.assertEqual(out["result"], plain["result"])
                     self.assertEqual(out["diagnostics"],
@@ -732,15 +752,15 @@ class PivotLengthThreading1017Tests(unittest.TestCase):
                         plain_diag)
 
     def test_run_live_chain_forwards_pivot(self):
-        require_smoke(TEST_3)
+        require_smoke(DEMO_TEST)
         with tempfile.TemporaryDirectory() as tmp:
             run_id = new_run_id()
             out = run_live_chain(
-                TEST_3, "full",
+                DEMO_TEST, "full",
                 {"bob": "red ball", "card": "white paper card"},
-                85.60, Path(tmp) / run_id, SECRET,
+                85.0, Path(tmp) / run_id, SECRET,
                 transport=pin_transport(FULL_TEXTS),
-                pivot_length_mm=500.0)
+                card_height_mm=54.0, pivot_length_mm=500.0)
             fit = out["result"]["fit"]
             self.assertEqual(fit["pivot_length_mm"], 500.0)
             self.assertEqual(fit["pivot_length_source"],
@@ -749,10 +769,10 @@ class PivotLengthThreading1017Tests(unittest.TestCase):
                                    fit["g_over_l_per_s2"] * 0.5)
 
     def test_run_live_chain_motion_ignores_pivot(self):
-        require_smoke(TEST_3)
+        require_smoke(DEMO_TEST)
         with tempfile.TemporaryDirectory() as tmp:
             run_id = new_run_id()
-            out = run_live_chain(TEST_3, "motion", {"bob": "red ball"},
+            out = run_live_chain(DEMO_TEST, "motion", {"bob": "red ball"},
                                  None, Path(tmp) / run_id, SECRET,
                                  transport=pin_transport(FULL_TEXTS),
                                  pivot_length_mm=500.0)

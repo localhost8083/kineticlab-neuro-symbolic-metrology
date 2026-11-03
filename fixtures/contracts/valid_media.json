@@ -1,7 +1,7 @@
 {
   "schema_version": "media.v1",
-  "source_path": "Smoke/test_3.mp4",
-  "source_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+  "source_path": "Smoke/demo_test.mp4",
+  "source_sha256": "db5da89e06f74547f03a41a1ef2ff041c6b4b1948957538a8e4674f5ab1d9945",
   "container": "mp4",
   "video_stream_count": 1,
   "audio_stream_count": 1,
@@ -9,8 +9,8 @@
   "width": 1024,
   "height": 576,
   "pixel_format": "yuv420p",
-  "duration_seconds": 7.872,
-  "frame_count": 234,
+  "duration_seconds": 19.73143333333333,
+  "frame_count": 591,
   "nominal_frame_rate": null,
   "time_base": "1/90000",
   "processing_copy_path": null,
@@ -20,9 +20,9 @@
   "provenance": {
     "software_name": "kineticlab-test",
     "software_version": "0.1.0",
-    "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+    "input_sha256": "db5da89e06f74547f03a41a1ef2ff041c6b4b1948957538a8e4674f5ab1d9945",
     "model_name": null,
     "model_version": null,
-    "raw_refs": ["fixtures/test_3.json"]
+    "raw_refs": ["fixtures/demo_test.json"]
   }
 }

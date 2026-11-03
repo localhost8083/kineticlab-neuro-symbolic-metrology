@@ -44,7 +44,7 @@ from kineticlab.assembly import SUMMARY_FILENAME, assemble
 from kineticlab.ingest import extract_frame_records
 from kineticlab.observation import parse_raw_fixture
 
-CLIP_REL = "Smoke/test_3.mp4"
+CLIP_REL = "Smoke/demo_test.mp4"
 RAW_BOB_REL = "fixtures/live/raw_bob_one_bit.txt"
 RAW_CARD_REL = "fixtures/live/raw_card_one_bit.txt"
 CALIBRATION_REL = "fixtures/geometry/calibration_live.json"

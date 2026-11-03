@@ -65,9 +65,9 @@ else:
     REPO_ROOT = _MAIN_FALLBACK
 
 UI_DIR = REPO_ROOT / "kineticlab" / "ui"
-TEST_3 = REPO_ROOT / "Smoke" / "test_3.mp4"
-TEST_3_SHA = ("a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920"
-              "cce0be5875ce")
+DEMO_TEST = REPO_ROOT / "Smoke" / "demo_test.mp4"
+DEMO_TEST_SHA = ("db5da89e06f74547f03a41a1ef2ff041c6b4b1948957538a8e"
+                 "4674f5ab1d9945")
 
 
 class _FakeServer:
@@ -1128,21 +1128,21 @@ class UploadTests(DispatchCase):
         return status, json.loads(raw.decode("utf-8"))
 
     def test_valid_clip_verdict_measured(self):
-        require_smoke(TEST_3)
-        data = TEST_3.read_bytes()
-        content_type, body = _multipart("clip", "test_3.mp4",
+        require_smoke(DEMO_TEST)
+        data = DEMO_TEST.read_bytes()
+        content_type, body = _multipart("clip", "demo_test.mp4",
                                         "video/mp4", data)
         status, verdict = self._upload(body, content_type)
         self.assertEqual(status, 200)
         media = verdict["media"]
         self.assertEqual(media["width"], 1024)
         self.assertEqual(media["height"], 576)
-        self.assertEqual(media["frame_count"], 234)
-        self.assertAlmostEqual(media["duration_seconds"], 7.872,
-                               delta=0.05)
-        self.assertEqual(media["source_sha256"], TEST_3_SHA)
+        self.assertEqual(media["frame_count"], 591)
+        self.assertAlmostEqual(media["duration_seconds"],
+                               19.73143333333333, delta=0.05)
+        self.assertEqual(media["source_sha256"], DEMO_TEST_SHA)
         pts = verdict["pts"]
-        self.assertEqual(pts["samples"], 234)
+        self.assertEqual(pts["samples"], 591)
         self.assertEqual(pts["null_pts"], 0)
         self.assertTrue(pts["healthy"])
         self.assertIsNone(pts["code"])
@@ -1150,8 +1150,8 @@ class UploadTests(DispatchCase):
         self.assertIn("live SAM",
                       verdict["measurement"]["reason"])
         upload = verdict["upload"]
-        self.assertEqual(upload["filename"], "test_3.mp4")
-        self.assertEqual(upload["sha256"], TEST_3_SHA)
+        self.assertEqual(upload["filename"], "demo_test.mp4")
+        self.assertEqual(upload["sha256"], DEMO_TEST_SHA)
         self.assertEqual(upload["bytes"], len(data))
         saved = self.work / upload["stored"]
         self.assertTrue(saved.is_file())
@@ -1402,7 +1402,7 @@ class DemoEndpointTests(DispatchCase):
         result = payload["result"]
         # KL-10.11: the bootstrap ran on the demo success chain.
         self.assertEqual(result["status"], "success")
-        self.assertEqual(result["value"], 30.00563573707589)
+        self.assertEqual(result["value"], 28.93746036102984)
         self.assertEqual(result["interval_method"], "block_bootstrap")
         pinned = json.loads(
             (REPO_ROOT / "fixtures" / "assembly"
@@ -1410,7 +1410,7 @@ class DemoEndpointTests(DispatchCase):
         self.assertEqual(result["provenance"]["artifact_hashes"],
                          pinned["provenance"]["artifact_hashes"])
         _, _, summary = self.get(payload["files"]["summary.md"])
-        self.assertIn("30.00563573707589",
+        self.assertIn("28.93746036102984",
                       summary.decode("utf-8"))
 
     def test_rerun_byte_stable(self):
@@ -1713,7 +1713,7 @@ class LayoutCompressionTests(unittest.TestCase):
 
     def test_prompts_collapsed(self):
         self.assertIn("Prompts (defaults usually fine)", self.page)
-        self.assertIn('id="livePromptBob" value="red ball"',
+        self.assertIn('id="livePromptBob" value="ball"',
                       self.page)
 
     def test_chains_single_column(self):
@@ -2093,9 +2093,9 @@ class NodeExecutionTests(unittest.TestCase):
                          "REJECTED (unsupported_input)")
         self.assertEqual(out["rej"]["badges"], [])
         # Success control: the badge renders from the real count.
-        self.assertEqual(out["ok"]["cls"], "verdict warn")
-        self.assertEqual(out["ok"]["head"], "SUCCESS WITH WARNINGS")
-        self.assertEqual(out["ok"]["badges"], ["n=234"])
+        self.assertEqual(out["ok"]["cls"], "verdict ok")
+        self.assertEqual(out["ok"]["head"], "SUCCESS")
+        self.assertEqual(out["ok"]["badges"], ["n=591"])
 
     def test_b5_residual_charts_render_finite_paths(self):
         check = (
@@ -2134,12 +2134,12 @@ class NodeExecutionTests(unittest.TestCase):
             self.script, check,
             {"u_csv": self.angles_text,
              "u_diag": self.diagnostics_text})
-        # Unit level: all 234 dict residuals map to finite pairs.
-        self.assertEqual(out["pairs"], 234)
-        self.assertEqual(out["finite"], 234)
+        # Unit level: all 591 dict residuals map to finite pairs.
+        self.assertEqual(out["pairs"], 591)
+        self.assertEqual(out["finite"], 591)
         self.assertAlmostEqual(out["first"][0], 0.0)
-        self.assertAlmostEqual(out["first"][1], -0.07864719822009777)
-        self.assertAlmostEqual(out["period"], 1.1470397067318712)
+        self.assertAlmostEqual(out["first"][1], 0.022779496438566804)
+        self.assertAlmostEqual(out["period"], 1.1680183388969774)
         # End to end: paired residuals, finite SVG path data —
         # the old pair[0]/pair[1] mapping wrote NaN paths here.
         self.assertIn("paired", out["meta"])
@@ -2154,11 +2154,11 @@ class NodeExecutionTests(unittest.TestCase):
 
         from kineticlab.capture.chain import new_run_id, run_detect
 
-        require_smoke(TEST_3)
+        require_smoke(DEMO_TEST)
         with tempfile.TemporaryDirectory() as tmp:
             run_id = new_run_id()
             out = run_detect(
-                TEST_3, Path(tmp) / run_id, "full",
+                DEMO_TEST, Path(tmp) / run_id, "full",
                 {"bob": "red ball", "card": "white paper card"},
                 "test-key-node-proof", transport=pin_transport(
                     FULL_TEXTS))
@@ -2212,11 +2212,11 @@ class NodeExecutionTests(unittest.TestCase):
             run_measure,
         )
 
-        require_smoke(TEST_3)
+        require_smoke(DEMO_TEST)
         tmp = tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
         run = Path(tmp.name) / new_run_id()
-        run_detect(TEST_3, run, "motion", {"bob": "red ball"},
+        run_detect(DEMO_TEST, run, "motion", {"bob": "red ball"},
                    "test-key-node-proof",
                    transport=pin_transport(FULL_TEXTS))
         if fit_double is not None:
@@ -2429,19 +2429,19 @@ class ScientificAnalysisTests(unittest.TestCase):
             self.paint_check(json.dumps(self.result),
                              self.diagnostics_text, post=post),
             self.fetch_map())
-        # 234 measured points + finite fitted curve from the same
+        # 591 measured points + finite fitted curve from the same
         # data path as before; header chip names mode + n.
-        self.assertEqual(out["dots"], 234)
+        self.assertEqual(out["dots"], 591)
         self.assertGreater(out["fittedLen"], 0)
         self.assertFalse(out["fittedNaN"])
-        self.assertEqual(out["chip"], "demo success · n=234")
+        self.assertEqual(out["chip"], "demo success · n=591")
         self.assertTrue(out["live"])
-        self.assertEqual(out["period"], "T = 1.147 s")
+        self.assertEqual(out["period"], "T = 1.168 s")
         # Trail defaults to the 15 most recent centroids.
         self.assertEqual(out["trailDots"], 15)
         self.assertGreater(out["trailLen"], 0)
         self.assertFalse(out["trailNaN"])
-        self.assertIn("showing 15 of 234", out["trailMeta"])
+        self.assertIn("showing 15 of 591", out["trailMeta"])
         self.assertFalse(out["docNull"])
 
     def test_residual_badge_degrees(self):
@@ -2455,9 +2455,9 @@ class ScientificAnalysisTests(unittest.TestCase):
             self.paint_check(json.dumps(self.result),
                              self.diagnostics_text, post=post),
             self.fetch_map())
-        # 0.02275752015969389 rad × 57.29577951308232 = 1.3039…°.
-        self.assertEqual(out["text"], "RMS 1.30° (pipeline)")
-        self.assertEqual(out["title"], "0.02275752015969389 rad")
+        # 0.036873694317842085 rad × 57.29577951308232 = 2.1127…°.
+        self.assertEqual(out["text"], "RMS 2.11° (pipeline)")
+        self.assertEqual(out["title"], "0.036873694317842085 rad")
         self.assertFalse(out["good"])
         self.assertFalse(out["na"])
 
@@ -2479,7 +2479,7 @@ class ScientificAnalysisTests(unittest.TestCase):
 
     def test_trail_window_all_and_flags(self):
         diag = json.loads(self.diagnostics_text)
-        diag["excluded_frames"] = [0, 5, 233]
+        diag["excluded_frames"] = [0, 5, 590]
         post = (
             "  const countDots = () => {\n"
             "    const kids = document.getElementById(\"trailSvg\")\n"
@@ -2507,18 +2507,18 @@ class ScientificAnalysisTests(unittest.TestCase):
             self.paint_check(json.dumps(self.result),
                              json.dumps(diag), post=post),
             self.fetch_map(json.dumps(diag)))
-        # Default window: last 15 rows (219..233) — only frame 233
+        # Default window: last 15 rows (576..590) — only frame 590
         # of the excluded set falls inside and draws flagged.
         self.assertEqual(out["win15"]["dots"], 15)
         self.assertEqual(out["win15"]["flagged"], 1)
         self.assertGreater(out["win15"]["len"], 0)
         self.assertFalse(out["win15"]["nan"])
-        # Full history one click away: all 234 dots, 3 flagged.
-        self.assertEqual(out["winAll"]["dots"], 234)
+        # Full history one click away: all 591 dots, 3 flagged.
+        self.assertEqual(out["winAll"]["dots"], 591)
         self.assertEqual(out["winAll"]["flagged"], 3)
         self.assertGreater(out["winAll"]["len"], 0)
         self.assertFalse(out["winAll"]["nan"])
-        self.assertIn("showing 234 of 234", out["meta"])
+        self.assertIn("showing 591 of 591", out["meta"])
 
     def test_replay_advances_and_pauses(self):
         preamble = (
@@ -2551,7 +2551,7 @@ class ScientificAnalysisTests(unittest.TestCase):
             "  rafCb(9000);\n"
             "  const frozen = scrub();\n"
             "  toggleReplay();\n"
-            "  rafCb(9500); rafCb(20000);\n"
+            "  rafCb(9500); rafCb(40000);\n"
             "  const end = { btn: btn(), scrub: scrub(),\n"
             "    counter: counter(),\n"
             "    caption: document.getElementById(\"replayCaption\")\n"
@@ -2569,23 +2569,23 @@ class ScientificAnalysisTests(unittest.TestCase):
         # Auto-reveal starts playing from frame 0.
         self.assertEqual(out["atStart"]["btn"], "Pause")
         self.assertEqual(out["atStart"]["scrub"], "0")
-        self.assertEqual(out["atStart"]["counter"], "1 / 234")
+        self.assertEqual(out["atStart"]["counter"], "1 / 591")
         # One synthetic second advances cursor (pts 0.0 -> 1.0 =
-        # row 27 on this VFR clip), scrub, counter, and the
-        # trajectory cursor; the trail marker hides (idx 27 sits
-        # outside the 15-frame window ending at 233).
-        self.assertEqual(out["mid"]["scrub"], "27")
-        self.assertEqual(out["mid"]["counter"], "28 / 234")
+        # row 28 on this VFR clip), scrub, counter, and the
+        # trajectory cursor; the trail marker hides (idx 28 sits
+        # outside the 15-frame window ending at 590).
+        self.assertEqual(out["mid"]["scrub"], "28")
+        self.assertEqual(out["mid"]["counter"], "29 / 591")
         self.assertNotEqual(out["mid"]["x"], out["atStart"]["x"])
         self.assertEqual(out["mid"]["vis"], "hidden")
         # Pause freezes the cursor: a later tick changes nothing.
         self.assertIn("Paused", out["pausedCaption"])
-        self.assertEqual(out["frozen"], "27")
+        self.assertEqual(out["frozen"], "28")
         # Resume runs to the end: last frame, visible finite trail
         # marker, honest end caption, button back to Play.
         self.assertEqual(out["end"]["btn"], "Play")
-        self.assertEqual(out["end"]["scrub"], "233")
-        self.assertEqual(out["end"]["counter"], "234 / 234")
+        self.assertEqual(out["end"]["scrub"], "590")
+        self.assertEqual(out["end"]["counter"], "591 / 591")
         self.assertEqual(out["end"]["caption"], "End of recording.")
         self.assertEqual(out["end"]["vis"], "visible")
         self.assertTrue(float(out["end"]["cx"]) ==
@@ -2607,10 +2607,10 @@ class ScientificAnalysisTests(unittest.TestCase):
                              self.diagnostics_text, post=post),
             self.fetch_map())
         # The DOM stub reports reduced motion: static mid-frame
-        # (index 116 of 234), parked Play, explanatory caption;
+        # (index 295 of 591), parked Play, explanatory caption;
         # the toggle call is a no-op.
-        self.assertEqual(out["scrub"], "116")
-        self.assertEqual(out["counter"], "117 / 234")
+        self.assertEqual(out["scrub"], "295")
+        self.assertEqual(out["counter"], "296 / 591")
         self.assertTrue(out["disabled"])
         self.assertEqual(out["btn"], "Play")
         self.assertIn("reduced-motion", out["caption"])
@@ -2636,30 +2636,30 @@ class ScientificAnalysisTests(unittest.TestCase):
         self.assertIn("included — included: converged", text)
         self.assertIn("diagnostic only, M1 stays reported", text)
         self.assertIn(
-            "gamma_per_s = 0.029794544246787853", text)
+            "gamma_per_s = 0.014296385985767188", text)
         self.assertIn(
-            "M1 30.00563573707589 · M2 30.019007396425668", text)
+            "M1 28.93746036102984 · M2 28.932466683051224", text)
         self.assertIn(
-            "117/234 calibrated, 468/468 observations valid", text)
+            "272/591 calibrated, 983/983 observations valid", text)
         self.assertIn("Fit convergedyes", text)
         self.assertIn("Terminationrefine_tolerance_met", text)
         self.assertIn("Bound hits0", text)
         self.assertIn("Rejected count0", text)
         self.assertIn("Excluded frames0", text)
-        self.assertIn("85.6 × 53.98 mm (human-typed reference)", text)
-        self.assertIn("0.3286332854169991 mm/px", text)
+        self.assertIn("85 × 54 mm (human-typed reference)", text)
+        self.assertIn("0.4063304685046935 mm/px", text)
         self.assertIn(
-            "258.7318351096624 × 165.36871084913219 px", text)
+            "209.18933377750915 × 128.34633924757009 px", text)
         self.assertIn("Model limitationnot recorded", text)
-        self.assertIn("Fit uncertainty methodnone", text)
+        self.assertIn("Fit uncertainty methodblock_bootstrap", text)
         self.assertIn("Optimizerseparable_omega_grid_linear_lsq_golden_refine_v1",
                       text)
         self.assertIn("Solverclosed_form_small_angle", text)
         self.assertIn(
-            "Parameter g_over_l30.00563573707589 1/s^2", text)
+            "Parameter g_over_l28.93746036102984 1/s^2", text)
         self.assertIn(
-            "theta0 = 0.2050088765289343 rad · "
-            "omega0 = -1.1474172412079513 rad/s", text)
+            "theta0 = -0.4440003701018661 rad · "
+            "omega0 = 1.042104970619526 rad/s", text)
 
     def test_diagnostics_missing_keys(self):
         result = json.loads(json.dumps(self.result))
@@ -2750,7 +2750,7 @@ class ScientificAnalysisTests(unittest.TestCase):
         self.assertIn("Model limitationM-3e single-string note",
                       single)
         # Without a sidecar the embedded calibration applies.
-        self.assertIn("85.6 × 53.98 mm (human-typed reference)",
+        self.assertIn("85 × 54 mm (human-typed reference)",
                       single)
 
 
@@ -2830,7 +2830,7 @@ class ReplayAnimationTests(unittest.TestCase):
         self.assertEqual(out["label"], self.LABEL)
         # Every measured centroid drawn faint, one pivot anchor,
         # finite path data throughout.
-        self.assertEqual(out["dots"], 234)
+        self.assertEqual(out["dots"], 591)
         self.assertEqual(out["anchors"], 1)
         self.assertGreater(out["len"], 0)
         self.assertFalse(out["nan"])
@@ -2886,7 +2886,7 @@ class ReplayAnimationTests(unittest.TestCase):
         shown = re.findall(r"[-+0-9.eE]+", out["readout"])
         self.assertAlmostEqual(float(shown[0]), theta, places=4)
         self.assertAlmostEqual(float(shown[1]), pts, places=3)
-        self.assertEqual(out["counter"], "28 / 234")
+        self.assertEqual(out["counter"], "28 / 591")
         self.assertEqual(out["x2"], out["cx"])
         self.assertEqual(out["y2"], out["cy"])
 
@@ -2914,13 +2914,13 @@ class ReplayAnimationTests(unittest.TestCase):
             self.fetch_map())
         # (d) the stub reports reduced motion: static mid-frame,
         # parked Play, arm posed at the scrub position, no advance.
-        self.assertEqual(out["scrub"], "116")
-        self.assertEqual(out["counter"], "117 / 234")
+        self.assertEqual(out["scrub"], "295")
+        self.assertEqual(out["counter"], "296 / 591")
         self.assertTrue(out["disabled"])
         self.assertEqual(out["btn"], "Play")
         self.assertIn("reduced-motion", out["caption"])
         self.assertEqual(out["label"], self.LABEL)
-        theta, pts = self.rows[116][2], self.rows[116][1]
+        theta, pts = self.rows[295][2], self.rows[295][1]
         shown = re.findall(r"[-+0-9.eE]+", out["readout"])
         self.assertAlmostEqual(float(shown[0]), theta, places=4)
         self.assertAlmostEqual(float(shown[1]), pts, places=3)
@@ -2992,7 +2992,7 @@ class ReplayAnimationTests(unittest.TestCase):
                               out["label"])
                 self.assertIn("arm not drawn", out["label"])
                 self.assertEqual(out["kids"], 0)
-                self.assertEqual(out["dots"], 234)
+                self.assertEqual(out["dots"], 591)
 
     def test_page_invariants_hold(self):
         # (f) the KL-10.5 bans survive this task: no trig, no
@@ -3152,20 +3152,20 @@ class SimulationTests(unittest.TestCase):
         out = run_page_driver(
             self.script, self.paint_run(post=post), self.fetch_map())
         self.assertEqual(out["label"], self.LABEL)
-        self.assertIn("30.00563573707589", out["seed"])
+        self.assertIn("28.93746036102984", out["seed"])
         self.assertIn("diagnostic cross-check, not measured",
                       out["seed"])
-        self.assertEqual(out["g"], "30.00563573707589")
-        self.assertEqual(out["gamma"], "0.029794544246787853")
+        self.assertEqual(out["g"], "28.93746036102984")
+        self.assertEqual(out["gamma"], "0.014296385985767188")
         gmin, gmax = float(out["gmin"]), float(out["gmax"])
-        self.assertLess(gmin, 30.00563573707589)
-        self.assertGreater(gmax, 30.00563573707589)
-        self.assertAlmostEqual((gmax - gmin) / 30.00563573707589,
+        self.assertLess(gmin, 28.93746036102984)
+        self.assertGreater(gmax, 28.93746036102984)
+        self.assertAlmostEqual((gmax - gmin) / 28.93746036102984,
                                0.5, places=9)
         self.assertEqual(
             out["note"],
-            "Measured trail underlay: 234 frames (dimmed).")
-        self.assertEqual(out["dots"], 234)
+            "Measured trail underlay: 591 frames (dimmed).")
+        self.assertEqual(out["dots"], 591)
         self.assertEqual(out["dim"], "0.35")
         self.assertTrue(float(out["x2"]) == float(out["x2"]))
         self.assertTrue(float(out["cx"]) == float(out["cx"]))
@@ -3716,7 +3716,7 @@ class UiPolish1013Tests(unittest.TestCase):
             "  const mmEmpty = validateLiveMm();\n"
             "  const mmErr = document.getElementById(\"liveMmError\")\n"
             "    .textContent;\n"
-            "  mm.value = \"85.6\";\n"
+            "  mm.value = \"85.0\";\n"
             "  const mmGood = validateLiveMm();\n"
             "  mm.value = \"abc\";\n"
             "  const mmText = validateLiveMm();\n"
@@ -3746,7 +3746,7 @@ class UiPolish1013Tests(unittest.TestCase):
         self.assertTrue(out["promptsOk"])
         self.assertIsNone(out["mmEmpty"])
         self.assertIn("never guessed", out["mmErr"])
-        self.assertEqual(out["mmGood"], 85.6)
+        self.assertEqual(out["mmGood"], 85.0)
         self.assertIsNone(out["mmText"])
         self.assertTrue(out["shownBar"])
         self.assertEqual(out["label"], "Measuring")
@@ -3781,7 +3781,7 @@ class DashboardLayout1014Tests(unittest.TestCase):
         check = (
             "try {\n"
             "  paintVerdict({ status: \"success\",\n"
-            "    fit: { observation_count: 234 } }, null);\n"
+            "    fit: { observation_count: 591 } }, null);\n"
             "  const badge = document.getElementById(\"verdictBadge\");\n"
             "  const good = { text: badge.textContent,\n"
             "    cls: badge.className,\n"
@@ -3814,8 +3814,8 @@ class DashboardLayout1014Tests(unittest.TestCase):
         self.assertIn("is-success", out["good"]["cls"])
         self.assertEqual(out["good"]["verdict"], "verdict ok")
         self.assertEqual(out["pinned"]["text"],
-                         "verdict: success with warnings")
-        self.assertIn("is-warn", out["pinned"]["cls"])
+                         "verdict: success")
+        self.assertIn("is-success", out["pinned"]["cls"])
         self.assertEqual(out["bad"]["text"], "verdict: rejected")
         self.assertIn("is-warn", out["bad"]["cls"])
         self.assertEqual(out["bad"]["verdict"], "verdict bad")
@@ -3909,8 +3909,8 @@ class DashboardLayout1014Tests(unittest.TestCase):
             "  const node = document.getElementById(\"omegaInterval\");\n"
             "  paintOmegaInterval({ fit_uncertainty: {\n"
             "    method: \"block_bootstrap\", n_boot: 800,\n"
-            "    omega_per_s: { low: 5.468, point: 5.478,\n"
-            "      high: 5.489 } } });\n"
+            "    omega_per_s: { low: 5.375782102745884, point: 5.379355013477902,\n"
+            "      high: 5.38357668969718 } } });\n"
             "  const band = node.textContent;\n"
             "  paintOmegaInterval(null);\n"
             "  const none = node.textContent;\n"
@@ -3924,7 +3924,7 @@ class DashboardLayout1014Tests(unittest.TestCase):
         out = run_page_driver(self.script, check, {})
         self.assertEqual(
             out["band"],
-            "ω ∈ [5.468, 5.489] 1/s · block bootstrap n=800")
+            "ω ∈ [5.376, 5.384] 1/s · block bootstrap n=800")
         self.assertEqual(out["none"], "interval unavailable (null)")
         self.assertEqual(out["partial"], "interval unavailable (null)")
 
@@ -4131,7 +4131,7 @@ class Fidelity1016Tests(unittest.TestCase):
     def test_seed_tile_compact(self):
         check = (
             "try {\n"
-            "  seedSimulationFromRun(30.00563573707589, 0.02);\n"
+            "  seedSimulationFromRun(28.93746036102984, 0.02);\n"
             "  __emit({ tile:\n"
             "    document.getElementById(\"simSeedTile\").textContent,\n"
             "    line:\n"
@@ -4141,8 +4141,8 @@ class Fidelity1016Tests(unittest.TestCase):
             "  process.exit(1);\n"
             "}\n")
         out = run_page_driver(self.script, check, {})
-        self.assertEqual(out["tile"], "30.01")
-        self.assertIn("30.00563573707589", out["line"])
+        self.assertEqual(out["tile"], "28.94")
+        self.assertIn("28.93746036102984", out["line"])
 
     def test_sim_play_gated_until_seeded(self):
         self.assertEqual(self.script.count("unlockSimPlay();"), 2)

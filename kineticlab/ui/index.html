@@ -604,8 +604,8 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
             <details class="acc" open style="margin:0 0 10px">
               <summary>Prompts (defaults usually fine)</summary>
               <div class="accbody fieldgrid">
-                <label>Bob prompt <input type="text" id="livePromptBob" value="red ball" autocomplete="off" aria-describedby="livePromptBobError"><span class="field-error hidden" id="livePromptBobError" role="alert"></span></label>
-                <label id="livePromptCardWrap">Card prompt <input type="text" id="livePromptCard" value="white paper card" autocomplete="off" aria-describedby="livePromptCardError"><span class="field-error hidden" id="livePromptCardError" role="alert"></span></label>
+                <label>Bob prompt <input type="text" id="livePromptBob" value="ball" autocomplete="off" aria-describedby="livePromptBobError"><span class="field-error hidden" id="livePromptBobError" role="alert"></span></label>
+                <label id="livePromptCardWrap">Card prompt <input type="text" id="livePromptCard" value="card" autocomplete="off" aria-describedby="livePromptCardError"><span class="field-error hidden" id="livePromptCardError" role="alert"></span></label>
               </div>
             </details>
             <div class="btnrow" style="margin-bottom:10px">
@@ -643,7 +643,8 @@ details.acc summary:hover,details.uploadwrap summary:hover{color:var(--text)}
           <div class="liveblock hidden" id="liveMeasureWrap" aria-label="Measure">
             <h3>Measure</h3>
             <div class="fieldgrid" id="liveMmRow">
-              <label>Card width in mm — type the measured width, never guessed <input type="text" id="liveMm" inputmode="decimal" placeholder="e.g. 85.6" autocomplete="off" aria-describedby="liveMmError"><span class="field-error hidden" id="liveMmError" role="alert"></span></label>
+              <label>Card width in mm — type the measured width, never guessed <input type="text" id="liveMm" inputmode="decimal" placeholder="e.g. 85" autocomplete="off" aria-describedby="liveMmError"><span class="field-error hidden" id="liveMmError" role="alert"></span></label>
+              <label>Card height in mm — type the measured height, never guessed <input type="text" id="liveMmH" inputmode="decimal" placeholder="e.g. 54" autocomplete="off" aria-describedby="liveMmHError"><span class="field-error hidden" id="liveMmHError" role="alert"></span></label>
               <label>Measured length L (mm) — optional; type it only if you measured it with your own ruler <input type="text" id="liveLengthMm" inputmode="decimal" placeholder="e.g. 326 — optional" autocomplete="off" aria-describedby="liveLengthError"><span class="field-error hidden" id="liveLengthError" role="alert"></span></label>
             </div>
             <div class="btnrow">
@@ -1335,17 +1336,25 @@ function validateLivePrompts(mode) {
   return true;
 }
 function validateLiveMm() {
-  const input = el("liveMm");
+  return validateLiveDim("liveMm", "liveMmError",
+    "Type the measured card width in mm. " +
+    "It is never guessed, so Measure waits for your number.");
+}
+function validateLiveMmH() {
+  return validateLiveDim("liveMmH", "liveMmHError",
+    "Type the measured card height in mm. " +
+    "It is never guessed, so Measure waits for your number.");
+}
+function validateLiveDim(inputId, errorId, message) {
+  const input = el(inputId);
   const raw = input.value.trim();
   const value = raw === "" ? NaN : Number(raw);
   if (!isFinite(value) || value <= 0) {
-    setFieldError(input, el("liveMmError"),
-      "Type the measured card width in mm. " +
-      "It is never guessed, so Measure waits for your number.");
+    setFieldError(input, el(errorId), message);
     input.focus();
     return null;
   }
-  setFieldError(input, el("liveMmError"), null);
+  setFieldError(input, el(errorId), null);
   return value;
 }
 /* KL-10.15 optional pivot length. Empty means absent (gravity
@@ -2115,6 +2124,8 @@ function paintProvSummary(kind, result, report, files) {
 function calibrationSummary(kind) {
   if (kind === "live-full") {
     const typed = el("liveMm").value.trim();
+    const typedH = el("liveMmH").value.trim();
+    if (typed && typedH) return typed + " x " + typedH + " mm — you typed";
     return typed ? typed + " mm — you typed" : "Not supplied";
   }
   if (kind === "live-motion") return "Not supplied (Motion mode)";
@@ -4017,6 +4028,7 @@ function resetLiveSteps() {
   el("liveMotionCompact").textContent = "";
   el("liveRunNote").textContent = "";
   el("liveMm").value = "";
+  el("liveMmH").value = "";
   const overlay = el("liveOverlay");
   if (overlay) overlay.replaceChildren();
   const objects = el("objectsList");
@@ -4222,11 +4234,11 @@ function confirmLive() {
   setWorkflowStage("confirm", "done");
   setWorkflowStage("measure", "active");
   setAppStatus("Ready for analysis",
-    full ? "Objects confirmed — type the card width, then Measure."
+    full ? "Objects confirmed — type the card size, then Measure."
       : "Objects confirmed — press Measure when ready.", null);
   updateActionStates();
   notify("Confirmed", "Regions verified. " +
-    (full ? "Type the card width, then Measure." : "Press Measure when ready."), "ok");
+    (full ? "Type the card size, then Measure." : "Press Measure when ready."), "ok");
 }
 
 function backToPrompts() {
@@ -4252,6 +4264,11 @@ async function runLiveMeasure() {
     mm = validateLiveMm();
     if (mm === null) {
       notify("Card width needed", "Type the measured width; it is never guessed.", "warn");
+      return;
+    }
+    const mmH = validateLiveMmH();
+    if (mmH === null) {
+      notify("Card height needed", "Type the measured height; it is never guessed.", "warn");
       return;
     }
     const length = validateLiveLength();
@@ -4282,6 +4299,7 @@ async function runLiveMeasure() {
     form.append("run_id", liveState.runId);
     if (mode === "full") {
       form.append("card_width_mm", mm);
+      form.append("card_height_mm", mmH);
       if (pivotLength !== null) {
         form.append("pivot_length_mm", String(pivotLength));
       }
@@ -4768,6 +4786,12 @@ function initLive() {
     const raw = el("liveMm").value.trim();
     if (raw !== "" && isFinite(Number(raw)) && Number(raw) > 0) {
       setFieldError(el("liveMm"), el("liveMmError"), null);
+    }
+  });
+  el("liveMmH").addEventListener("input", () => {
+    const raw = el("liveMmH").value.trim();
+    if (raw !== "" && isFinite(Number(raw)) && Number(raw) > 0) {
+      setFieldError(el("liveMmH"), el("liveMmHError"), null);
     }
   });
   el("liveLengthMm").addEventListener("input", () => {

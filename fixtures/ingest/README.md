@@ -7,8 +7,8 @@ bytes plus an unchanged parser must reproduce them byte-identically.
 They are NOT ffprobe ground truth; FFprobe re-verification stays a
 recorded follow-up wherever a pin is first measured.
 
-- `test_3_frame_table.json`: all 234 `frame.v1` records from
-  `Smoke/test_3.mp4` via `extract_frame_records`, wrapped in an
+- `demo_test_frame_table.json`: all 591 `frame.v1` records from
+  `Smoke/demo_test.mp4` via `extract_frame_records`, wrapped in an
   envelope (`artifact`, `source`, `source_sha256`, `measured_utc`,
   `generator`, `provenance_note`, `frames`). Canonical form is
   `json.dumps(envelope, indent=2, sort_keys=True) + "\n"` encoded as

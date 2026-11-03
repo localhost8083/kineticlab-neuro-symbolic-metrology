@@ -202,9 +202,14 @@ battery_final.out.txt
 # Quickstart); the rest of Smoke/ stays local. KL-10.19 (2026-11-02):
 # the second shipped clip (gemini-generated footage) was removed on
 # user order -- an AI-fabricated clip has no place in a repo whose
-# selling point is that nothing is AI-authored.
+# selling point is that nothing is AI-authored. KL-10.24 (2026-11-03):
+# the test_3 clip (wrong card dimensions) was removed on user order;
+# the whole corpus re-pinned onto Smoke/demo_test.mp4 (user-typed
+# card 85x54 mm, run live-20261103T044359Z-365dd3b5). The Demo/ source
+# dir stays local scratch.
+Demo/
 Smoke/*
-!Smoke/test_3.mp4
+!Smoke/demo_test.mp4
 Demos/
 
 battery_87_final.out.txt
@@ -244,6 +249,7 @@ Docs/Claims_Register.md
 Docs/Decision_Log.md
 Docs/KineticSim*.md
 Docs/Locked_APP.md
+VIDEO_GUIDE.md
 Docs/LOCKED2.pdf
 Docs/looooooooooc.md
 Docs/KineticLab_*.md

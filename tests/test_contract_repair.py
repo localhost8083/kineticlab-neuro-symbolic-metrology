@@ -282,14 +282,14 @@ class ModelParameterSetTest(unittest.TestCase):
 class MetricBoundsTest(unittest.TestCase):
     def test_usable_cannot_exceed_total(self):
         data = valid_result()
-        data["quality_metrics"]["frames_usable"] = 235
+        data["quality_metrics"]["frames_usable"] = 592
         with self.assertRaises(ContractError) as raised:
             ResultContract.from_dict(data)
         self.assertIn("E_INCOHERENT_VALUE", raised.exception.codes)
 
     def test_valid_cannot_exceed_total(self):
         data = valid_result()
-        data["quality_metrics"]["observations_valid"] = 469
+        data["quality_metrics"]["observations_valid"] = 984
         with self.assertRaises(ContractError) as raised:
             ResultContract.from_dict(data)
         self.assertIn("E_INCOHERENT_VALUE", raised.exception.codes)

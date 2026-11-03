@@ -1,10 +1,7 @@
 {
-  "blur_proxy": {
-    "elongation": {
-      "max": 1.3571428571428572,
-      "mean": 1.121806425065483,
-      "min": 1.0
-    },
-    "median_area_px": 7424.0,
-    "n": 234,
-    "scope": "GEOMETRIC ON
+  "calibration": {
+    "card_height_mm": 54.0,
+    "card_height_mm_source": "user_supplied",
+    "card_width_mm": 85.0,
+    "card_width_mm_source": "user_supplied",
+    "corners_note": "observed_cor

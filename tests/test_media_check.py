@@ -40,8 +40,8 @@ class MediaCheckTest(unittest.TestCase):
         self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
         self.assertIn("PASS", completed.stdout)
 
-    def test_test3_fixture_passes(self):
-        self.check_fixture("fixtures/test_3.json")
+    def test_demo_fixture_passes(self):
+        self.check_fixture("fixtures/demo_test.json")
 
     def test_missing_video_fails_explicitly(self):
         fixture = {"name": "missing", "video": "Smoke/does_not_exist.mp4",

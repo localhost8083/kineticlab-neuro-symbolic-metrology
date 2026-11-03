@@ -6,7 +6,7 @@
 
 ![Python](https://img.shields.io/badge/python-3.11%2B-306998?style=for-the-badge) ![Runtime](https://img.shields.io/badge/runtime-stdlib--only%20runtime-success?style=for-the-badge) ![CI](https://github.com/localhost8083/kineticlab-neuro-symbolic-metrology/actions/workflows/ci.yml/badge.svg) ![Meta](https://img.shields.io/badge/Meta-SAM%203.1-0668E5?style=for-the-badge) ![License](https://img.shields.io/badge/license-MIT-lightgrey?style=for-the-badge)
 
-Current discovery finds 919 test methods; latest full-suite run (2026-11-03): 919 tests, OK.
+Current discovery finds 921 test methods; latest full-suite run (2026-11-03): 877 tests, OK (skipped=15, platform-gated byte pins).
 
 <br>
 
@@ -68,7 +68,7 @@ Meta AI does the seeing and the explaining. The **measurement itself stays deter
 A successful run ends in a verdict, four exact-byte exports, supporting geometry and calibration artifacts, raw evidence references, and a provenance chain — input SHA-256, model name (`sam-3.1`), and artifact digests:
 
 <p align="center">
-  <img src="Docs/img/trajectory.png" width="680" alt="Trajectory tab: 234 observed samples against the fitted sinusoid and the block-bootstrap omega band, with the legend observed theta(t), fitted theta(t) — observed minus pipeline residual, and T = 1.147 s" />
+  <img src="Docs/img/trajectory.png" width="680" alt="Trajectory tab: 591 observed samples against the fitted sinusoid and the block-bootstrap omega band, with the legend observed theta(t), fitted theta(t) — observed minus pipeline residual, and T = 1.168 s" />
 </p>
 
 The full-page view above shows the rest of the deck: residuals against source-PTS time, the centroid trail, and a replay that reconstructs the arm from the pinned masks with every playhead synced on the source-PTS timebase. Advanced diagnostics replay the pinned mask overlay frame by frame, state the model's assumptions verbatim — including what the uncertainty interval does and does not cover — and show the advisory narrative, labeled as a template, never a measurement.
@@ -84,7 +84,7 @@ The simulation playground unlocks only after a measurement seeds it: your measur
 | You provide | You get |
 |---|---|
 | Any clip + confirmed masks | `g/L_eff = ω²` (`1/s²`), period, amplitude, fit diagnostics, PTS-true angle CSV |
-| + human-typed card width | mm-scale geometry: pivot, arc radius (descriptive) |
+| + human-typed card dimensions | mm-scale geometry: pivot, arc radius (descriptive) |
 | + a length you measured yourself | gravity `g = (g/L_eff) × L` — computed only when the length is human-supplied; without it, `g` stays `null` |
 | Nothing usable | A registered rejection — red, specific, and honest |
 
@@ -126,7 +126,7 @@ cd kineticlab-neuro-symbolic-metrology
 python --version
 python -m kineticlab --help
 python scripts/media_check.py
-python -m unittest          # latest run (2026-11-03): 919 tests, OK
+python -m unittest          # latest run (2026-11-03): 877 tests, OK (skipped=15)
 python -m kineticlab serve  # localhost UI
 ```
 

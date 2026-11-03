@@ -323,7 +323,7 @@ class EchoAuditTests(unittest.TestCase):
     def test_clean_narrative_passes(self):
         narrative = parse_narrative(valid_narrative_dict(
             "The bounded M1 fit converged with g/L_eff = 15.2 1/s^2 "
-            "over 234 frames.",
+            "over 591 frames.",
             "Measure the pivot length independently."))
         passed, problems = audit_narrative(self.result, narrative)
         self.assertEqual((passed, problems), (True, []))
@@ -504,7 +504,7 @@ class EchoAuditTests(unittest.TestCase):
         # corrupt the honest echo path.
         narrative = parse_narrative(valid_narrative_dict(
             "The bounded M1 fit converged with g/L_eff = 15.2 1/s^2 "
-            "over 234 frames."))
+            "over 591 frames."))
         passed, problems = audit_narrative(self.result, narrative)
         self.assertEqual((passed, problems), (True, []))
 

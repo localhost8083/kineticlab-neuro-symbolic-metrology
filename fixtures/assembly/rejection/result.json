@@ -3,59 +3,42 @@
     "Rejected at the geometry stage (E_MALFORMED_JSON); retained sections carry partial context collected before the failure, not a measurement."
   ],
   "calibration": {
-    "camera_fixed_assumption": true,
+    "camera_fixed_assumption": null,
     "dimension_source": "user_confirmed",
-    "observed_corners_px": [
-      [
-        146.9407337860218,
-        304.3348675281235
-      ],
-      [
-        405.9584471757171,
-        297.4990995558641
-      ],
-      [
-        409.74995243020834,
-        462.745757121545
-      ],
-      [
-        150.8587850879572,
-        469.4724564308142
-      ]
-    ],
+    "observed_corners_px": null,
     "observed_oriented_dimensions_px": {
-      "long_side_px": 258.7318351096624,
-      "short_side_px": 165.36871084913219
+      "long_side_px": 209.18933377750915,
+      "short_side_px": 128.34633924757009
     },
     "plane_transform": null,
     "provenance": {
-      "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+      "input_sha256": "db5da89e06f74547f03a41a1ef2ff041c6b4b1948957538a8e4674f5ab1d9945",
       "model_name": "sam-3.1",
       "model_version": null,
       "raw_refs": [
-        "fixtures/live/raw_card_one_bit.txt"
+        "raw_card_one_bit.txt"
       ],
       "software_name": "kineticlab",
       "software_version": "0.1.0"
     },
     "reference_dimensions_mm": {
-      "height_mm": 53.98,
-      "width_mm": 85.6
+      "height_mm": 54.0,
+      "width_mm": 85.0
     },
-    "reference_type": "iso_id1_confirmed",
-    "same_plane_assumption": false,
-    "scale_mm_per_px": 0.3286332854169991,
+    "reference_type": "unknown",
+    "same_plane_assumption": null,
+    "scale_mm_per_px": 0.4063304685046935,
     "scale_uncertainty_mm_per_px": null,
     "schema_version": "calibration.v1",
-    "valid": true,
+    "valid": false,
     "warnings": [
       {
-        "code": "W_UNCERTAINTY_UNAVAILABLE",
-        "detail": "no scale uncertainty estimated; the U-3 bound is a stated assumption, not an uncertainty"
+        "code": "W_ASSUMPTION_UNVERIFIED",
+        "detail": "same-plane card/swing geometry unassessed for this clip (no depth measurements provided)"
       },
       {
         "code": "W_ASSUMPTION_UNVERIFIED",
-        "detail": "U-3 depth-offset scale bound 1.7% (25.0 mm offset over 1500.0 mm camera distance, tape estimate) stated as an assumption wherever this scale is used"
+        "detail": "fixed-camera geometry unassessed for this clip (no stability check provided)"
       }
     ]
   },
@@ -84,12 +67,12 @@
   "measurement_name": "pendulum_g_over_l",
   "provenance": {
     "artifact_hashes": {
-      "calibration_sha256": "09e3e852efe6a7d74f67f642ef9710558c898d65bd6c55a9d67a033bba3fa3aa",
-      "geometry_report_sha256": "f1020ff32c1a44fefcc25aab9c786ba235acd3528883f7cf0023beb09c0e7bf6",
-      "raw_bob_sha256": "b216815fd6ca5e15718fed2dd8947a9972e00b1f27f71881e5d39401a4fb3ad7",
-      "raw_card_sha256": "d3fe9a7ecde3f48c6ef2753bd66f7d93f86783613d50bb2ebbf566deb57473d1"
+      "calibration_sha256": "b83ddf2dcc17848cd3ca196cd1499027d756901424368fcea1449fc033a2ce70",
+      "geometry_report_sha256": "31b6d28bab36377c916e2d500c2b276382a993d919f464a1f56c57796304f374",
+      "raw_bob_sha256": "23e4035ef0e648383eff5c44e6e9511cb7d20254b9e3d82b4a7de57773315e8f",
+      "raw_card_sha256": "ec6a62f76fdf2a2e58afea9eab83d2867737bb883ba675d88ded7c4040a8d7df"
     },
-    "input_sha256": "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce",
+    "input_sha256": "db5da89e06f74547f03a41a1ef2ff041c6b4b1948957538a8e4674f5ab1d9945",
     "model_name": "sam-3.1",
     "model_version": null,
     "raw_refs": [
@@ -101,15 +84,15 @@
   },
   "quality_metrics": {
     "calibrated_frames": null,
-    "frames_total": 234,
-    "frames_usable": 234,
-    "observations_total": 468,
-    "observations_valid": 468
+    "frames_total": 591,
+    "frames_usable": 591,
+    "observations_total": 983,
+    "observations_valid": 983
   },
   "reject_reasons": [
     {
       "code": "E_MALFORMED_JSON",
-      "detail": "fixtures/assembly/corrupt_geometry_report.json is unreadable as JSON: Unterminated string starting at: line 10 column 14 (char 187)",
+      "detail": "fixtures/assembly/corrupt_geometry_report.json is unreadable as JSON: Unterminated string starting at: line 7 column 21 (char 187)",
       "field": "geometry.geometry_report"
     }
   ],

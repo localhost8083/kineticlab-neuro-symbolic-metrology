@@ -17,7 +17,7 @@ one track (Indie / Startup); scoring Impact 30 / Technical Execution
 python -m unittest
 ```
 
-Say: "Latest full-suite run (2026-11-03): 919 tests, OK [C-003]; an earlier-tree run recorded on 2026-11-02 reported 905 tests, OK" — on a fresh clone some Smoke-results-backed tests skip, which REPRODUCE documents as expected. Say hygiene is enforced by 5 of them
+Say: "Latest full-suite run (2026-11-03): 877 tests, OK (skipped=15) [C-003]; an earlier run on the pre-swap tree reported 919 tests, OK, and 2026-11-02 reported 905 tests, OK" — on a fresh clone some Smoke-results-backed tests skip, which REPRODUCE documents as expected. Say hygiene is enforced by 5 of them
 (no key material in tree, fixtures, or history [C-017]).
 
 ## 1. Structural media check — NOT a SAM replay
@@ -26,11 +26,11 @@ Say: "Latest full-suite run (2026-11-03): 919 tests, OK [C-003]; an earlier-tree
 python scripts/media_check.py
 ```
 
-Say exactly: "The pinned `test_3` fixture passes structurally [C-002].
+Say exactly: "The pinned `demo_test` fixture passes structurally [C-002].
 This is a media structure check, not a model replay — the pinned SAM
-responses replay to 234/234 valid records each through
-`python -m kineticlab demo` [C-016]; nothing was tuned to
-make anything pass; the 117 occlusion frames [C-026] and
+responses replay through `python -m kineticlab demo` to 591/591 valid
+bob records and 392/392 valid card records [C-016]; nothing was tuned
+to make anything pass; the 120 card-occlusion frames [C-026] and
 blur-affected masks are reported as measured."
 
 ## 2. Advisory evidence (Meta tooling)
@@ -51,18 +51,22 @@ for a deterministic template [C-019].
 
 ## 3. Geometry and calibration (2 min)
 
-Show `fixtures/geometry/calibration_live.json`: structurally valid
-`calibration.v1` record, ID-1 85.60×53.98 mm caller-confirmed, scale
-0.328633 mm/px over 117 clean frames, U-3 depth-offset bound 1.67% stated as
-an assumption, scale uncertainty honestly null [C-024]. The
-`same_plane_assumption=false` state is explicitly carried; structural validity
-does not certify coplanarity or physical accuracy. Show the arc-fit pivot at
-(452.62, −523.75) px, r = 907.48 px, mean residual 5.158 px [C-025],
-and clean-frame corner jitter mean 1.23 px / max 2.96 px as the
-camera-stability evidence (occluded frames excluded with measured
-cause [C-026]). Open `fixtures/geometry/overlay_live_ball.svg` in a
-browser: the centroid path follows the swing. HUMAN INSPECTION DONE
-2026-10-28: card owner confirmed "path looks right".
+Show `fixtures/geometry/calibration_live.json`: `calibration.v1`
+record that stays honestly INVALID (`valid: false`) — a cut card is
+no standard, so `reference_type: "unknown"` with BOTH dimensions
+human-typed (85.0×54.0 mm, `user_confirmed`), scale 0.406330 mm/px
+over median oriented geometry from 272 clean card frames, two
+`W_ASSUMPTION_UNVERIFIED` warnings stating same-plane and
+fixed-camera as unassessed, scale uncertainty honestly null [C-024].
+The record certifies neither coplanarity nor physical accuracy. Show
+the arc-fit pivot at (467.31, −430.62) px, r = 800.97 px, mean
+residual 4.696 px [C-025], and clean-frame corner jitter mean
+0.80 px / max 5.54 px as the camera-stability evidence (occluded
+card frames excluded with measured cause [C-026]). Open
+`fixtures/geometry/overlay_live_ball.svg` in a browser: the centroid
+path follows the swing. HUMAN INSPECTION of this new overlay is
+still USER ACTION (the 2026-10-28 sign-off covered the retired
+clip's overlay only).
 
 Say: "In this pinned demo, g stays null — no length was supplied,
 so no gravity is claimed [C-027]."
@@ -82,8 +86,9 @@ media structure check, (1) pinned SAM evidence files, (2)
 advisory evidence + hard rules, (3) calibration + pivot +
 overlay, (4) current `demo_out/success/` assembly result/summary +
 honesty close ("g is null, warnings carried"). `fixtures/assembly/`
-is historical KL-7.1 output with no interval; current demo computes the
-seeded block-bootstrap interval [C-009]. Timebox: 0:00-0:30 tree,
+is the current demo pin: status `success` with the seeded
+block-bootstrap interval [C-009], g/L_eff = 28.93746036102984 1/s^2
+[C-028]. Timebox: 0:00-0:30 tree,
 0:30-1:15 SAM, 1:15-2:00 advisory, 2:00-2:40 geometry, 2:40-3:00 honesty
 close. Every on-screen number claim-cited as above. No new
 numbers. Label all model evidence "live capture, offline
@@ -115,14 +120,16 @@ claim-cited; user pastes, edits freely)
 - Project Description (DRAFT): "KineticLab turns an ordinary phone
   video of a swinging pendulum into auditable physics measurements.
   Meta's SAM 3.1 segments the ball and a reference card in every frame
-  (234/234 valid records [C-016]); the offline pipeline converts those
-  masks into calibrated geometry (scale 0.328633 mm/px [C-024]) and a
+  (591/591 valid bob records, frames 199..590 for the card [C-016]);
+  the offline pipeline converts those
+  masks into calibrated geometry (scale 0.406330 mm/px [C-024]) and a
   pivot localization, with honest failure states instead of invented
   numbers. Every displayed value traces to a reviewed claim; gravity
   is never claimed without an independently measured length [C-027]."
 - Use of Meta products (DRAFT): "Two LIVE model calls on the real
-  clip: SAM 3.1 segmented bob + card one-bit masks for all 234 frames
-  (prompts 'ball' and 'card' [C-015]); raw responses are cached,
+  clip: SAM 3.1 segmented bob + card one-bit masks (591 bob frames,
+  392 card frames; prompts 'ball' and 'card' [C-015]); raw responses
+  are cached,
   hash-pinned, and replay through unchanged offline code [C-016].
   Muse Spark 1.3-contributor powers an advisory layer — a setup review
   plus a plain-language narrative — that can only ADD warnings or
@@ -147,7 +154,7 @@ claim-cited; user pastes, edits freely)
   results — uncertainty shows as 'unknown,' failures are loud, every
   number traces to evidence [C-018], [C-019], [C-027]. Use case today:
   real physics experiments from a phone video — no lab equipment, no
-  sensors attached (234/234 frames segmented from one phone clip
+  sensors attached (591/591 frames segmented from one phone clip
   [C-016], calibrated scale from a reference card [C-024]). The same
   pattern scales to vibration checks, swing analysis, and structural
   monitoring. Honest scope: the seeing-half is general; the math-half
@@ -168,16 +175,17 @@ CLI (one shot; the operator has already chosen):
 
 ```powershell
 $env:MODEL_API_KEY = "<paste here, never commit>"
-python -m kineticlab capture --clip <path-to-clip.mp4> --mode full --card-width-mm 85.6 --out-dir live_out
+python -m kineticlab capture --clip <path-to-clip.mp4> --mode full --card-width-mm 85.0 --card-height-mm 54.0 --out-dir live_out
 python -m kineticlab capture --clip <path-to-clip.mp4> --mode motion --out-dir live_out
 ```
 
 Exit 0 means the run completed (a rejection result still exits 0 —
 read the status line); exit 1 is a pipeline failure naming its
 registered code; exit 2 is misuse (no key, bad flags). Full mode
-needs the operator to TYPE the card width — the value `85.6` above
-is an example placeholder, never a default and never guessed.
-Motion mode takes no width and reports scale/length/gravity null
+needs the operator to TYPE both card dimensions — the values `85.0`
+and `54.0` above
+are example placeholders, never defaults and never guessed.
+Motion mode takes no card dimensions and reports scale/length/gravity null
 with the reason "no reference card: no scale".
 
 UI (`python -m kineticlab serve`, panel 03): drop or record a clip,

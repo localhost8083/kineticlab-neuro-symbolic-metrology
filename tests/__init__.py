@@ -12,10 +12,10 @@ def require_smoke(*paths):
     """Skip the calling test unless every Smoke/ path exists.
 
     KL-9.6 B1: most of ``Smoke/`` is gitignored (privacy, user
-    decision 2026-10-30); only ``test_3.mp4`` is tracked (KL-10.6
-    exception). KL-10.19: the second shipped clip (gemini-generated
-    footage) was removed, so a fresh clone must skip tests needing
-    absent
+    decision 2026-10-30); only ``demo_test.mp4`` is tracked (KL-10.24
+    exception, superseding the retired ``test_3.mp4``). KL-10.19:
+    the second shipped clip (gemini-generated footage) was removed,
+    so a fresh clone must skip tests needing absent
     Smoke-backed files instead of failing them. The skip reason
     names the first missing path. Raises
     :class:`unittest.SkipTest`, which also works from

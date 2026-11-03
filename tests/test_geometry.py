@@ -3,7 +3,7 @@
 Matrix: synthetic oriented rectangles (axis-aligned + rotated 30
 degrees, exact recovery), synthetic circles (exact arc recovery),
 degenerate clouds (honest fitted:false, never crashes), malformed
-wire bytes and inputs (registered codes only), and the live 234-frame
+wire bytes and inputs (registered codes only), and the live 591-frame
 chains (pins are measured stdlib outputs with provenance comments;
 float pins use isclose because libm varies by platform).
 
@@ -18,18 +18,24 @@ import copy
 import json
 import math
 import os
+import statistics
 import tempfile
 import unittest
 from pathlib import Path
 
 from kineticlab import __version__
+from kineticlab.capture.chain import (
+    MODEL_LIMITATION_NOTE,
+    U3_FRESH_CLIP_STATEMENT,
+    _arc_radius_caveat,
+    _fresh_calibration,
+)
 from kineticlab.contracts import (
     CalibrationRecord,
     ContractError,
     ERROR_CODES,
 )
 from kineticlab.geometry import (
-    MODEL_LIMITATIONS,
     blur_proxy,
     build_calibration,
     corner_jitter,
@@ -50,19 +56,18 @@ from tests import require_smoke
 REPO_ROOT = Path(__file__).resolve().parent.parent
 LIVE_DIR = REPO_ROOT / "fixtures" / "live"
 GEO_DIR = REPO_ROOT / "fixtures" / "geometry"
-CLIP_SHA = "a98a532410a4af2d70921d5adaf1298f151dab8f0e92348f6920cce0be5875ce"
+CLIP_SHA = "db5da89e06f74547f03a41a1ef2ff041c6b4b1948957538a8e4674f5ab1d9945"
 
-# U-1/U-3 caller inputs (user-supplied, never measured here).
-CARD_W_MM = 85.60
-CARD_H_MM = 53.98
-OFFSET_MM = 25.0
-DISTANCE_MM = 1500.0
+# U-1 caller inputs (user-supplied, never measured here). The fresh
+# clip provides no U-3 depth measurements, so there is no offset.
+CARD_W_MM = 85.0
+CARD_H_MM = 54.0
 
 # Shared live build, memoized on first use (KL-9.6 B1: was
 # import-time, which would fail collection on clones without the
 # gitignored Smoke/ clip; the guard inside skips those tests with
 # the missing path named, while synthetic tests never touch it).
-_CLIP = REPO_ROOT / "Smoke" / "test_3.mp4"
+_CLIP = REPO_ROOT / "Smoke" / "demo_test.mp4"
 _BUILD = None
 
 
@@ -89,10 +94,12 @@ def _live():
             "bob": bob,
             "card": card,
             "overlap": overlap,
-            "clean": set(range(234)) - set(overlap),
+            "clean": set(range(199, 591)) - set(overlap),
             "masks": masks,
             "oriented": [(mask.frame_index, oriented_rectangle(
                 mask.set_pixels())) for mask in masks],
+            "rects": {mask.frame_index: oriented_rectangle(
+                mask.set_pixels()) for mask in masks},
             "bob_xy": [(record.centroid_x_px, record.centroid_y_px)
                        for record in bob],
             "bob_areas": [record.mask_area_px for record in bob],
@@ -100,26 +107,54 @@ def _live():
     return _BUILD
 
 
-def _live_provenance():
-    return {
-        "software_name": "kineticlab",
-        "software_version": __version__,
-        "input_sha256": CLIP_SHA,
-        "model_name": "sam-3.1",
-        "model_version": None,
-        "raw_refs": ["fixtures/live/raw_card_one_bit.txt"],
-    }
-
-
 def _live_calibration():
+    """Fresh-clip calibration record + lean report (chain-shaped).
+
+    Mirrors `_measure_full` in kineticlab/capture/chain.py: the card
+    dimensions are human-typed, both geometry assumptions stay
+    unassessed (the record is honestly invalid), the scale is the
+    user width over the median PCA long side of the clean frames, and
+    the report is the lean {pivot_arc, calibration, model_limitations}
+    shape with no borrowed U-3 bound.
+    """
     live = _live()
-    return build_calibration(
-        card_width_mm=CARD_W_MM, card_height_mm=CARD_H_MM,
-        oriented=live["oriented"], clean_frames=live["clean"],
-        same_plane=False, camera_fixed=True,
-        depth_offset_mm=OFFSET_MM, camera_distance_mm=DISTANCE_MM,
-        video_width=1024, video_height=576,
-        provenance=_live_provenance())
+    clean = sorted(live["clean"])
+    longs = [live["rects"][frame]["long_side"] for frame in clean]
+    shorts = [live["rects"][frame]["short_side"] for frame in clean]
+    long_med = float(statistics.median(longs))
+    short_med = float(statistics.median(shorts))
+    scale = CARD_W_MM / long_med
+    record_dict = _fresh_calibration(CLIP_SHA, long_med, short_med,
+                                     CARD_W_MM, CARD_H_MM)
+    record_dict["scale_mm_per_px"] = scale
+    record = CalibrationRecord.from_dict(record_dict)
+    arc = fit_arc(live["bob_xy"], areas=live["bob_areas"])
+    report = {
+        "pivot_arc": arc,
+        "calibration": {
+            "n_usable_frames": len(clean),
+            "card_width_mm": CARD_W_MM,
+            "card_width_mm_source": "user_supplied",
+            "card_height_mm": CARD_H_MM,
+            "card_height_mm_source": "user_supplied",
+            "scale_mm_per_px": scale,
+            "median_long_side_px": long_med,
+            "median_short_side_px": short_med,
+            "scale_note": ("Isotropic scale = user-supplied card width "
+                           "/ median PCA long side over "
+                           f"{len(clean)} clean (fitted, non-occluded) "
+                           "card frames; the short side is reported but "
+                           "never enters the scale."),
+            "corners_note": ("observed_corners_px is null: PCA corners "
+                             "are unlabeled and their order flips frame "
+                             "to frame, so no median corner set is "
+                             "honest."),
+            "u3_bound": {"statement": U3_FRESH_CLIP_STATEMENT},
+        },
+        "model_limitations": [MODEL_LIMITATION_NOTE,
+                              _arc_radius_caveat(arc, scale)],
+    }
+    return record, report
 
 
 def _assert_close_tree(test_case, first, second, *, rel=1e-9, path=""):
@@ -145,11 +180,11 @@ def _assert_close_tree(test_case, first, second, *, rel=1e-9, path=""):
 class MasksTests(unittest.TestCase):
     def test_live_card_masks_decode(self):
         masks = _live()["masks"]
-        self.assertEqual(len(masks), 234)
+        self.assertEqual(len(masks), 392)
         self.assertEqual([mask.frame_index for mask in masks],
-                         list(range(234)))
+                         list(range(199, 591)))
         first = masks[0]
-        self.assertEqual((first.width, first.height), (259, 168))
+        self.assertEqual((first.width, first.height), (208, 129))
 
     def test_set_pixels_match_record_area(self):
         # Independent cross-check: decoded raster population equals
@@ -176,11 +211,11 @@ class MasksTests(unittest.TestCase):
             def __init__(self, frame_index):
                 self.frame_index = frame_index
 
-        records = [Fake(index) for index in range(233)]
+        records = [Fake(index) for index in range(199, 590)]
         with self.assertRaises(ContractError) as raised:
             decode_frame_masks(LIVE_DIR / "raw_card_one_bit.txt", records)
         self.assertIn("E_INCOHERENT_VALUE", raised.exception.codes)
-        records = [Fake(index) for index in range(235)]
+        records = [Fake(index) for index in range(199, 592)]
         with self.assertRaises(ContractError) as raised:
             decode_frame_masks(LIVE_DIR / "raw_card_one_bit.txt", records)
         self.assertIn("E_MISSING_MAPPING", raised.exception.codes)
@@ -190,7 +225,7 @@ class MasksTests(unittest.TestCase):
             encoding="utf-8").splitlines()[0]
 
         class Fake:
-            frame_index = 0
+            frame_index = 199
 
         with tempfile.TemporaryDirectory() as tmp:
             target = os.path.join(tmp, "w.txt")
@@ -261,7 +296,7 @@ class OrientedTests(unittest.TestCase):
         corners = rect["corners"]
         self.assertEqual(len(corners), 4)
         for corner, want in zip(corners, [[100.0, 50.0], [200.0, 50.0],
-                                              [200.0, 100.0], [100.0, 100.0]]):
+                                               [200.0, 100.0], [100.0, 100.0]]):
             self.assertAlmostEqual(corner[0], want[0], places=9)
             self.assertAlmostEqual(corner[1], want[1], places=9)
 
@@ -303,18 +338,21 @@ class OrientedTests(unittest.TestCase):
                 for code in raised.exception.codes:
                     self.assertIn(code, ERROR_CODES)
 
-    def test_live_frame_zero_pins(self):
+    def test_live_first_card_frame_pins(self):
         # Measured stdlib output on the pinning platform (libm-bound).
+        # The card enters mid-clip; its first frame is 199.
         rect = dict(_live()["oriented"][0][1])
         self.assertTrue(rect["fitted"])
-        self.assertTrue(math.isclose(rect["long_side"], 257.31, rel_tol=1e-4))
-        self.assertTrue(math.isclose(rect["short_side"], 164.07, rel_tol=1e-4))
+        self.assertTrue(math.isclose(rect["long_side"], 206.8783,
+                                     rel_tol=1e-4))
+        self.assertTrue(math.isclose(rect["short_side"], 127.8802,
+                                     rel_tol=1e-4))
         self.assertTrue(math.isclose(
-            math.degrees(rect["angle_rad"]), -1.569, rel_tol=1e-2))
+            math.degrees(rect["angle_rad"]), 0.10539, rel_tol=1e-2))
         for corner, want in zip(
                 rect["corners"],
-                [[129.28, 299.62], [386.50, 292.58],
-                 [390.99, 456.59], [133.77, 463.63]]):
+                [[206.17302, 307.93594], [413.05092, 308.31646],
+                 [412.81570, 436.19647], [205.93780, 435.81595]]):
             self.assertTrue(math.isclose(corner[0], want[0], rel_tol=1e-4))
             self.assertTrue(math.isclose(corner[1], want[1], rel_tol=1e-4))
 
@@ -355,19 +393,20 @@ class PivotTests(unittest.TestCase):
             fit_arc([(0.0, 0.0), (1.0, 0.0), (0.0, 1.0)], areas=[1.0])
 
     def test_live_bob_arc_pins(self):
-        # Measured stdlib output (supersedes the M-2 demo placeholder
-        # pivot 451.82/-751.27/radius 1131.08/residual 4.627 in code).
+        # Measured stdlib output; the fitted arc is the descriptive
+        # pivot evidence for the fresh clip (libm-bound floats).
         live = _live()
         arc = fit_arc(live["bob_xy"], areas=live["bob_areas"])
         self.assertTrue(arc["fitted"])
-        self.assertTrue(math.isclose(arc["center_px"][0], 452.62,
+        self.assertTrue(math.isclose(arc["center_px"][0], 467.30924,
                                      rel_tol=1e-4))
-        self.assertTrue(math.isclose(arc["center_px"][1], -523.75,
+        self.assertTrue(math.isclose(arc["center_px"][1], -430.61623,
                                      rel_tol=1e-4))
-        self.assertTrue(math.isclose(arc["radius_px"], 907.48, rel_tol=1e-4))
-        self.assertTrue(math.isclose(arc["mean_abs_residual_px"], 5.158,
+        self.assertTrue(math.isclose(arc["radius_px"], 800.96617,
+                                     rel_tol=1e-4))
+        self.assertTrue(math.isclose(arc["mean_abs_residual_px"], 4.695833,
                                      rel_tol=1e-3))
-        self.assertEqual(arc["max_residual_index"], 227)
+        self.assertEqual(arc["max_residual_index"], 505)
         self.assertEqual(len(arc["top_residual_frames"]), 10)
         self.assertTrue(all("mask_area_px" in entry
                             for entry in arc["top_residual_frames"]))
@@ -375,15 +414,19 @@ class PivotTests(unittest.TestCase):
 
 class DiagnosticsTests(unittest.TestCase):
     def test_overlap_recomputed(self):
-        # Independent recompute of M-1's 117-frame finding (cross-check).
+        # Independent recompute of M-1's 120-frame finding (cross-check).
         overlap = _live()["overlap"]
-        self.assertEqual(len(overlap), 117)
-        bands = [(3, 19), (38, 53), (72, 88), (106, 122), (141, 157),
-                 (175, 191), (210, 225)]
+        self.assertEqual(len(overlap), 120)
+        bands = [(199, 203), (211, 215), (234, 238), (246, 250),
+                 (269, 273), (281, 285), (304, 308), (316, 320),
+                 (340, 344), (351, 355), (375, 379), (386, 390),
+                 (410, 414), (421, 425), (445, 449), (456, 460),
+                 (480, 484), (490, 495), (515, 519), (525, 530),
+                 (550, 554), (560, 565), (584, 590)]
         for start, end in bands:
             for frame in range(start, end + 1):
                 self.assertIn(frame, overlap)
-        self.assertEqual(sum(end - start + 1 for start, end in bands), 117)
+        self.assertEqual(sum(end - start + 1 for start, end in bands), 120)
 
     def test_jitter_static_and_shifted(self):
         base = [[0.0, 0.0], [10.0, 0.0], [10.0, 5.0], [0.0, 5.0]]
@@ -411,17 +454,25 @@ class DiagnosticsTests(unittest.TestCase):
                        for frame, rect in live["oriented"]
                        if rect["fitted"]]
         everywhere = corner_jitter(corners_all)
-        self.assertEqual(everywhere["n_pairs"], 233)
-        self.assertTrue(math.isclose(everywhere["mean_px"], 4.565,
+        self.assertEqual(everywhere["n_pairs"], 391)
+        self.assertTrue(math.isclose(everywhere["mean_px"], 4.333977,
                                      rel_tol=1e-3))
         clean = corner_jitter([(frame, corners) for frame, corners in
                                corners_all
                                if frame not in set(live["overlap"])])
-        self.assertEqual(clean["n_pairs"], 109)
-        self.assertTrue(math.isclose(clean["mean_px"], 1.230, rel_tol=1e-3))
-        self.assertTrue(math.isclose(clean["max_px"], 2.96, rel_tol=1e-2))
-        self.assertEqual(clean["stationary_counts"]["1.0"], 41)
-        self.assertEqual(clean["stationary_counts"]["2.0"], 102)
+        self.assertEqual(clean["n_pairs"], 250)
+        self.assertTrue(math.isclose(clean["mean_px"], 0.799931,
+                                     rel_tol=1e-3))
+        self.assertTrue(math.isclose(clean["max_px"], 5.535061,
+                                     rel_tol=1e-2))
+        self.assertEqual(clean["stationary_counts"]["1.0"], 144)
+        self.assertEqual(clean["stationary_counts"]["2.0"], 243)
+        occluded = corner_jitter([(frame, corners) for frame, corners in
+                                  corners_all
+                                  if frame in set(live["overlap"])])
+        self.assertEqual(occluded["n_pairs"], 97)
+        self.assertTrue(math.isclose(occluded["mean_px"], 13.847699,
+                                     rel_tol=1e-3))
 
     def test_blur_proxy_synthetic(self):
         class Fake:
@@ -439,18 +490,44 @@ class DiagnosticsTests(unittest.TestCase):
 
     def test_live_blur_proxy_pins(self):
         proxy = blur_proxy(_live()["bob"])
-        self.assertEqual(proxy["n"], 234)
-        self.assertEqual(proxy["median_area_px"], 7424.0)
-        self.assertTrue(math.isclose(proxy["elongation"]["max"], 1.3571,
-                                     rel_tol=1e-4))
-        self.assertTrue(math.isclose(proxy["elongation"]["mean"], 1.1218,
-                                     rel_tol=1e-4))
+        self.assertEqual(proxy["n"], 591)
+        self.assertEqual(proxy["median_area_px"], 4653.0)
+        self.assertTrue(math.isclose(proxy["elongation"]["max"],
+                                     1.6666666666666667, rel_tol=1e-4))
+        self.assertTrue(math.isclose(proxy["elongation"]["mean"],
+                                     1.1919990125016446, rel_tol=1e-4))
         self.assertEqual(len(proxy["top_elongation_frames"]), 10)
 
 
+def _synthetic_oriented():
+    """One fitted axis-aligned 100x50 rect on frame 0."""
+    rect = oriented_rectangle([(x, y) for x in range(100, 201)
+                               for y in range(50, 101)])
+    return [(0, rect)]
+
+
+def _synthetic_calibration(**overrides):
+    """build_calibration over synthetic U-1/U-3 inputs (no live data)."""
+    base = dict(
+        card_width_mm=100.0, card_height_mm=50.0,
+        oriented=_synthetic_oriented(), clean_frames={0},
+        same_plane=False, camera_fixed=True,
+        depth_offset_mm=25.0, camera_distance_mm=1500.0,
+        video_width=400, video_height=300,
+        provenance={
+            "software_name": "kineticlab",
+            "software_version": __version__,
+            "input_sha256": None,
+            "model_name": None,
+            "model_version": None,
+            "raw_refs": [],
+        })
+    return build_calibration(**{**base, **overrides})
+
+
 class CalibrationTests(unittest.TestCase):
-    def test_live_record_validates_and_pins(self):
-        record, report = _live_calibration()
+    def test_record_validates_and_pins(self):
+        record, report = _synthetic_calibration()
         self.assertTrue(record.valid)
         as_dict = record.to_dict()
         round_tripped = CalibrationRecord.from_dict(
@@ -458,31 +535,31 @@ class CalibrationTests(unittest.TestCase):
         self.assertEqual(round_tripped.to_dict(), as_dict)
         self.assertEqual(as_dict["reference_type"], "iso_id1_confirmed")
         self.assertEqual(as_dict["reference_dimensions_mm"],
-                         {"width_mm": 85.60, "height_mm": 53.98})
+                         {"width_mm": 100.0, "height_mm": 50.0})
         self.assertEqual(as_dict["dimension_source"], "user_confirmed")
         self.assertIsNone(as_dict["plane_transform"])
         self.assertIsNone(as_dict["scale_uncertainty_mm_per_px"])
-        self.assertFalse(as_dict["same_plane_assumption"])
+        self.assertFalse(as_dict["same_plane_assumption"] is None)
         self.assertTrue(as_dict["camera_fixed_assumption"])
         self.assertEqual([warning["code"] for warning in as_dict["warnings"]],
                          ["W_UNCERTAINTY_UNAVAILABLE",
                           "W_ASSUMPTION_UNVERIFIED"])
-        # Measured stdlib outputs (libm-bound floats).
-        self.assertTrue(math.isclose(as_dict["scale_mm_per_px"], 0.328633,
-                                     rel_tol=1e-6))
-        self.assertTrue(math.isclose(report["anisotropy"], 0.01346,
-                                     rel_tol=1e-3))
-        self.assertTrue(math.isclose(report["aspect_measured"], 1.5646,
-                                     rel_tol=1e-4))
-        self.assertTrue(math.isclose(report["aspect_nominal"],
-                                     85.60 / 53.98, rel_tol=1e-12))
+        # Synthetic exact geometry: scale is exactly 1.0 mm/px.
+        self.assertTrue(math.isclose(as_dict["scale_mm_per_px"], 1.0,
+                                     rel_tol=1e-12))
+        self.assertTrue(math.isclose(report["anisotropy"], 0.0,
+                                     abs_tol=1e-12))
+        self.assertTrue(math.isclose(report["aspect_measured"], 2.0,
+                                     rel_tol=1e-12))
+        self.assertTrue(math.isclose(report["aspect_nominal"], 2.0,
+                                     rel_tol=1e-12))
         self.assertTrue(math.isclose(
             report["u3_bound"]["bound_percent"], 1.6666666666666667,
             rel_tol=1e-9))
-        self.assertEqual(report["n_usable_frames"], 117)
+        self.assertEqual(report["n_usable_frames"], 1)
 
     def test_assumptions_explicit(self):
-        _, report = _live_calibration()
+        _, report = _synthetic_calibration()
         assumptions = report["assumptions"]
         self.assertFalse(assumptions["same_plane"]["value"])
         self.assertIn("25", assumptions["same_plane"]["basis"])
@@ -496,54 +573,57 @@ class CalibrationTests(unittest.TestCase):
                             for line in report["model_limitations"]))
 
     def test_unassessed_inputs_yield_invalid_record(self):
-        live = _live()
-        _, report = build_calibration(
-            card_width_mm=CARD_W_MM, card_height_mm=CARD_H_MM,
-            oriented=live["oriented"], clean_frames=live["clean"],
-            same_plane=None, camera_fixed=True,
-            depth_offset_mm=OFFSET_MM, camera_distance_mm=DISTANCE_MM,
-            video_width=1024, video_height=576,
-            provenance=_live_provenance())
+        _, report = _synthetic_calibration(same_plane=None)
         self.assertFalse(report["record_valid"])
 
     def test_empty_clean_frames_refused(self):
-        live = _live()
         with self.assertRaises(ContractError) as raised:
-            build_calibration(
-                card_width_mm=CARD_W_MM, card_height_mm=CARD_H_MM,
-                oriented=live["oriented"], clean_frames=set(),
-                same_plane=False, camera_fixed=True,
-                depth_offset_mm=OFFSET_MM, camera_distance_mm=DISTANCE_MM,
-                video_width=1024, video_height=576,
-                provenance=_live_provenance())
+            _synthetic_calibration(clean_frames=set())
         self.assertIn("E_INCOHERENT_VALUE", raised.exception.codes)
 
     def test_bad_inputs_rejected_with_registered_codes(self):
-        live = _live()
-        base = dict(card_width_mm=CARD_W_MM, card_height_mm=CARD_H_MM,
-                    oriented=live["oriented"], clean_frames=live["clean"],
-                    same_plane=False, camera_fixed=True,
-                    depth_offset_mm=OFFSET_MM,
-                    camera_distance_mm=DISTANCE_MM,
-                    video_width=1024, video_height=576,
-                    provenance=_live_provenance())
-        cases = [
-            (dict(base, card_width_mm=-1.0), "E_OUT_OF_RANGE"),
-            (dict(base, card_height_mm="big"), "E_WRONG_TYPE"),
-            (dict(base, depth_offset_mm=0.0), "E_OUT_OF_RANGE"),
-            (dict(base, video_width=0), "E_OUT_OF_RANGE"),
-            (dict(base, video_width="1024"), "E_WRONG_TYPE"),
-            (dict(base, same_plane="no"), "E_WRONG_TYPE"),
-            (dict(base, clean_frames="all"), "E_WRONG_TYPE"),
-            (dict(base, oriented="rects"), "E_WRONG_TYPE"),
+        base_cases = [
+            (dict(card_width_mm=-1.0), "E_OUT_OF_RANGE"),
+            (dict(card_height_mm="big"), "E_WRONG_TYPE"),
+            (dict(depth_offset_mm=0.0), "E_OUT_OF_RANGE"),
+            (dict(video_width=0), "E_OUT_OF_RANGE"),
+            (dict(video_width="1024"), "E_WRONG_TYPE"),
+            (dict(same_plane="no"), "E_WRONG_TYPE"),
+            (dict(clean_frames="all"), "E_WRONG_TYPE"),
+            (dict(oriented="rects"), "E_WRONG_TYPE"),
         ]
-        for kwargs, code in cases:
+        for overrides, code in base_cases:
             with self.subTest(code=code):
                 with self.assertRaises(ContractError) as raised:
-                    build_calibration(**kwargs)
+                    _synthetic_calibration(**overrides)
                 self.assertIn(code, raised.exception.codes)
                 for raised_code in raised.exception.codes:
                     self.assertIn(raised_code, ERROR_CODES)
+
+
+class FreshClipCalibrationTests(unittest.TestCase):
+    def test_live_record_pins(self):
+        # Chain-shaped fresh-clip record: human-typed card, unassessed
+        # assumptions (honestly invalid), width-over-median scale.
+        record, report = _live_calibration()
+        self.assertFalse(record.valid)
+        as_dict = record.to_dict()
+        CalibrationRecord.from_dict(copy.deepcopy(as_dict))
+        self.assertEqual(as_dict["reference_type"], "unknown")
+        self.assertEqual(as_dict["reference_dimensions_mm"],
+                         {"width_mm": 85.0, "height_mm": 54.0})
+        self.assertEqual(as_dict["dimension_source"], "user_confirmed")
+        self.assertIsNone(as_dict["same_plane_assumption"])
+        self.assertIsNone(as_dict["camera_fixed_assumption"])
+        self.assertEqual([warning["code"] for warning in as_dict["warnings"]],
+                         ["W_ASSUMPTION_UNVERIFIED",
+                          "W_ASSUMPTION_UNVERIFIED"])
+        self.assertTrue(math.isclose(as_dict["scale_mm_per_px"],
+                                     0.4063304685046935, rel_tol=1e-9))
+        self.assertEqual(report["calibration"]["n_usable_frames"], 272)
+        self.assertEqual(as_dict["observed_oriented_dimensions_px"],
+                         {"long_side_px": 209.18933377750915,
+                          "short_side_px": 128.34633924757009})
 
 
 class RegenerationTests(unittest.TestCase):
@@ -558,42 +638,11 @@ class RegenerationTests(unittest.TestCase):
         with open(GEO_DIR / "geometry_report_live.json",
                   encoding="utf-8") as handle:
             pinned = json.load(handle)
-        _, calibration_report = _live_calibration()
-        live = _live()
-        arc = fit_arc(live["bob_xy"], areas=live["bob_areas"])
-        corners_all = [(frame, rect["corners"])
-                       for frame, rect in live["oriented"]
-                       if rect["fitted"]]
-        overlap_set = set(live["overlap"])
-        jitter_all = corner_jitter(corners_all)
-        jitter_clean = corner_jitter([(frame, corners)
-                                      for frame, corners in corners_all
-                                      if frame not in overlap_set])
-        jitter_occluded = corner_jitter([(frame, corners)
-                                         for frame, corners in corners_all
-                                         if frame in overlap_set])
-        proxy = blur_proxy(live["bob"])
+        _, report = _live_calibration()
         rebuilt = {
-            "provenance": pinned["provenance"],
-            "calibration": calibration_report,
-            "pivot_arc": arc,
-            "jitter": {
-                "all_frames": {key: value for key, value in
-                               jitter_all.items() if key != "pairs"},
-                "clean_frames": {key: value for key, value in
-                                 jitter_clean.items() if key != "pairs"},
-                "occluded_frames": {key: value for key, value in
-                                    jitter_occluded.items()
-                                    if key != "pairs"},
-            },
-            "blur_proxy": {
-                "n": proxy["n"],
-                "median_area_px": proxy["median_area_px"],
-                "elongation": proxy["elongation"],
-                "top_elongation_frames": proxy["top_elongation_frames"],
-                "scope": pinned["blur_proxy"]["scope"],
-            },
-            "overlap_frames": live["overlap"],
+            "calibration": report["calibration"],
+            "model_limitations": report["model_limitations"],
+            "pivot_arc": report["pivot_arc"],
         }
         _assert_close_tree(self, rebuilt, pinned)
 

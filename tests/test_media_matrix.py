@@ -14,7 +14,7 @@ expected outcomes per cell — no bare "raises anything":
 - gate stage (`check_frame_table`): valid tables yield pinned reports,
   bad tables yield exact registered codes.
 
-`StableArtifactTest` guards `fixtures/ingest/test_3_frame_table.json`:
+`StableArtifactTest` guards `fixtures/ingest/demo_test_frame_table.json`:
 regeneration from the real file must be byte-identical, so parser
 drift breaks the pin loudly.
 """
@@ -40,9 +40,9 @@ from tests.test_frame_times import synthetic_mp4, write_temp_bytes
 from tests.test_ingest_gates import make_record, missing_record, withdrawn_record
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-TEST_3 = REPO_ROOT / "Smoke/test_3.mp4"
-ARTIFACT = REPO_ROOT / "fixtures/ingest/test_3_frame_table.json"
-TEST_3_PIN = REPO_ROOT / "fixtures/test_3.json"
+CLIP = REPO_ROOT / "Smoke/demo_test.mp4"
+ARTIFACT = REPO_ROOT / "fixtures/ingest/demo_test_frame_table.json"
+CLIP_PIN = REPO_ROOT / "fixtures/demo_test.json"
 
 FULL_MEDIA = {"with_mvhd": True, "width": 320, "height": 240}
 GARBAGE = b"this is not a video file" + b"\x00" * 100
@@ -53,8 +53,8 @@ TRUNCATED_FTYP = b"\x00\x00\x00\x18ftypisom" + b"\x00" * 16
 # {pins}) or ("raise", [codes], field-or-None); multi-code cells compare
 # sorted multisets.
 MEDIA_CELLS = [
-    ("real-test3-vfr-audio", ("file", TEST_3),
-     ("ok", {"frames": 234, "audio": 1, "codec": "h264",
+    ("real-demo-vfr-audio", ("file", CLIP),
+     ("ok", {"frames": 591, "audio": 1, "codec": "h264",
              "warnings": ["W_VFR_TIMING"]})),
     ("synth-cfr-noaudio", ("synthetic", dict(FULL_MEDIA)),
      ("ok", {"frames": 2, "audio": 0, "codec": "h264", "width": 320,
@@ -90,7 +90,7 @@ MEDIA_CELLS = [
 
 # (name, source, expectation): ("ok", (count, valid)) or ("raise", [codes]).
 TIMING_CELLS = [
-    ("real-test3", ("file", TEST_3), ("ok", (234, 234))),
+    ("real-demo", ("file", CLIP), ("ok", (591, 591))),
     ("synth-uniform", ("synthetic", {}), ("ok", (2, 2))),
     ("synth-vfr", ("synthetic", {"stts_entries": ((1, 40), (1, 80), (1, 40)),
                                           "sample_count": 3, "sizes": (10, 10, 10),
@@ -145,8 +145,8 @@ GATE_CELLS = [
                                             withdrawn_record(2)]),
      ("report", {"total_frames": 3, "usable_frames": 2, "withdrawn_frames": 1,
                  "missing_frames": 0, "minimum_usable_frames": 2})),
-    ("real-test3", ("file", TEST_3),
-     ("report", {"total_frames": 234, "usable_frames": 234,
+    ("real-demo", ("file", CLIP),
+     ("report", {"total_frames": 591, "usable_frames": 591,
                  "withdrawn_frames": 0, "missing_frames": 0,
                  "minimum_usable_frames": 2})),
     ("synth-reorder-chain", ("synthetic", {"stts_entries": ((3, 40),),
@@ -260,16 +260,16 @@ class GateMatrixTest(unittest.TestCase):
 
 class StableArtifactTest(unittest.TestCase):
     ARTIFACT_NOTE = ("Pinned structural measurement by the kineticlab stdlib MP4 "
-                     "parser on 2026-10-27. NOT ffprobe ground truth; FFprobe "
+                     "parser on 2026-11-03. NOT ffprobe ground truth; FFprobe "
                      "re-verification stays a recorded follow-up.")
 
     def regenerate_envelope(self):
-        records = extract_frame_records(TEST_3)
+        records = extract_frame_records(CLIP)
         return {
-            "artifact": "test_3_frame_table",
-            "source": "Smoke/test_3.mp4",
+            "artifact": "demo_test_frame_table",
+            "source": "Smoke/demo_test.mp4",
             "source_sha256": records[0].provenance.input_sha256,
-            "measured_utc": "2026-10-27",
+            "measured_utc": "2026-11-03",
             "generator": {"name": "kineticlab", "version": __version__,
                           "function": "extract_frame_records"},
             "provenance_note": self.ARTIFACT_NOTE,
@@ -277,23 +277,23 @@ class StableArtifactTest(unittest.TestCase):
         }
 
     def test_artifact_regenerates_byte_identical(self):
-        require_smoke(TEST_3)
+        require_smoke(CLIP)
         expected = (json.dumps(self.regenerate_envelope(), indent=2,
                                sort_keys=True) + "\n").encode("utf-8")
         self.assertEqual(ARTIFACT.read_bytes(), expected)
 
     def test_artifact_frames_validate_and_gate(self):
         envelope = json.loads(ARTIFACT.read_text(encoding="utf-8"))
-        self.assertEqual(envelope["artifact"], "test_3_frame_table")
-        self.assertEqual(envelope["measured_utc"], "2026-10-27")
+        self.assertEqual(envelope["artifact"], "demo_test_frame_table")
+        self.assertEqual(envelope["measured_utc"], "2026-11-03")
         self.assertIn("NOT ffprobe ground truth", envelope["provenance_note"])
-        pin = json.loads(TEST_3_PIN.read_text(encoding="utf-8"))
+        pin = json.loads(CLIP_PIN.read_text(encoding="utf-8"))
         self.assertEqual(envelope["source_sha256"], pin["expect"]["sha256"])
         records = [FrameRecord.from_dict(item) for item in envelope["frames"]]
-        self.assertEqual(len(records), 234)
+        self.assertEqual(len(records), 591)
         validate_frame_table(records)
         self.assertEqual(check_frame_table(records),
-                         {"total_frames": 234, "usable_frames": 234,
+                         {"total_frames": 591, "usable_frames": 591,
                           "withdrawn_frames": 0, "missing_frames": 0,
                           "minimum_usable_frames": 2})
 

@@ -32,8 +32,14 @@ QUICKSTART_COMMANDS = (
 
 # Public docs must label historical and current counts honestly. A single
 # static passing count cannot survive changes to discovered test methods.
+# Post-swap topology: discovery (921 methods) and the runner's printed
+# count (877 ran + 15 skipped entries; skipped setUpClass entries collapse
+# whole platform-gated pin classes) legitimately diverge, so docs state
+# the pair. 919 and 905 are historical markers that must stay present.
 HISTORICAL_COUNT = 905
-CURRENT_DISCOVERED_COUNT = 919
+HISTORICAL_PRESWAP_COUNT = 919
+CURRENT_DISCOVERED_COUNT = 921
+CURRENT_RUNNER_COUNT = 877
 
 
 def _read(path):
@@ -86,14 +92,16 @@ class CiDocsLockTests(unittest.TestCase):
         texts = {path: _read(path) for path in (README, REPRODUCE, RUNBOOK, OVERVIEW)}
         combined = "\n".join(texts.values())
         self.assertIn(f"{CURRENT_DISCOVERED_COUNT} test methods", combined)
-        self.assertIn(f"{CURRENT_DISCOVERED_COUNT} tests, OK", combined)
+        self.assertIn(f"{CURRENT_RUNNER_COUNT} tests, OK", combined)
         self.assertIn(f"{HISTORICAL_COUNT} tests, OK", combined)
+        self.assertIn(f"{HISTORICAL_PRESWAP_COUNT} tests, OK", combined)
         self.assertNotRegex(combined, r"905 tests pass(?:ing)?")
         self.assertNotRegex(combined, r"tests-905%20passing")
         claim = _read(ROOT / "Docs" / "Claims_Register_Public.md")
-        self.assertIn("919 tests, OK", claim)
-        self.assertIn("919 test methods", claim)
-        self.assertIn("905 tests, OK", claim)
+        self.assertIn(f"{CURRENT_RUNNER_COUNT} tests, OK", claim)
+        self.assertIn(f"{CURRENT_DISCOVERED_COUNT} test methods", claim)
+        self.assertIn(f"{HISTORICAL_PRESWAP_COUNT} tests, OK", claim)
+        self.assertIn(f"{HISTORICAL_COUNT} tests, OK", claim)
 
     def test_no_pep701_fstrings(self):
         """Python floor is 3.11: no multi-line expressions inside

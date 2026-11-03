@@ -31,7 +31,7 @@ Full test suite (~17-20 minutes, blocking):
 python -m unittest
 ```
 
-The latest full-suite run (2026-11-03, this tree) reported `919 tests, OK`, exit 0. An earlier-tree run recorded on 2026-11-02 reported `905 tests, OK`. Current discovery finds 919 test methods. On a fresh clone, tests backed by the raw SAM fixtures under `Smoke/results/` (which stay local) skip, and the suite reports fewer ran with `OK (skipped=...)` — expected, not a failure: the byte pins compare against outputs recorded on the machine that owns the media. The demo clip (`Smoke/test_3.mp4`) ships, so media_check, the demo chains, and the UI module run everywhere. One environment-dependent live-bind skip is possible on some machines. The UI test module requires `node` on PATH.
+The latest full-suite run (2026-11-03, this tree) reported `877 tests, OK` (skipped=15, platform-gated byte pins), exit 0. An earlier run on the pre-swap tree reported `919 tests, OK`; 2026-11-02 reported `905 tests, OK`. Current discovery finds 921 test methods. On a fresh clone, tests backed by the raw SAM fixtures under `Smoke/results/` (which stay local) skip, and the suite reports fewer ran with `OK (skipped=...)` - expected, not a failure: the byte pins compare against outputs recorded on the machine that owns the media. The demo clip (`Smoke/demo_test.mp4`) ships, so media_check, the demo chains, and the UI module run everywhere. One environment-dependent live-bind skip is possible on some machines. The UI test module requires `node` on PATH.
 
 Byte pins are same-platform determinism: on a different OS C library
 (glibc vs UCRT) floats drift in the last ulp, so CI runs the suite with
@@ -45,7 +45,7 @@ Structural media check (fast):
 python scripts/media_check.py
 ```
 
-Expected: the pinned fixture (Smoke/test_3.mp4) PASSes, exit 0. This is a media structure check,
+Expected: the pinned fixture (Smoke/demo_test.mp4) PASSes, exit 0. This is a media structure check,
 not a SAM replay.
 
 CLI overview:

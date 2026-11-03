@@ -244,7 +244,7 @@ class DemoReplayUncertaintyTests(unittest.TestCase):
     @PIN_SAME_PLATFORM
     def test_block_frames_pin(self):
         fu = self.out["diagnostics"]["fit_uncertainty"]
-        self.assertEqual(fu["block_frames"], 35)
+        self.assertEqual(fu["block_frames"], 36)
 
     def test_assumptions_honesty_sentences(self):
         assumptions = self.out["result"]["assumptions"]

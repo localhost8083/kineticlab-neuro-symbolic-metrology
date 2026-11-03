@@ -55,11 +55,12 @@ BOOTSTRAP_SEED = 20261103
 N_BOOT = 800
 """Replicate count.
 
-Measured on the pinned demo replay (234 points): one M1 refit
+Measured on the retired 234-point demo pin: one M1 refit
 costs ~0.02 s and replicate costs are stable across resamples
 (0.021-0.023 s, all converging), so 800 replicates add ~16-20 s —
 the largest of {200, 400, 800} fitting the ~90 s budget with wide
-margin. Full mode stays ~22 min total.
+margin. Timings are historical (the current 591-point pin is
+larger); the replicate count is unchanged.
 """
 
 # Main-fit request template, mirrored from the assembly success
