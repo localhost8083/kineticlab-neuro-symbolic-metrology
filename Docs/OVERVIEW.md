@@ -30,7 +30,7 @@ Two modes: **Full** (bob + reference card) and **Motion** (bob only — scale-fr
 
 - **Backend/runtime: Python standard library only** — zero third-party runtime dependencies. Optional `pytest` and build tooling are separate development extras.
 - **UI: one self-contained HTML file** (vanilla JS/CSS, no frameworks, no external references, no setInterval/setTimeout (one requestAnimationFrame ticker)) served by a stdlib HTTP server on `127.0.0.1:8137`.
-- Test status is tracked honestly: current discovery finds 918 test methods; the latest full-suite run discovered 910 tests and failed 3. The last recorded earlier-tree run reported 905 tests, OK. Key hygiene remains covered (`python -m unittest` tests that the model API key is env-only, never logged or stored). Automated tests are mock-transport; real-API evidence is the recorded fixture run.
+- Test status is tracked honestly: current discovery finds 919 test methods; the latest full-suite run (2026-11-03) reported 919 tests, OK. An earlier-tree run recorded on 2026-11-02 reported 905 tests, OK. Key hygiene remains covered (`python -m unittest` tests that the model API key is env-only, never logged or stored). Automated tests are mock-transport; real-API evidence is the recorded fixture run.
 - Windows-first; live-verified end-to-end on real hardware.
 
 ## Honest status

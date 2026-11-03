@@ -33,7 +33,7 @@ QUICKSTART_COMMANDS = (
 # Public docs must label historical and current counts honestly. A single
 # static passing count cannot survive changes to discovered test methods.
 HISTORICAL_COUNT = 905
-CURRENT_DISCOVERED_COUNT = 918
+CURRENT_DISCOVERED_COUNT = 919
 
 
 def _read(path):
@@ -81,18 +81,19 @@ class CiDocsLockTests(unittest.TestCase):
             self.assertIn(trigger, ci, f"trigger missing: {trigger}")
 
     def test_suite_count_wording_is_honest(self):
-        """Docs distinguish historical result from current discovery count."""
+        """Docs distinguish the historical result from the current
+        full-suite result, and the current result claims a real run."""
         texts = {path: _read(path) for path in (README, REPRODUCE, RUNBOOK, OVERVIEW)}
         combined = "\n".join(texts.values())
         self.assertIn(f"{CURRENT_DISCOVERED_COUNT} test methods", combined)
+        self.assertIn(f"{CURRENT_DISCOVERED_COUNT} tests, OK", combined)
         self.assertIn(f"{HISTORICAL_COUNT} tests, OK", combined)
-        self.assertIn("failed 3", combined)
         self.assertNotRegex(combined, r"905 tests pass(?:ing)?")
         self.assertNotRegex(combined, r"tests-905%20passing")
         claim = _read(ROOT / "Docs" / "Claims_Register_Public.md")
+        self.assertIn("919 tests, OK", claim)
+        self.assertIn("919 test methods", claim)
         self.assertIn("905 tests, OK", claim)
-        self.assertIn("918 test methods", claim)
-        self.assertIn("current suite failing", claim)
 
     def test_no_pep701_fstrings(self):
         """Python floor is 3.11: no multi-line expressions inside

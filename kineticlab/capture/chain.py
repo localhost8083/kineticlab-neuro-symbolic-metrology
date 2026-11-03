@@ -18,10 +18,12 @@ motion report from :func:`build_fit_points`, :func:`angle_series`, and
 Fresh-clip honesty rules (U-1/U-2/U-3 were test_3 measurements and are
 NOT transferred to other clips):
 
-- The card type is ``unknown``: a typed width cannot confirm ID-1.
-- Dimensions stay null with source ``not_provided``: the record needs a
-  width AND a height, and the missing height is never derived from pixel
-  aspect (that would make the aspect check vacuous).
+- The human-typed card width (full mode requires it, ``E_MISSING_FIELD``
+  without it) is the U-1 confirmation that the reference card is ID-1:
+  the record states ``iso_id1_confirmed`` with ``user_confirmed``
+  dimensions — the typed width plus the ID-1 standard height
+  (``ISO_ID1_HEIGHT_MM``, from the standard the user confirmed, never
+  derived from pixel aspect). Motion mode builds no calibration.
 - ``same_plane``/``camera_fixed`` stay null (unassessed) with one
   ``W_ASSUMPTION_UNVERIFIED`` warning each, so the record is honestly
   ``valid: false``. Assemble records that flag as data; it does not
@@ -182,6 +184,13 @@ ROLE_NAMES = {"bob": "bob", "card": "reference_card"}
 
 NO_SCALE_REASON = "no reference card: no scale"
 """Why motion reports carry null scale/length/gravity (verbatim)."""
+
+ISO_ID1_HEIGHT_MM = 53.98
+"""ID-1 standard height, stamped once the user confirms the card type.
+
+The typed width confirms the card is ID-1 (U-1); the height comes from
+that same confirmed standard — never from pixel aspect, which would
+make the aspect check vacuous."""
 
 MOTION_ASSUMPTIONS = (
     # KL-9.6 M2: same correction as the assemble assumption — the
@@ -644,13 +653,25 @@ def _clean_card_frames(run_dir: Path, card: list[Any],
 
 
 def _fresh_calibration(clip_sha256: str, long_med: float,
-                       short_med: float) -> dict[str, Any]:
-    """Build the honest fresh-clip ``calibration.v1`` dict (validated)."""
+                       short_med: float,
+                       card_width_mm: float) -> dict[str, Any]:
+    """Build the confirmed fresh-clip ``calibration.v1`` dict (validated).
+
+    The caller-validated ``card_width_mm`` is the human-typed U-1
+    confirmation that the reference card is ID-1, so the record states
+    ``iso_id1_confirmed`` / ``user_confirmed`` with the typed width and
+    the ID-1 standard height (same shape as the offline
+    :func:`kineticlab.geometry.calibration.build_calibration` record and
+    ``fixtures/contracts/valid_calibration.json``). Assumptions stay
+    unassessed (null) with their warnings, so the record stays honestly
+    ``valid: false``; the scale is stamped by the caller below.
+    """
     record = CalibrationRecord.from_dict({
         "schema_version": CALIBRATION_VERSION,
-        "reference_type": "unknown",
-        "reference_dimensions_mm": None,
-        "dimension_source": "not_provided",
+        "reference_type": "iso_id1_confirmed",
+        "reference_dimensions_mm": {"width_mm": card_width_mm,
+                                    "height_mm": ISO_ID1_HEIGHT_MM},
+        "dimension_source": "user_confirmed",
         "observed_corners_px": None,
         "observed_oriented_dimensions_px": {
             "long_side_px": long_med, "short_side_px": short_med},
@@ -709,7 +730,7 @@ def _measure_full(run_dir: Path, summary: dict[str, Any],
     short_med = float(statistics.median(shorts))
     scale = card_width_mm / long_med
     calibration = _fresh_calibration(summary["clip_sha256"], long_med,
-                                     short_med)
+                                     short_med, card_width_mm)
     calibration["scale_mm_per_px"] = scale
     # Re-validate with the scale stamped: the written bytes are proven.
     CalibrationRecord.from_dict(calibration)

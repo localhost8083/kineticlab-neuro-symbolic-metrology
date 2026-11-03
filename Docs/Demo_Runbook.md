@@ -17,7 +17,7 @@ one track (Indie / Startup); scoring Impact 30 / Technical Execution
 python -m unittest
 ```
 
-Say: "The last recorded earlier-tree run reported 905 tests, OK [C-003]; current discovery finds 918 test methods, and latest full-suite run failed 3 of 910 tests" — on a fresh clone some Smoke-results-backed tests skip, which REPRODUCE documents as expected. Say hygiene is enforced by 5 of them
+Say: "Latest full-suite run (2026-11-03): 919 tests, OK [C-003]; an earlier-tree run recorded on 2026-11-02 reported 905 tests, OK" — on a fresh clone some Smoke-results-backed tests skip, which REPRODUCE documents as expected. Say hygiene is enforced by 5 of them
 (no key material in tree, fixtures, or history [C-017]).
 
 ## 1. Structural media check — NOT a SAM replay

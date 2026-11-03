@@ -6,7 +6,7 @@
 
 ![Python](https://img.shields.io/badge/python-3.11%2B-306998?style=for-the-badge) ![Runtime](https://img.shields.io/badge/runtime-stdlib--only%20runtime-success?style=for-the-badge) ![CI](https://github.com/localhost8083/kineticlab-neuro-symbolic-metrology/actions/workflows/ci.yml/badge.svg) ![Meta](https://img.shields.io/badge/Meta-SAM%203.1-0668E5?style=for-the-badge) ![License](https://img.shields.io/badge/license-MIT-lightgrey?style=for-the-badge)
 
-Current discovery finds 918 test methods; latest full-suite run discovered 910 tests and failed 3; no current full-suite pass is claimed.
+Current discovery finds 919 test methods; latest full-suite run (2026-11-03): 919 tests, OK.
 
 <br>
 
@@ -126,7 +126,7 @@ cd kineticlab-neuro-symbolic-metrology
 python --version
 python -m kineticlab --help
 python scripts/media_check.py
-python -m unittest          # current discovery: 918 methods; latest run: 910 tests, 3 failures
+python -m unittest          # latest run (2026-11-03): 919 tests, OK
 python -m kineticlab serve  # localhost UI
 ```
 

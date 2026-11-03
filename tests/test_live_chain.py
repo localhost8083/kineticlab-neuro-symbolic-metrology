@@ -262,11 +262,16 @@ class MeasureFullTest(unittest.TestCase):
             (self.root / self.run_id / CALIBRATION_FILENAME)
             .read_text(encoding="utf-8"))
         self.assertFalse(calibration["valid"])
-        self.assertEqual(calibration["reference_type"], "unknown")
-        self.assertIsNone(
-            calibration["reference_dimensions_mm"])
+        # The typed 85.60 mm width is the U-1 ID-1 confirmation: the
+        # record states the confirmed dimensions (typed width + the
+        # ID-1 standard height, never a pixel estimate) and stays
+        # honestly invalid because the assumptions are unassessed.
+        self.assertEqual(calibration["reference_type"],
+                         "iso_id1_confirmed")
+        self.assertEqual(calibration["reference_dimensions_mm"],
+                         {"width_mm": 85.6, "height_mm": 53.98})
         self.assertEqual(calibration["dimension_source"],
-                         "not_provided")
+                         "user_confirmed")
         self.assertIsNone(calibration["observed_corners_px"])
         self.assertIsNone(calibration["same_plane_assumption"])
         self.assertIsNone(calibration["camera_fixed_assumption"])
